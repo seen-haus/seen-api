@@ -1,0 +1,15 @@
+{
+  "name": "Name",
+  "url": "https://www.google.com",
+  "avatar": "https://www.google.com",
+  "video": "",
+  "quote": "",
+  "bio": "",
+  "review": "",
+  "socials": [
+    {
+      "url": "https://twitter.com/buddyart00",
+      "title": "twitter"
+    }
+  ]
+}

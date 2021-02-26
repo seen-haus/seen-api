@@ -1,0 +1,34 @@
+{
+  "title": "Test",
+  "slug": "test-test",
+  "type_description": "Frammed artwork",
+  "type": "",
+  "purchase_type": "",
+  "category": "",
+  "description": "<p></p>",
+  "available_qty": 0,
+  "edition": 1,
+  "edition_of": 1,
+  "contract_address": "contract_address",
+  "is_active": 1,
+  "is_sold_out": 0,
+  "starts_at": "",
+  "ends_at": "",
+  "start_bid": 0.3,
+  "min_bid": 0.3,
+  "price": null,
+  "media": [
+    {
+      "type": "image",
+      "url": "",
+      "alt": ""
+    },
+    {
+      "type": "video",
+      "url": "",
+      "alt": ""
+    }
+  ],
+  "artist_statement": "<p></p>",
+  "version": 1
+}
