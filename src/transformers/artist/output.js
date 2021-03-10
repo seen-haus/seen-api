@@ -5,12 +5,12 @@ class ArtistOutputTransformer extends BaseTransformer {
         return {
             id: artist.id,
             name: artist.name,
-            url: artist.url,
             avatar: artist.avatar,
             video: artist.video,
             quote: artist.quote,
             bio: artist.bio,
             review: artist.review,
+            collectablesCount: artist.collectables && artist.collectables.length,
             socials: typeof artist.socials !== 'string' ? artist.socials : JSON.parse(artist.socials),
         }
     }

@@ -9,6 +9,7 @@ exports.up = knex => knex.schema.createTable(EVENTS_TABLE, table => {
         .onUpdate('CASCADE')
         .onDelete('CASCADE')
     table.decimal("value", 28, 18).nullable();
+    table.decimal("value_in_usd", 28, 18).nullable();
     table.string("event_id");
     table.string("event_type").index();
     table.json("raw").nullable();

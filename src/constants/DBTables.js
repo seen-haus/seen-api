@@ -5,6 +5,7 @@ const NFT_TOKENS_TABLE = "nft_tokens";
 const SPOTLIGHT_TABLE = "spotlight_submissions";
 const EVENTS_TABLE = "events";
 const ARTISTS_TABLE = "artists";
+const MEDIA_TABLE = "media";
 
 module.exports = Object.freeze({
     EVENTS_TABLE,
@@ -14,4 +15,5 @@ module.exports = Object.freeze({
     SPOTLIGHT_TABLE,
     USERS_TABLE,
     ARTISTS_TABLE,
+    MEDIA_TABLE,
 });

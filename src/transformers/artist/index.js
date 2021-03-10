@@ -5,7 +5,6 @@ class ArtistTransformer extends BaseTransformer {
         return {
             id: artist.id,
             name: artist.name,
-            url: artist.url,
             avatar: artist.avatar,
             video: artist.video,
             quote: artist.quote,

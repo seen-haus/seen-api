@@ -13,9 +13,9 @@ module.exports = class Pagination {
         this.pagination = {
             total: this.data.total,
             count: this.data.results.length,
-            per_page: this.perPage,
-            current_page: this.page,
-            total_pages: totalPages,
+            perPage: this.perPage,
+            currentPage: this.page,
+            totalPages: totalPages,
         }
     }
 

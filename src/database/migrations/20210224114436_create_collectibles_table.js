@@ -14,12 +14,6 @@ exports.up = knex => knex.schema.createTable(COLLECTIBLES_TABLE, table => {
         .references("artists.id")
         .onUpdate('CASCADE')
         .onDelete('CASCADE')
-    table.integer("token_id")
-        .unsigned()
-        .references("nft_tokens.id")
-        .onUpdate('CASCADE')
-        .onDelete('CASCADE')
-        .nullable()
     table.text("description").nullable();
     table.integer("available_qty").nullable();
     table.integer("edition");
@@ -34,6 +28,9 @@ exports.up = knex => knex.schema.createTable(COLLECTIBLES_TABLE, table => {
     table.json("media");
     table.text("artist_statement").nullable();
     table.string("winner_address").nullable().index();
+    table.string("nft_contract_address").nullable();
+    table.string("nft_ipfs_hash").nullable();
+    table.string("nft_token_id").nullable();
     table.integer("version").nullable();
     table.timestamps(true, true);
 });

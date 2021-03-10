@@ -1,6 +1,7 @@
 const Controller = require('./Controller');
 const {UserRepository} = require("./../repositories");
 const Web3Helper = require("./../utils/Web3Helper");
+const ethers = require('ethers');
 
 class UserController extends Controller {
     async create(req, res) {
@@ -32,9 +33,8 @@ class UserController extends Controller {
 
     async show(req, res) {
         const walletAddress = req.params.walletAddress;
-        if (!walletAddress) {
-            this.sendResponse(res, null);
-            return
+        if (!walletAddress || (walletAddress && !ethers.utils.isAddress(walletAddress))) {
+            return this.sendResponse(res, null);
         }
         let user = await UserRepository.findByAddress(walletAddress);
         this.sendResponse(res, {user});
@@ -46,9 +46,8 @@ class UserController extends Controller {
         const username = payload.username;
         const sig = payload.sig;
         const msg = `I would like to update my account preferences for ${walletAddress}.`
-        if (!sig || !username || !walletAddress) {
-            this.sendResponse(res, null);
-            return;
+        if (!sig || !username || !walletAddress || (walletAddress && !ethers.utils.isAddress(walletAddress))) {
+            return this.sendResponse(res, null);
         }
         if (username.length < 3 || username.length > 15) {
             this.sendResponse(res, null);

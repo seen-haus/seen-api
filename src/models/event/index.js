@@ -17,7 +17,7 @@ module.exports = class Event extends BaseModel {
                 relation: BaseModel.HasOneRelation,
                 modelClass: Collectible,
                 join: {
-                    from: `${EVENTS_TABLE}.collectible_id`,
+                    from: `${EVENTS_TABLE}.collectable_id`,
                     to: `${COLLECTIBLES_TABLE}.id`,
                 }
             }

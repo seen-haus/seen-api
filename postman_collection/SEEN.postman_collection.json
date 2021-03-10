@@ -1,0 +1,505 @@
+{
+	"info": {
+		"_postman_id": "aba9d696-493a-4ce1-a240-635dea09d88f",
+		"name": "SEEN",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "Constants",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{api_url}}/admin/constants",
+							"host": [
+								"{{api_url}}"
+							],
+							"path": [
+								"admin",
+								"constants"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Artist",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{api_url}}/admin/artists",
+							"host": [
+								"{{api_url}}"
+							],
+							"path": [
+								"admin",
+								"artists"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Artist update",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"name\",\n    \"avatar\": \"https://test.com\",\n    \"socials\": [{\n        \"title\": \"twitter\",\n        \"url\": \"https://test.com\"\n    }]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api_url}}/admin/artists/17",
+							"host": [
+								"{{api_url}}"
+							],
+							"path": [
+								"admin",
+								"artists",
+								"17"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Artist Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{api_url}}/admin/artists/17",
+							"host": [
+								"{{api_url}}"
+							],
+							"path": [
+								"admin",
+								"artists",
+								"17"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Collectables AUCTION",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n            \"title\": \"Blackout - Lot 6\",\n            \"slug\": \"blackout_test\",\n            \"type_description\": \"Framed Artwork\",\n            \"type\": \"tangible_nft\",\n            \"purchase_type\": 1,\n            \"category\": \"regular\",\n            \"artist_id\": 3,\n            \"description\": \"<p>Blackout is a 13 layer hand cut spray paint stencil on a genuine one dollar bill, it is measured at 15.6 x 6.6cm and will ready to hang.</p><p>This item will be shipped from NYC, USA.</p>\",\n            \"edition\": 1,\n            \"edition_of\": 20,\n            \"contract_address\": \"0x42F30f6BADc3Da5b525D8c28A7E0ec2C5565a646\",\n            \"is_active\": false,\n            \"is_sold_out\": false,\n            \"starts_at\": \"2021-01-28 19:46:21\",\n            \"ends_at\": \"2021-01-28 19:46:21\",\n            \"min_bid\": 0.1,\n            \"artist_statement\": \"<p>Statement</p>\",\n            \"version\": 1,\n            \"is_coming_soon\": false,\n            \"shipping_location\": \"\",\n            \"nft_contract_address\": \"0x13bab10a88fc5f6c77b87878d71c9f1707d2688a\",\n            \"nft_ipfs_hash\": \"collectable.nft_ipfs_hash\",\n            \"nft_token_id\": 21,\n            \"media\": [3,4]\n        }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api_url}}/admin/collectables",
+							"host": [
+								"{{api_url}}"
+							],
+							"path": [
+								"admin",
+								"collectables"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Collectables SALE",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n            \"title\": \"Blackout - NFT\",\n            \"slug\": \"blackout_NFT\",\n            \"type_description\": \"Exclusive NFT\",\n            \"type\": \"nft\",\n            \"purchase_type\": 2,\n            \"category\": \"regular\",\n            \"artist_id\": 3,\n            \"description\": \"<p>Blackout is a 13 layer hand cut spray paint stencil on a genuine one dollar bill, it is measured at 15.6 x 6.6cm and will ready to hang.</p><p>This item will be shipped from NYC, USA.</p>\",\n            \"edition\": 1,\n            \"edition_of\": 20,\n            \"contract_address\": \"0x42F30f6BADc3Da5b525D8c28A7E0ec2C5565a646\",\n            \"is_active\": false,\n            \"is_sold_out\": false,\n            \"starts_at\": \"2021-01-28 19:46:21\",\n            \"price\": 0.1,\n            \"artist_statement\": \"<p>Statement</p>\",\n            \"available_qty\": 40,\n            \"version\": 1,\n            \"is_coming_soon\": false,\n            \"shipping_location\": \"\",\n            \"nft_contract_address\": \"0x13bab10a88fc5f6c77b87878d71c9f1707d2688a\",\n            \"nft_ipfs_hash\": \"collectable.nft_ipfs_hash\",\n            \"nft_token_id\": 22,\n            \"media\": [1,2]\n        }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api_url}}/admin/collectables/",
+							"host": [
+								"{{api_url}}"
+							],
+							"path": [
+								"admin",
+								"collectables",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Collectables Update",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n            \"title\": \"Blackout - Lot 6 UPDATE\",\n            \"slug\": \"blackout_test\",\n            \"type_description\": \"Framed Artwork\",\n            \"type\": \"tangible_nft\",\n            \"purchase_type\": 1,\n            \"category\": \"regular\",\n            \"artist_id\": 3,\n            \"description\": \"<p>Blackout is a 13 layer hand cut spray paint stencil on a genuine one dollar bill, it is measured at 15.6 x 6.6cm and will ready to hang.</p><p>This item will be shipped from NYC, USA.</p>\",\n            \"edition\": 1,\n            \"edition_of\": 20,\n            \"contract_address\": \"0x42F30f6BADc3Da5b525D8c28A7E0ec2C5565a646\",\n            \"is_active\": false,\n            \"is_sold_out\": false,\n            \"starts_at\": \"2021-01-28 19:46:21\",\n            \"ends_at\": \"2021-01-28 19:46:21\",\n            \"min_bid\": 0.1,\n            \"artist_statement\": \"<p>Statement</p>\",\n            \"version\": 1,\n            \"is_coming_soon\": false,\n            \"shipping_location\": \"\",\n            \"nft_contract_address\": \"0x13bab10a88fc5f6c77b87878d71c9f1707d2688a\",\n            \"nft_ipfs_hash\": \"collectable.nft_ipfs_hash\",\n            \"nft_token_id\": 21,\n            \"media\": [3,4]\n        }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{api_url}}/admin/collectables/26",
+							"host": [
+								"{{api_url}}"
+							],
+							"path": [
+								"admin",
+								"collectables",
+								"26"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Collectables delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{api_url}}/admin/collectables/1",
+							"host": [
+								"{{api_url}}"
+							],
+							"path": [
+								"admin",
+								"collectables",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Media",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{api_url}}/admin/media",
+							"host": [
+								"{{api_url}}"
+							],
+							"path": [
+								"admin",
+								"media"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Media update",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{api_url}}/admin/media",
+							"host": [
+								"{{api_url}}"
+							],
+							"path": [
+								"admin",
+								"media"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Media delete",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{api_url}}/admin/media/1",
+							"host": [
+								"{{api_url}}"
+							],
+							"path": [
+								"admin",
+								"media",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Spotlight List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{api_url}}/admin/spotlight/",
+							"host": [
+								"{{api_url}}"
+							],
+							"path": [
+								"admin",
+								"spotlight",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Articles",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api_url}}/artists",
+					"host": [
+						"{{api_url}}"
+					],
+					"path": [
+						"artists"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Bespokse",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api_url}}/bespoke",
+					"host": [
+						"{{api_url}}"
+					],
+					"path": [
+						"bespoke"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Collectables",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api_url}}/collectables/",
+					"host": [
+						"{{api_url}}"
+					],
+					"path": [
+						"collectables",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Collectables Single",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api_url}}/collectables/0x7f5fbfa3e342d0b9cd6e7b81ca437080a3422d15",
+					"host": [
+						"{{api_url}}"
+					],
+					"path": [
+						"collectables",
+						"0x7f5fbfa3e342d0b9cd6e7b81ca437080a3422d15"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Leaderboard",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api_url}}/leaderboard",
+					"host": [
+						"{{api_url}}"
+					],
+					"path": [
+						"leaderboard"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"wallet\": \"0x127bbc2904dbb53cf601782fc12fa4fd633394e4\",\n    \"password\":\"111111\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{api_url}}/admin/login",
+					"host": [
+						"{{api_url}}"
+					],
+					"path": [
+						"admin",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api_url}}/users/dasdasdasdasdasd/",
+					"host": [
+						"{{api_url}}"
+					],
+					"path": [
+						"users",
+						"dasdasdasdasdasd",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Spotlight",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"email\": \"email@test.si\", \"work\": \"If it returns truthy or a promise that resolves, the validation chain will continue running. If it returns falsy, a promise that rejects or if it throws, the validation chain will stop.\", \"name\": \"Name name\", \"socials\": \"If it returns truthy or a promise that resolves, the validation chain will continue running. If it returns falsy, a promise that rejects or if it throws, the validation chain will stop.\", \"info\": \"If it returns truthy or a promise that resolves, the validation chain will continue running. If it returns falsy, a promise that rejects or if it throws, the validation chain will stop.\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{api_url}}/spotlight/",
+					"host": [
+						"{{api_url}}"
+					],
+					"path": [
+						"spotlight",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -2,8 +2,25 @@ const Controller = require('./Controller');
 const {CollectableRepository, CollectableWinnerRepository} = require("./../repositories");
 const {body, validationResult} = require('express-validator');
 const Web3Helper = require("./../utils/Web3Helper");
+const CollectableOutputTransformer = require("../transformers/collectable/output");
 
 class CollectableController extends Controller {
+
+    async index(req, res) {
+        const pagination = this.extractPagination(req)
+        const data = await CollectableRepository.paginate(pagination.perPage, pagination.page)
+
+        this.sendResponse(res, data);
+    }
+
+    async show(req, res) {
+        const contractAddress = req.params.contractAddress;
+        const data = await CollectableRepository
+            .setTransformer(CollectableOutputTransformer)
+            .findByContractAddress(contractAddress);
+
+        this.sendResponse(res, data);
+    }
 
     async submitWinner(req, res) {
         const contractAddress = req.params.contractAddress;

@@ -24,6 +24,7 @@ class Controller {
         }
 
         res.status(code)
+
         res.json(this._prepareResponse(message, data))
     }
 
@@ -78,6 +79,13 @@ class Controller {
         }
 
         return data
+    }
+
+    extractPagination(req) {
+        return {
+            page: req.params.page && req.params.page > 0 ? req.params.page : 1,
+            perPage: req.params.perPage && req.params.perPage < 50 ?  req.params.perPage : 6,
+        }
     }
 }
 module.exports = Controller;

@@ -1,6 +1,6 @@
 const {ARTISTS_TABLE, COLLECTIBLES_TABLE} = require("./../../constants/DBTables")
 const BaseModel = require("./../BaseModel");
-const Collectible = require("../collectable");
+
 
 module.exports = class Artist extends BaseModel {
     static get tableName() {
@@ -12,8 +12,9 @@ module.exports = class Artist extends BaseModel {
     }
 
     static get relationMappings() {
+        const Collectible = require("../collectable");
         return {
-            collectibles: {
+             collectables: {
                 relation: BaseModel.HasManyRelation,
                 modelClass: Collectible,
                 join: {

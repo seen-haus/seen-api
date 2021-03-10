@@ -1,36 +1,30 @@
 const Web3Service = require("./web3.service");
 const BidEventHandlerV1 = require("../handlers/v1/BidEventHandler");
 const BuyEventHandlerV1 = require("../handlers/v1/BuyEventHandler");
-const {ArtistRepository, CollectableRepository, NFTTokenRepository} = require("../repositories");
+const {ArtistRepository, CollectableRepository, NFTTokenRepository, MediaRepository} = require("../repositories");
 const EcommerceV1Abi = require("../abis/v1/Ecommerce.json");
 const NFTV1Abi = require("../abis/v1/NFTSale.json");
 const AuctionV1Abi = require("../abis/v1/EnglishAuction.json");
 const {SALE, AUCTION} = require("./../constants/PurchaseTypes");
 const {V1, V2} = require("./../constants/Versions");
 const {NFT, TANGIBLE_NFT, TANGIBLE} = require("./../constants/Collectables");
-const {REGULAR, MERCH, SEEN_EXCLUSIVE} = require("./../constants/Categories");
+const {REGULAR} = require("./../constants/Categories");
 const ArtistTransformer = require("./../transformers/artist");
-const NFTTokenTransformer = require("./../transformers/nft_token");
 const CollectableTransformer = require("./../transformers/collectable");
-
+const MediaTransformer = require("./../transformers/media");
+const urlParse = require('url-parse');
 module.exports = {
 
     /**
      *
      * @param data
-     * @param artist
-     * @param token
-     * @return
+     * @param media
+     * @return {Promise<(*|*|{meta: {pagination: *|module.Pagination.pagination|{per_page: module.Pagination.perPage, total: module.Pagination.data.total, count: module.Pagination.data.results.length, total_pages: number, current_page: module.Pagination.page|number}}, paginatedData: *}|boolean)[]>}
      */
-    async createCollectible(data, artist, token = null) {
-        artist = await this.createOrUpdateArtist(artist);
-        if (token) {
-            token = await this.createOrUpdateToken(artist);
-        }
-        data.artist_id = artist.id
-        data.token_id = token.id
-
-        return await this.createOrUpdateCollectable(data);
+    async createCollectible(data, media = []) {
+        let collectable = await this.createOrUpdateCollectable(data);
+        media = await this.associateMedia(media, collectable)
+        return collectable
     },
 
     /**
@@ -60,6 +54,16 @@ module.exports = {
         return collectable;
     },
 
+    async associateMedia(mediaData, collectable) {
+        for (const itemId of mediaData) {
+            let media = await MediaRepository.find(itemId);
+            if (media && media.collection_id !== collectable.id) {
+                await MediaRepository.update({collectable_id: collectable.id}, media.id);
+            }
+        }
+        return true;
+    },
+
     /**
      *
      * @param artistData
@@ -87,35 +91,35 @@ module.exports = {
         return artist;
     },
 
-    /**
-     *
-     * @param tokenData
-     * @return {Promise<{meta: {pagination: *}, paginatedData: *}|boolean>}
-     */
-    async createOrUpdateToken(tokenData) {
-        let tokenDB = await NFTTokenRepository.findByColumn('tx', tokenData.tx);
-        console.log("TOKEN FOUND", tokenDB)
-        let token;
-        tokenData = NFTTokenTransformer.transform(tokenData)
-        if (!tokenDB) {
-            token = await NFTTokenRepository
-                .create(tokenData)
-                .catch(e => {
-                    console.error(e);
-                    return false;
-                });
-        } else {
-            await NFTTokenRepository
-                .update(tokenData, tokenDB.id)
-                .catch(e => {
-                    console.error(e);
-                    return false;
-                });
-            token = await NFTTokenRepository.findByColumn('tx', tokenData.tx);
-        }
-
-        return token;
-    },
+    // /**
+    //  *
+    //  * @param tokenData
+    //  * @return {Promise<{meta: {pagination: *}, paginatedData: *}|boolean>}
+    //  */
+    // async createOrUpdateToken(tokenData) {
+    //     let tokenDB = await NFTTokenRepository.findByColumn('tx', tokenData.tx);
+    //     console.log("TOKEN FOUND", tokenDB)
+    //     let token;
+    //     tokenData = NFTTokenTransformer.transform(tokenData)
+    //     if (!tokenDB) {
+    //         token = await NFTTokenRepository
+    //             .create(tokenData)
+    //             .catch(e => {
+    //                 console.error(e);
+    //                 return false;
+    //             });
+    //     } else {
+    //         await NFTTokenRepository
+    //             .update(tokenData, tokenDB.id)
+    //             .catch(e => {
+    //                 console.error(e);
+    //                 return false;
+    //             });
+    //         token = await NFTTokenRepository.findByColumn('tx', tokenData.tx);
+    //     }
+    //
+    //     return token;
+    // },
 
     /**
      *  Migration function (temp)
@@ -126,32 +130,27 @@ module.exports = {
      * @param token
      * @return {Promise<void>}
      */
-    async migrateCollectible(type, purchaseType, data, artist, token = null) {
+    async migrateCollectible(type, purchaseType, data, artist, media) {
         artist = await this.createOrUpdateArtist(artist);
-
-        if (token) {
-            token = await this.createOrUpdateToken(token);
-        }
 
         let resolveCategory = (data) => {
             switch (type) {
                 case TANGIBLE:
-                    return MERCH
+                    return REGULAR
                     break;
                 case TANGIBLE_NFT:
-                    return data.is_seen_exclusive ? SEEN_EXCLUSIVE : REGULAR;
+                    return REGULAR;
                     break;
                 default:
                     return REGULAR;
             }
         }
 
+
         let payload = {
             artist_id: artist.id,
-            token_id: token ? token.id : null,
             purchase_type: purchaseType,
             type,
-            media: data.media,
             contract_address: data.contract_address,
             created_at: data.created_at,
             updated_at: data.updated_at,
@@ -172,13 +171,35 @@ module.exports = {
             version: 1,
             winner_address: data.winner_address,
             price: data.price,
-            category: resolveCategory(data)
+            category: resolveCategory(data),
+            nft_contract_address: data.nft_contract_address,
+            nft_ipfs_hash: data.nft_ipfs_hash,
+            nft_token_id: data.nft_token_id
         }
         let collectable = await CollectableRepository.create(payload);
+        await this.migrateMedia(collectable, media);
         console.log("FILLL EVENTS")
         await this.fillEvents(collectable);
 
         return collectable;
+    },
+
+    async migrateMedia(collectable, media) {
+        media = typeof media === 'string' ? JSON.parse(media) : media;
+        console.log(media)
+        for (let i = 0; i < media.length; i++) {
+            let item = media[i]
+            let url = urlParse(item.url)
+            await MediaRepository.create({
+                type: item.type,
+                url: item.url,
+                position: i,
+                origin_url: "https://off---blue.s3-us-west-2.amazonaws.com/media" + url.pathname,
+                path: url.pathname,
+                collectable_id: collectable.id,
+            })
+        }
+        return true;
     },
 
     async fillEvents(collectable) {

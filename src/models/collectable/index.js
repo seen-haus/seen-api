@@ -1,8 +1,8 @@
-const {COLLECTIBLES_TABLE, ARTISTS_TABLE, EVENTS_TABLE, NFT_TOKENS_TABLE} = require("./../../constants/DBTables")
+const {COLLECTIBLES_TABLE, ARTISTS_TABLE, EVENTS_TABLE, NFT_TOKENS_TABLE, MEDIA_TABLE} = require("./../../constants/DBTables")
 const BaseModel = require("./../BaseModel");
 const Artist = require("../artist");
 const Event = require("../event");
-const NFTToken = require("../NFTtoken");
+const Media = require("../Media");
 
 module.exports = class Collectable extends BaseModel {
     static get tableName() {
@@ -35,17 +35,17 @@ module.exports = class Collectable extends BaseModel {
                 modelClass: Event,
                 join: {
                     from: `${COLLECTIBLES_TABLE}.id`,
-                    to: `${EVENTS_TABLE}.collectible_id`,
+                    to: `${EVENTS_TABLE}.collectable_id`,
                 }
             },
-            nft_token: {
-                relation: BaseModel.HasOneRelation,
-                modelClass: NFTToken,
+             media: {
+                relation: BaseModel.HasManyRelation,
+                modelClass: Media,
                 join: {
-                    from: `${COLLECTIBLES_TABLE}.token_id`,
-                    to: `${NFT_TOKENS_TABLE}.id`,
+                    from: `${COLLECTIBLES_TABLE}.id`,
+                    to: `${MEDIA_TABLE}.collectable_id`,
                 }
-            },
+            }
         }
     }
 }

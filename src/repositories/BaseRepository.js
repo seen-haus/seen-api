@@ -49,6 +49,7 @@ class BaseRepository {
     }
 
     async findByColumn(column, value) {
+        console.log(column, value)
         const result = await this.model.query().where(column, value)
 
         if (result.length === 0) {
@@ -69,6 +70,7 @@ class BaseRepository {
 
         return this.parserResult(new Pagination(results, perPage, page))
     }
+
 
     query() {
         return this.model.query()

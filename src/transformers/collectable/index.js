@@ -11,7 +11,6 @@ class CollectableTransformer extends BaseTransformer {
             purchase_type: collectable.purchase_type,
             category: collectable.category,
             artist_id: collectable.artist_id,
-            token_id: collectable.token_id,
             description: collectable.description,
             available_qty: collectable.available_qty,
             edition: collectable.edition,
@@ -26,10 +25,14 @@ class CollectableTransformer extends BaseTransformer {
             start_bid: collectable.start_bid,
             min_bid: collectable.min_bid,
             price: collectable.price,
-            media: typeof collectable.media === 'string' ? collectable.media : JSON.stringify(collectable.media),
             artist_statement: collectable.artist_statement,
             winner_address: collectable.winner_address,
             version: collectable.version,
+            is_coming_soon: collectable.is_coming_soon,
+            shipping_location: collectable.shipping_location,
+            nft_contract_address: collectable.nft_contract_address,
+            nft_ipfs_hash: collectable.nft_ipfs_hash,
+            nft_token_id: collectable.nft_token_id,
         }
     }
 }

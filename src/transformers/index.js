@@ -1,14 +1,19 @@
 const ArtistTransformer = require("./artist")
 const ArtistOutputTransformer = require("./artist/output")
-// const CollectableTransformer = require("./collectable")
+const CollectableTransformer = require("./collectable")
 const CollectableOutputTransformer = require("./collectable/output")
-const NFTTokenTransformer = require("./nft_token")
-const NFTTokenOutputTransformer = require("./nft_token/output")
+const CollectableSaleTangibleTransformer = require("./collectable/sale")
+const CollectableAuctionTransformer = require("./collectable/auction")
+const MediaTransformer = require("./media")
+const MediaOutputTransformer = require("./media/output")
+
 module.exports = Object.freeze({
     ArtistTransformer,
     ArtistOutputTransformer,
-    // CollectableTransformer,
+    CollectableTransformer,
     CollectableOutputTransformer,
-    NFTTokenTransformer,
-    NFTTokenOutputTransformer
+    CollectableSaleTangibleTransformer,
+    CollectableAuctionTransformer,
+    MediaTransformer,
+    MediaOutputTransformer
 });

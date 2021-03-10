@@ -1,19 +1,18 @@
 const BaseTransformer = require("./../BaseTransformer");
 const ArtistOutputTransformer = require("../artist/output")
-const NFTTokenOutputTransformer = require("../nft_token/output")
+const MediaOutputTransformer = require("../media/output")
 
 class CollectableOutputTransformer extends BaseTransformer {
     transform(collectable) {
         return {
             id: collectable.id,
             artist: collectable.artist ? ArtistOutputTransformer.transform(collectable.artist) : null,
-            nft_token: collectable.nft_token ? NFTTokenOutputTransformer.transform(collectable.nft_token) : null,
+            media: collectable.media && collectable.media.length > 0
+                ? collectable.media.map(media => MediaOutputTransformer.transform(media))
+                : [],
             purchase_type: collectable.purchase_type,
             type: collectable.type,
-            media: typeof collectable.media === 'string' ? JSON.parse(collectable.media) : collectable.media,
             contract_address: collectable.contract_address,
-            created_at: collectable.created_at,
-            updated_at: collectable.updated_at,
             is_sold_out: collectable.is_sold_out,
             slug: collectable.slug,
             artist_statement: collectable.artist_statement,
@@ -31,7 +30,14 @@ class CollectableOutputTransformer extends BaseTransformer {
             version: collectable.version,
             winner_address: collectable.winner_address,
             price: collectable.price,
-            category: collectable.category
+            category: collectable.category,
+            is_coming_soon: collectable.is_coming_soon,
+            shipping_location: collectable.shipping_location,
+            nft_contract_address: collectable.nft_contract_address,
+            nft_ipfs_hash: collectable.nft_ipfs_hash,
+            nft_token_id: collectable.nft_token_id,
+            created_at: collectable.created_at,
+            updated_at: collectable.updated_at,
         }
     }
 }

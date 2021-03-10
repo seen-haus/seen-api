@@ -28,11 +28,21 @@ class BidEventHandler extends CollectableEventHandler {
         if (collectable.min_bid < bid) {
             await CollectableRepository.update({min_bid: bid}, collectable.id);
         }
+        let usdValue = 0;
+        try {
+            usdValue = await this.resolveUsdValue((new DateHelper).resolveFromTimestamp(timestamp));
+            console.log(usdValue)
+            usdValue = parseFloat(usdValue) * parseFloat(bid)
+            console.log(usdValue)
+        } catch (e) {
+            console.log(e)
+        }
 
         return await EventRepository.create({
             wallet_address: walletAddress,
             collectable_id: collectable.id,
             value: bid,
+            value_in_usd: usdValue,
             event_id: eventId,
             event_type: BID,
             raw: JSON.stringify(returnValues),

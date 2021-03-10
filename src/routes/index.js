@@ -5,6 +5,8 @@ const UserRoutes = require('./user.routes')
 const Bespoke = require('./bespoke.routes')
 const Collectable = require('./collectable.routes')
 const Spotlight = require('./spotlight.routes')
+const Admin = require('./admin.routes')
+const Artist = require('./artist.routes')
 
 module.exports = app => {
     app.use("", Bespoke)
@@ -12,4 +14,6 @@ module.exports = app => {
     app.use("", LeaderboardRoutes)
     app.use("", Collectable)
     app.use("", Spotlight)
+    app.use("", Admin)
+    app.use("", Artist)
 }

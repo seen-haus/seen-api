@@ -16,7 +16,7 @@ class BuyEventHandler extends CollectableEventHandler {
         let block = await web3.eth.getBlock(event.blockNumber),
             timestamp = block.timestamp,
             eventId = event.id,
-            amount = web3.utils.fromWei(returnValues.amount),
+            amount = returnValues.amount,
             walletAddress = returnValues.buyer;
 
         let eventDb = await EventRepository.findByColumn('event_id', eventId);
@@ -24,9 +24,19 @@ class BuyEventHandler extends CollectableEventHandler {
             return eventDb;
         }
 
+        let usdValue = 0;
         const collectable = this.collectable;
+        amount = parseFloat(collectable.price) * parseFloat(amount);
+
+        try {
+            usdValue = await this.resolveUsdValue((new DateHelper).resolveFromTimestamp(timestamp));
+            usdValue = parseFloat(usdValue) * amount;
+        } catch (e) {
+            console.log(e);
+        }
         return await EventRepository.create({
             value: amount,
+            value_in_usd: usdValue,
             wallet_address: walletAddress,
             collectable_id: collectable.id,
             event_id: eventId,

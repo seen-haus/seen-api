@@ -1,5 +1,6 @@
 const {CollectableModel} = require("./../models");
 const BaseRepository = require("./BaseRepository");
+const Pagination = require("./../utils/Pagination");
 
 class CollectableRepository extends BaseRepository {
     constructor(props) {
@@ -23,17 +24,23 @@ class CollectableRepository extends BaseRepository {
         return this.parserResult(result)
     }
 
-    async bespoke() {
 
-         return this.parserResult(result)
+    async paginate(perPage = 10, page = 1) {
+        const results = await this.model.query()
+            .withGraphFetched('[artist, media]')
+            .orderBy('id', 'DESC')
+            .page(page - 1, perPage)
+
+        return this.parserResult(new Pagination(results, perPage, page))
     }
+
     async active() {
         let fromDate = new Date();
         fromDate.setHours(fromDate.getHours() - 1)
         fromDate = fromDate.toISOString();
 
         const result = await this.model.query()
-            .where('starts_at', '<=' , fromDate)
+            .where('starts_at', '<=', fromDate)
             .get();
 
         if (!result) {
@@ -43,12 +50,14 @@ class CollectableRepository extends BaseRepository {
         return this.parserResult(result)
     }
 
-    async findByMultipleParams(optionId, userId, action, txnHash) {
+    async findByContractAddress(contractAddress) {
         const result = await this.model.query()
-            .where('option_id', optionId)
-            .where('action', action)
-            .where('txn_hash', txnHash)
+            .withGraphFetched('[artist, media, events]')
+            .where('contract_address', '=', contractAddress)
             .first();
+        if (!result) {
+            return null;
+        }
         return this.parserResult(result)
     }
 

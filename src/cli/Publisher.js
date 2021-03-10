@@ -6,7 +6,7 @@ const Knex = require("knex");
 const {dbConfig} = require("../config");
 const {Model} = require("objection");
 const {SALE, AUCTION} = require("../constants/PurchaseTypes")
-const {SEEN_EXCLUSIVE, REGULAR, MERCH} = require("../constants/Categories")
+const {REGULAR} = require("../constants/Categories")
 const {V2, V1} = require("../constants/Versions")
 const {NFT, TANGIBLE_NFT, TANGIBLE} = require("../constants/Collectables")
 // init DB

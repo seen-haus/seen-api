@@ -11,5 +11,6 @@ module.exports = {
         useTLS: env('PUSHER_USE_TLS'),
         cluster: env('PUSHER_CLUSTER')
     },
-    START_BLOCK: env('START_BLOCK')
+    START_BLOCK: env('START_BLOCK'),
+    JWT_SECRET: env('JWT_SECRET'),
 };

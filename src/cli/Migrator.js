@@ -100,11 +100,14 @@ const sleep = (ms) => {
 const migrateNFTs = async (nfts, tokens) => {
     for (let i = 0; i < nfts.length; i++) {
         let nft = nfts[i];
+
         let token = tokens.find(t => t.uuid === nft.token_uuid)
-        token.creator_address = token.creator;
+        nft.nft_contract_address = token.contract_address
+        nft.nft_ipfs_hash = null
+        nft.nft_token_id = token.token_id
         delete token.creator;
         delete token.uuid;
-        await (filler.migrateCollectible(NFT, SALE, nft, JSON.parse(nft.artist), token))
+        await (filler.migrateCollectible(NFT, SALE, nft, JSON.parse(nft.artist), nft.media))
     }
     return true;
 
@@ -114,7 +117,7 @@ const migrateNFTs = async (nfts, tokens) => {
 const migrateProducts = async (products) => {
     for (let i = 0; i < products.length; i++) {
         let product = products[i];
-        await (filler.migrateCollectible(TANGIBLE, SALE, product, JSON.parse(product.artist), null))
+        await (filler.migrateCollectible(TANGIBLE, SALE, product, JSON.parse(product.artist), product.media, null))
     }
     return true;
 }
@@ -124,11 +127,13 @@ const migrateAuctions = async (auctions, tokens) => {
     for (let i = 0; i < auctions.length; i++) {
         let auction = auctions[i];
         let token = tokens.find(t => t.uuid === auction.token_uuid)
-        console.log(token)
         token.creator_address = token.creator;
+        auction.nft_contract_address = token.contract_address
+        auction.nft_ipfs_hash = null
+        auction.nft_token_id = token.token_id
         delete token.creator;
         delete token.uuid;
-        await (filler.migrateCollectible(TANGIBLE_NFT, AUCTION, auction, JSON.parse(auction.artist), token))
+        await (filler.migrateCollectible(TANGIBLE_NFT, AUCTION, auction, JSON.parse(auction.artist), auction.media))
 
     }
     return true;

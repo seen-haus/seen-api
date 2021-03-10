@@ -26,3 +26,5 @@ const routes = require('./routes');
 routes(app);
 
 app.listen(port);
+
+console.log("====== START =====")
