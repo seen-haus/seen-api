@@ -7,7 +7,7 @@
         "PORT": 3000
       },
       "script": "./src/server.js",
-      "cwd": "/var/www/api.seen.haus/webdir/current",
+      "cwd": "/var/www/api.seen.haus/webdir/source",
       "error_file": "/var/www/api.seen.haus/logs/server.err.log",
       "out_file": "/var/www/api.seen.haus/logs/server.out.log",
       "exec_mode": "cluster"
@@ -19,14 +19,14 @@
       "host": [
         {
           "user": "deploy",
-          "host": "69.55.59.83",
+          "host": "68.183.103.47",
           "port": "25519"
         }
       ],
       "key": "deploy.key",
       "ref": "origin/master",
       "repo": "git@github.com:seen-haus/seen-api.git",
-      "path": "/var/www/api.seen.haus/webdir/current",
+      "path": "/var/www/api.seen.haus/webdir",
       "post-deploy": "npm install && npm migrate && pm2 reload ./config/ecosystem.js && pm2 save"
     }
   }

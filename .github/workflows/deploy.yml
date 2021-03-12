@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [ 10.x, 12.x ]
+        node-version: [ 12.x ]
 
     steps:
       - uses: actions/checkout@v2
@@ -34,21 +34,12 @@ jobs:
       - name: Checkout actions
         uses: actions/checkout@v2
 
-      - name: Add private key & the known host
-        run: |
-          mkdir -p ~/.ssh/
-          echo ${{ secrets.SSH_KEY }} >> ./deploy.key
-          sudo chmod 600 ./deploy.key
-          echo ${{ secrets.SSH_KNOWN_HOSTS }} >> ~/.ssh/known_hosts
-        shell: bash
+      - name: Make shit happen
+        run: ./scripts/deploy.sh
         env:
           SSH_KEY: ${{secrets.SSH_KEY}}
           SSH_KNOWN_HOSTS: ${{secrets.SSH_KNOWN_HOSTS}}
-
-      - name: Create env file
-        run: |
-          touch .env
-          echo ${{ secrets.PRODUCTION_ENV_VARS }} >> .env
+          PRODUCTION_ENV_VARS: ${{secrets.PRODUCTION_ENV_VARS}}
 
       - name: install pm2
         run: sudo npm install -g pm2
