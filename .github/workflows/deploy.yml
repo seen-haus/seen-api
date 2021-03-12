@@ -37,9 +37,9 @@ jobs:
       - name: Add private key & the known host
         run: |
           mkdir -p ~/.ssh/
-          echo "$SSH_KEY" > ./deploy.key
+          echo ${{ secrets.SSH_KEY }} >> ./deploy.key
           sudo chmod 600 ./deploy.key
-          echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          echo ${{ secrets.SSH_KNOWN_HOSTS }} >> ~/.ssh/known_hosts
         shell: bash
         env:
           SSH_KEY: ${{secrets.SSH_KEY}}
