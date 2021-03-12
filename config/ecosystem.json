@@ -27,7 +27,7 @@
       "ref": "origin/master",
       "repo": "git@github.com:seen-haus/seen-api.git",
       "path": "/var/www/api.seen.haus/webdir",
-      "post-deploy": "npm install && npm migrate && pm2 reload ./config/ecosystem.js && pm2 save"
+      "post-deploy": "npm install && npm run migrate && pm2 reload ./config/ecosystem.js && pm2 save"
     }
   }
 }
