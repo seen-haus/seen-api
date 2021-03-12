@@ -7,7 +7,7 @@
 ### Requirements
 - NodeJS v12
 - MySQL 8
-- Pusher
+- Pusher ()
 
 ### Setup
 ```
