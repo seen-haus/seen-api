@@ -4,24 +4,30 @@
       "name": "seen-server",
       "env": {
         "NODE_ENV": "production",
-        "PORT" : 3005
+        "PORT": 3000
       },
       "script": "./src/server.js",
       "cwd": "/var/www/api.seen.haus/webdir/current",
       "error_file": "/var/www/api.seen.haus/logs/server.err.log",
       "out_file": "/var/www/api.seen.haus/logs/server.out.log",
-      "exec_mode": "fork_mode"
-    },
-    {
-      "name": "seen-worker",
-      "env": {
-        "NODE_ENV": "production"
-      },
-      "script": "./src/workers/Worker.js",
-      "cwd": "/var/www/api.seen.haus/webdir/current",
-      "error_file": "/var/www/api.seen.haus/logs/seen-worker.err.log",
-      "out_file": "/var/www/api.seen.haus/logs/seen-worker.out.log",
-      "exec_mode": "fork_mode"
+      "exec_mode": "cluster"
     }
-  ]
+  ],
+  "deploy": {
+    "production": {
+      "user": "deploy",
+      "host": [
+        {
+          "user": "deploy",
+          "host": "69.55.59.83",
+          "port": "25519"
+        }
+      ],
+      "key": "deploy.key",
+      "ref": "origin/master",
+      "repo": "git@github.com:seen-haus/seen-api.git",
+      "path": "/var/www/api.seen.haus/webdir/current",
+      "post-deploy": "npm install && npm migrate && pm2 reload ./config/ecosystem.js && pm2 save"
+    }
+  }
 }

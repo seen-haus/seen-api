@@ -1,0 +1,57 @@
+name: Node Github CI
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [ 10.x, 12.x ]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: npm install and test
+        run: |
+          npm install
+        env:
+          CI: true
+
+  deploy:
+    needs: [ test ]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout actions
+        uses: actions/checkout@v2
+
+      - name: Add private key & the known host
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_KEY" > ./deploy.key
+          sudo chmod 600 ./deploy.key
+          echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+        shell: bash
+        env:
+          SSH_KEY: ${{secrets.SSH_KEY}}
+          SSH_KNOWN_HOSTS: ${{secrets.SSH_KNOWN_HOSTS}}
+
+      - name: Create env file
+        run: |
+          touch .env
+          echo ${{ secrets.PRODUCTION_ENV_VARS }} >> .env
+
+      - name: install pm2
+        run: sudo npm install -g pm2
+
+      - name: Deploy
+        run: npm rum deploy

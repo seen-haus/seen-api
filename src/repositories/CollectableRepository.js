@@ -28,7 +28,7 @@ class CollectableRepository extends BaseRepository {
     async paginate(perPage = 10, page = 1) {
         const results = await this.model.query()
             .withGraphFetched('[artist, media]')
-            .orderBy('id', 'DESC')
+            .orderBy('starts_at', 'DESC')
             .page(page - 1, perPage)
 
         return this.parserResult(new Pagination(results, perPage, page))

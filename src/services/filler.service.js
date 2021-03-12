@@ -161,7 +161,7 @@ module.exports = {
             ends_at: data.ends_at,
             available_qty: data.available_qty,
             title: data.title,
-            type_description: data.info ? data.info : data.tangible_item_info,
+            medium: data.info ? data.info : data.tangible_item_info,
             edition: data.edition,
             edition_of: data.edition_of,
             description: data.description,

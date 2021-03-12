@@ -5,7 +5,7 @@ exports.up = knex => knex.schema.createTable(COLLECTIBLES_TABLE, table => {
     table.string("title");
     table.string("slug").index();
     table.string("contract_address").index();
-    table.string("type_description").nullable();
+    table.string("medium").nullable();
     table.string("type").nullable();
     table.integer("purchase_type").index();
     table.string("category").index();

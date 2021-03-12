@@ -6,7 +6,7 @@ class CollectableSaleTransformer extends BaseTransformer {
             id: collectable.id,
             title: collectable.title,
             slug: collectable.slug,
-            type_description: collectable.type_description,
+            medium: collectable.medium,
             type: collectable.type,
             purchase_type: collectable.purchase_type,
             category: collectable.category,

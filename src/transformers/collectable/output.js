@@ -20,7 +20,7 @@ class CollectableOutputTransformer extends BaseTransformer {
             ends_at: collectable.ends_at,
             available_qty: collectable.available_qty,
             title: collectable.title,
-            type_description: collectable.type_description,
+            medium: collectable.medium,
             edition: collectable.edition,
             edition_of: collectable.edition_of,
             description: collectable.description,

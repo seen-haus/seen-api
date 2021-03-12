@@ -34,11 +34,13 @@ class LeaderboardController extends Controller {
             user: dbConfig.connection.user,
             password: dbConfig.connection.password,
             database: dbConfig.connection.database,
+            port: dbConfig.connection.port,
         });
 
         connection.connect();
         await connection.query(query, (error, results, fields) => {
             if (error) {
+                console.log(error)
                 this.sendResponse(res, {status: "error"});
                 return;
             }
