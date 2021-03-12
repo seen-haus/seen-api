@@ -2,7 +2,7 @@ const {COLLECTIBLES_TABLE, ARTISTS_TABLE, EVENTS_TABLE, NFT_TOKENS_TABLE, MEDIA_
 const BaseModel = require("./../BaseModel");
 const Artist = require("../artist");
 const Event = require("../event");
-const Media = require("../Media");
+const Media = require("../media");
 
 module.exports = class Collectable extends BaseModel {
     static get tableName() {
