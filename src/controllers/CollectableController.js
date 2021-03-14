@@ -7,8 +7,11 @@ const CollectableOutputTransformer = require("../transformers/collectable/output
 class CollectableController extends Controller {
 
     async index(req, res) {
-        const pagination = this.extractPagination(req)
-        const data = await CollectableRepository.paginate(pagination.perPage, pagination.page)
+        const pagination = this.extractPagination(req);
+        const type = req.query.type;
+        const data = await CollectableRepository
+            .setTransformer(CollectableOutputTransformer)
+            .paginate(pagination.perPage, pagination.page, type);
 
         this.sendResponse(res, data);
     }
@@ -25,7 +28,6 @@ class CollectableController extends Controller {
     async submitWinner(req, res) {
         const contractAddress = req.params.contractAddress;
         const errors = validationResult(req);
-        console.log("YUS", errors)
         if (!errors.isEmpty()) {
             return this.sendResponse(res, {errors: errors.array()}, "Validation error", 422);
         }

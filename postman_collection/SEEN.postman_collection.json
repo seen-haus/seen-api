@@ -43,6 +43,15 @@
 								"type": "text"
 							}
 						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"name\",\n    \"avatar\": \"https://test.com\",\n    \"socials\": [{\n        \"title\": \"twitter\",\n        \"url\": \"https://test.com\"\n    }]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "{{api_url}}/admin/artists",
 							"host": [
@@ -342,17 +351,27 @@
 			]
 		},
 		{
-			"name": "Articles",
+			"name": "Artists",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{api_url}}/artists",
+					"raw": "{{api_url}}/artists?page=2&perPage=10",
 					"host": [
 						"{{api_url}}"
 					],
 					"path": [
 						"artists"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "2"
+						},
+						{
+							"key": "perPage",
+							"value": "10"
+						}
 					]
 				}
 			},
@@ -381,13 +400,26 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{api_url}}/collectables/",
+					"raw": "{{api_url}}/collectables?page=1&perPage=10&type=tangible",
 					"host": [
 						"{{api_url}}"
 					],
 					"path": [
-						"collectables",
-						""
+						"collectables"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "perPage",
+							"value": "10"
+						},
+						{
+							"key": "type",
+							"value": "tangible"
+						}
 					]
 				}
 			},

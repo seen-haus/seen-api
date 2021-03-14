@@ -11,11 +11,11 @@ module.exports = class Pagination {
         const totalPages = Math.ceil(this.data.total / this.perPage)
 
         this.pagination = {
-            total: this.data.total,
+            total: parseInt(this.data.total),
             count: this.data.results.length,
-            perPage: this.perPage,
-            currentPage: this.page,
-            totalPages: totalPages,
+            perPage: parseInt(this.perPage),
+            currentPage: parseInt(this.page),
+            totalPages: parseInt(totalPages),
         }
     }
 

@@ -83,9 +83,10 @@ class Controller {
 
     extractPagination(req) {
         return {
-            page: req.params.page && req.params.page > 0 ? req.params.page : 1,
-            perPage: req.params.perPage && req.params.perPage < 50 ?  req.params.perPage : 6,
+            page: req.query.page && req.query.page > 0 ? req.query.page : 1,
+            perPage: req.query.perPage && req.query.perPage < 50 ?  req.query.perPage : 6,
         }
     }
+
 }
 module.exports = Controller;

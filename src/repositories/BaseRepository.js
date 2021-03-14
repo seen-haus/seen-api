@@ -49,7 +49,6 @@ class BaseRepository {
     }
 
     async findByColumn(column, value) {
-        console.log(column, value)
         const result = await this.model.query().where(column, value)
 
         if (result.length === 0) {
