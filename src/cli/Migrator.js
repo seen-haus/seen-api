@@ -118,7 +118,7 @@ const migrateNFTs = async (nfts, tokens) => {
 const migrateProducts = async (products) => {
     for (let i = 0; i < products.length; i++) {
         let product = products[i];
-        await (filler.migrateCollectible(TANGIBLE, SALE, product, JSON.parse(product.artist), product.media, null))
+        await (filler.migrateCollectible(TANGIBLE_NFT, SALE, product, JSON.parse(product.artist), product.media, null))
     }
     return true;
 }

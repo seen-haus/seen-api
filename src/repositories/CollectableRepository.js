@@ -2,6 +2,7 @@ const {CollectableModel} = require("./../models");
 const BaseRepository = require("./BaseRepository");
 const Pagination = require("./../utils/Pagination");
 const types = require("./../constants/Collectables");
+const purchaseTypes = require("./../constants/PurchaseTypes");
 
 class CollectableRepository extends BaseRepository {
     constructor(props) {
@@ -26,19 +27,22 @@ class CollectableRepository extends BaseRepository {
     }
 
 
-    async paginate(perPage = 10, page = 1, type = null) {
-        let results;
-        if (type && Object.values(types).includes(type)) {
-            results = await this.model.query().where('type', '=', type)
-                .withGraphFetched('[artist, media]')
-                .orderBy('starts_at', 'DESC')
-                .page(page - 1, perPage)
-        } else {
-            results = await this.model.query()
-                .withGraphFetched('[artist, media]')
-                .orderBy('starts_at', 'DESC')
-                .page(page - 1, perPage)
-        }
+    async paginate(perPage = 10, page = 1, type = null, purchaseType = null) {
+        purchaseType = purchaseType ? parseInt(purchaseType) : null;
+        const results = await this.model.query().where(function () {
+                if (type
+                    && Object.values(types).includes(type)) {
+                    this.where('type', type);
+                }
+                if (purchaseType
+                    && Object.values(purchaseTypes).includes(purchaseType)) {
+                    this.where('purchase_type', purchaseType);
+                }
+            })
+            .withGraphFetched('[artist, media]')
+            .orderBy('starts_at', 'DESC')
+            .page(page - 1, perPage)
+
 
         return this.parserResult(new Pagination(results, perPage, page))
     }
