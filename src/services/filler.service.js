@@ -131,6 +131,15 @@ module.exports = {
      * @return {Promise<void>}
      */
     async migrateCollectible(type, purchaseType, data, artist, media) {
+        artist.socials = artist.socials == 'string' ? JSON.parse(artist.socials) : artist.socials
+        artist.socials = artist.socials.map(social => {
+            let url = new URL(social.url)
+            return {
+                url: social.url,
+                type: social.title.toLowerCase(),
+                handle: url.pathname.replace(/\//g,"")
+            }
+        });
         artist = await this.createOrUpdateArtist(artist);
 
         let resolveCategory = (data) => {
