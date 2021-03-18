@@ -39,7 +39,7 @@ class CollectableRepository extends BaseRepository {
                     this.where('purchase_type', purchaseType);
                 }
             })
-            .withGraphFetched('[artist, media]')
+            .withGraphFetched('[artist, media, events]')
             .orderBy('starts_at', 'DESC')
             .page(page - 1, perPage)
 
