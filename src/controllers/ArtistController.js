@@ -12,6 +12,15 @@ class ArtistController extends Controller {
 
         this.sendResponse(res, data);
     }
+
+    async show(req, res) {
+        const id = req.params.id;
+        const data = await ArtistRepository
+            .setTransformer(ArtistOutputTransformer)
+            .find(id);
+
+        this.sendResponse(res, data);
+    }
 }
 
 module.exports = ArtistController;
