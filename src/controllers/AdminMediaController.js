@@ -20,8 +20,7 @@ class AdminMediaController extends Controller {
                 let arr = []
                 for (let i = 0; i < req.files.length; i++) {
                     let file = req.files[i];
-                    let url = urlParse(file.location)
-                    // cloudfront
+                    let url = urlParse(file.location);
                     // TODO: replace this with url
                     // CloudfrontHelper.replaceHost(file.location)
                     let path = url.pathname.charAt(0) === '/'
