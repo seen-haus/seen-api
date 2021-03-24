@@ -199,12 +199,15 @@ module.exports = {
         for (let i = 0; i < media.length; i++) {
             let item = media[i]
             let url = urlParse(item.url)
+            let path = url.charAt(0) === '/'
+                        ? url.pathname.substr(1, url.pathname.length)
+                        : url.pathname
             await MediaRepository.create({
                 type: item.type,
                 url: item.url,
                 position: i,
                 origin_url: "https://off---blue.s3-us-west-2.amazonaws.com/media" + url.pathname,
-                path: url.pathname,
+                path,
                 collectable_id: collectable.id,
             })
         }

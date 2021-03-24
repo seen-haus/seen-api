@@ -13,4 +13,11 @@ module.exports = {
     },
     START_BLOCK: env('START_BLOCK'),
     JWT_SECRET: env('JWT_SECRET'),
+    AWS: {
+        accessKeyId: env('AWS_S3_ACCESS_KEY_ID'),
+        secretKey: env('AWS_S3_SECRET_KEY'),
+        region: env('AWS_S3_REGION'),
+        bucket: env('AWS_S3_BUCKET'),
+        cloudfront: env("AWS_CLOUDFRONT_HOST")
+    }
 };
