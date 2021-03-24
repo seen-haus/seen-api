@@ -17,7 +17,7 @@ class AdminMediaController extends Controller {
                     this.sendError(res, err, 400);
                     return;
                 }
-                let arr = []
+                let arr = [];
                 for (let i = 0; i < req.files.length; i++) {
                     let file = req.files[i];
                     let url = urlParse(file.location);
@@ -33,9 +33,8 @@ class AdminMediaController extends Controller {
                         origin_url: file.location,
                         path
                     });
-                    arr.push(obj)
+                    arr.push(obj);
                 }
-
                 this.sendResponse(res, arr.map(i => MediaTransformer.transform(i)));
             }
         )

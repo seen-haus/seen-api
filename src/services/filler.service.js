@@ -55,10 +55,12 @@ module.exports = {
     },
 
     async associateMedia(mediaData, collectable) {
+        let i = 0;
         for (const itemId of mediaData) {
             let media = await MediaRepository.find(itemId);
-            if (media && media.collection_id !== collectable.id) {
-                await MediaRepository.update({collectable_id: collectable.id}, media.id);
+            if (media) {
+                await MediaRepository.update({collectable_id: collectable.id, position: i}, media.id);
+                i++
             }
         }
         return true;
@@ -137,7 +139,7 @@ module.exports = {
             return {
                 url: social.url,
                 type: social.title.toLowerCase(),
-                handle: url.pathname.replace(/\//g,"")
+                handle: url.pathname.replace(/\//g, "")
             }
         });
         artist = await this.createOrUpdateArtist(artist);
@@ -200,8 +202,8 @@ module.exports = {
             let item = media[i]
             let url = urlParse(item.url)
             let path = url.charAt(0) === '/'
-                        ? url.pathname.substr(1, url.pathname.length)
-                        : url.pathname
+                ? url.pathname.substr(1, url.pathname.length)
+                : url.pathname
             await MediaRepository.create({
                 type: item.type,
                 url: item.url,
