@@ -19,6 +19,11 @@ class ArtistRepository extends BaseRepository {
 
         return this.parserResult(new Pagination(results, perPage, page))
     }
+
+    async search(query) {
+        const results = await this.model.query().whereRaw('name LIKE ?', [`%${query}%`]);
+        return this.parserResult(results)
+    }
 }
 
 module.exports = new ArtistRepository()

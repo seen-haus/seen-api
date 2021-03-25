@@ -261,30 +261,19 @@
 								"type": "text"
 							}
 						],
-						"url": {
-							"raw": "{{api_url}}/admin/media",
-							"host": [
-								"{{api_url}}"
-							],
-							"path": [
-								"admin",
-								"media"
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "files",
+									"type": "file",
+									"src": [
+										"/Users/nejckrajnik/Downloads/BG-DESKTOP_2.jpeg",
+										"/Users/nejckrajnik/Downloads/BG-MOBILE_2.jpeg"
+									]
+								}
 							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Media update",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{jwt}}",
-								"type": "text"
-							}
-						],
+						},
 						"url": {
 							"raw": "{{api_url}}/admin/media",
 							"host": [
@@ -310,14 +299,14 @@
 							}
 						],
 						"url": {
-							"raw": "{{api_url}}/admin/media/1",
+							"raw": "{{api_url}}/admin/media/182",
 							"host": [
 								"{{api_url}}"
 							],
 							"path": [
 								"admin",
 								"media",
-								"1"
+								"182"
 							]
 						}
 					},
@@ -372,6 +361,48 @@
 							"key": "perPage",
 							"value": "10"
 						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Artists Copy",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api_url}}/artists/search?q=buddy",
+					"host": [
+						"{{api_url}}"
+					],
+					"path": [
+						"artists",
+						"search"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "buddy"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Artist Single",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{api_url}}/artists/1",
+					"host": [
+						"{{api_url}}"
+					],
+					"path": [
+						"artists",
+						"1"
 					]
 				}
 			},
@@ -467,7 +498,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"wallet\": \"0x127bbc2904dbb53cf601782fc12fa4fd633394e4\",\n    \"password\":\"111111\"\n}",
+					"raw": "{\n    \"wallet\": \"0x397Fb10C9a36C780Ca3D7dB90B49c78D5D1b04bE\",\n    \"password\":\"111111\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"

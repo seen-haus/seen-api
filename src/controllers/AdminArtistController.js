@@ -49,6 +49,7 @@ class AdminArtistController extends Controller {
 
         this.sendResponse(res, {success:true});
     }
+
 }
 
 module.exports = AdminArtistController;

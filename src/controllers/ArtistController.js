@@ -21,6 +21,16 @@ class ArtistController extends Controller {
 
         this.sendResponse(res, data);
     }
+
+    async search(req, res) {
+        const query = req.query.q;
+        if (!query) {
+            return this.sendResponse(res, null);
+        }
+
+        const artist = await ArtistRepository.search(query)
+        this.sendResponse(res, artist);
+    }
 }
 
 module.exports = ArtistController;
