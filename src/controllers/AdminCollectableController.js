@@ -15,7 +15,9 @@ class AdminCollectableController extends Controller {
         const payload = req.body;
         const transformer = purchaseTypes.SALE ? CollectableSaleTangibleTransformer : CollectableAuctionTransformer;
 
-        const collectable = await CollectableRepository.setTransformer(transformer).create(payload);
+        const collectable = await CollectableRepository
+            .setTransformer(transformer)
+            .create(transformer.transform(payload));
 
         if (payload.media && payload.media.length > 0) {
             await fillerService.associateMedia(payload.media, collectable)
@@ -29,14 +31,16 @@ class AdminCollectableController extends Controller {
             return this.sendResponse(res, {errors: errors.array()}, "Validation error", 422);
         }
         const id = req.params.id;
-        let artist = await CollectableRepository.find(id)
-        if (!artist) {
+        let collectableDB = await CollectableRepository.find(id)
+        if (!collectableDB) {
             return this.sendError(res, "Not found");
         }
 
-        const payload = req.body;
+        const payload = {...collectableDB, ...req.body};
         const transformer = purchaseTypes.SALE ? CollectableSaleTangibleTransformer : CollectableAuctionTransformer;
-        const collectable = await CollectableRepository.setTransformer(transformer).update(payload, id);
+        const collectable = await CollectableRepository
+            .setTransformer(transformer)
+            .update(transformer.transform(payload), id);
 
         // media
         if (payload.media && payload.media.length > 0) {
