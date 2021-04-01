@@ -27,12 +27,18 @@ class CollectableRepository extends BaseRepository {
     }
 
 
-    async paginate(perPage = 10, page = 1, type = null, purchaseType = null) {
-        purchaseType = purchaseType ? parseInt(purchaseType) : null;
+    async paginate(perPage = 10, page = 1, query = {}) {
+        let purchaseType = query.purchaseType ? parseInt(query.purchaseType) : null;
+        let artistId = query.artistId ? parseInt(query.artistId) : null;
+        let type = query.type;
+
         const results = await this.model.query().where(function () {
                 if (type
                     && Object.values(types).includes(type)) {
                     this.where('type', type);
+                }
+                if (artistId) {
+                    this.where('artist_id', artistId);
                 }
                 if (purchaseType
                     && Object.values(purchaseTypes).includes(purchaseType)) {

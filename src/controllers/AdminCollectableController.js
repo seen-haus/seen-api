@@ -13,7 +13,9 @@ class AdminCollectableController extends Controller {
             return this.sendResponse(res, {errors: errors.array()}, "Validation error", 422);
         }
         const payload = req.body;
-        const transformer = purchaseTypes.SALE ? CollectableSaleTangibleTransformer : CollectableAuctionTransformer;
+        const transformer = purchaseTypes.SALE
+            ? CollectableSaleTangibleTransformer
+            : CollectableAuctionTransformer;
 
         const collectable = await CollectableRepository
             .setTransformer(transformer)
@@ -37,7 +39,10 @@ class AdminCollectableController extends Controller {
         }
 
         const payload = {...collectableDB, ...req.body};
-        const transformer = purchaseTypes.SALE ? CollectableSaleTangibleTransformer : CollectableAuctionTransformer;
+        const transformer = purchaseTypes.SALE
+            ? CollectableSaleTangibleTransformer
+            : CollectableAuctionTransformer;
+        
         const collectable = await CollectableRepository
             .setTransformer(transformer)
             .update(transformer.transform(payload), id);

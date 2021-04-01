@@ -10,9 +10,10 @@ class CollectableController extends Controller {
         const pagination = this.extractPagination(req);
         const type = req.query.type;
         const purchaseType = req.query.purchaseType;
+        const artistId = req.query.artistId;
         const data = await CollectableRepository
             .setTransformer(CollectableOutputTransformer)
-            .paginate(pagination.perPage, pagination.page, type, purchaseType);
+            .paginate(pagination.perPage, pagination.page, {type, purchaseType, artistId});
 
         this.sendResponse(res, data);
     }

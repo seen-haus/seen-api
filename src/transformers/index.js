@@ -6,6 +6,8 @@ const CollectableSaleTangibleTransformer = require("./collectable/sale")
 const CollectableAuctionTransformer = require("./collectable/auction")
 const MediaTransformer = require("./media")
 const MediaOutputTransformer = require("./media/output")
+const UserTransformer = require("./user")
+const UserOutputTransformer = require("./user/output")
 
 module.exports = Object.freeze({
     ArtistTransformer,
@@ -15,5 +17,7 @@ module.exports = Object.freeze({
     CollectableSaleTangibleTransformer,
     CollectableAuctionTransformer,
     MediaTransformer,
-    MediaOutputTransformer
+    MediaOutputTransformer,
+    UserTransformer,
+    UserOutputTransformer
 });

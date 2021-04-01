@@ -6,8 +6,6 @@ const ethers = require('ethers');
 const authenticateJWT = require("../middleware/authenticate")
 const isETHAddress = (value) => {
     try {
-        console.log(value)
-        console.log(ethers.utils.isAddress(value))
         return ethers.utils.isAddress(value)
     } catch (e) {
         console.log(e)
