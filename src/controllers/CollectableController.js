@@ -27,12 +27,33 @@ class CollectableController extends Controller {
         this.sendResponse(res, data);
     }
 
-    async submitWinner(req, res) {
-        const contractAddress = req.params.contractAddress;
+    async map(req, res) {
         const errors = validationResult(req);
+
         if (!errors.isEmpty()) {
             return this.sendResponse(res, {errors: errors.array()}, "Validation error", 422);
         }
+
+        const {
+            tokenIds,
+        } = req.body;
+
+        const data = await CollectableRepository
+            .setTransformer(CollectableOutputTransformer)
+            .queryByTokenIds(tokenIds.map(t => parseInt(t)));
+
+        this.sendResponse(res, data);
+    }
+
+    async winner(req, res) {
+
+        const contractAddress = req.params.contractAddress;
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return this.sendResponse(res, {errors: errors.array()}, "Validation error", 422);
+        }
+
         const {
             wallet_address,
             email,
@@ -55,9 +76,14 @@ class CollectableController extends Controller {
 
         const signAddress = wallet_address.toLowerCase();
         const msg = `I would like to save my shipping information for wallet address ${signAddress}.`;
-        let isValidSignature = await Web3Helper.verifySignature(msg, sig, wallet_address);
-        if (!isValidSignature) {
-            this.sendResponse(res, null);
+        try {
+            let isValidSignature = await Web3Helper.verifySignature(msg, sig, wallet_address);
+            if (!isValidSignature) {
+                this.sendError(res, "Signature is not valid");
+                return;
+            }
+        } catch (e) {
+            this.sendError(res, "Signature is not valid");
             return;
         }
 
