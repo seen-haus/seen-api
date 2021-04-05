@@ -80,7 +80,7 @@ class CollectableRepository extends BaseRepository {
         return this.parserResult(result)
     }
 
-    async queryByTokenIds(perPage = 10, page = 1, tokenIds) {
+    async queryByTokenIds(tokenIds) {
         const results = await this.model.query()
             .withGraphFetched('[artist, media, events]')
             .whereIn('nft_token_id', tokenIds);
