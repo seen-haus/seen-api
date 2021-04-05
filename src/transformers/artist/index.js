@@ -4,6 +4,7 @@ class ArtistTransformer extends BaseTransformer {
     transform(artist) {
         return {
             id: artist.id,
+            slug: artist.slug,
             name: artist.name,
             avatar: artist.avatar,
             video: artist.video,

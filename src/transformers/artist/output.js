@@ -5,6 +5,7 @@ class ArtistOutputTransformer extends BaseTransformer {
         return {
             id: artist.id,
             name: artist.name,
+            slug: artist.slug,
             avatar: artist.avatar,
             video: artist.video,
             quote: artist.quote,

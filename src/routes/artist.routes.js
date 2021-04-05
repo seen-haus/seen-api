@@ -6,6 +6,6 @@ const Router = require("./Router");
  */
 Router.get('/artists/',[],'ArtistController@index');
 Router.get('/artists/search', [], 'ArtistController@search');
-Router.get('/artists/:id', [], 'ArtistController@show');
+Router.get('/artists/:slug', [], 'ArtistController@show');
 
 module.exports = Router.export();

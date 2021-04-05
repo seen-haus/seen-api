@@ -14,10 +14,10 @@ class ArtistController extends Controller {
     }
 
     async show(req, res) {
-        const id = req.params.id;
+        const slug = req.params.slug;
         const data = await ArtistRepository
             .setTransformer(ArtistOutputTransformer)
-            .find(id);
+            .findByColumn("slug", slug);
 
         this.sendResponse(res, data);
     }
