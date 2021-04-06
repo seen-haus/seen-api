@@ -1,10 +1,12 @@
 const BaseTransformer = require("./../BaseTransformer");
-
+const StringHelper = require("../../utils/StringHelper")
 class ArtistTransformer extends BaseTransformer {
     transform(artist) {
         return {
             id: artist.id,
-            slug: artist.slug,
+            slug: artist.slug
+                ? artist.slug
+                : StringHelper.slugify(artist.name),
             name: artist.name,
             avatar: artist.avatar,
             video: artist.video,
