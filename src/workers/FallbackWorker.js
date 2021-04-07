@@ -8,6 +8,9 @@ const filler = require('./../services/filler.service')
 const Web3Service = require('./../services/web3.service')
 const NFTV1Abi = require("../abis/v1/NFTSale.json");
 const AuctionV1Abi = require("../abis/v1/EnglishAuction.json");
+const ethers = require('ethers');
+
+// const
 
 // init DB
 const knex = Knex(dbConfig)
@@ -18,7 +21,8 @@ const getActiveCollectables = async () => {
     return collectables.filter(collectable => (collectable.purchase_type === SALE
         ? !collectable.is_sold_out
         : !collectable.winner_address)
-        && collectable.contract_address);
+        && collectable.contract_address
+        && ethers.utils.isAddress(collectable.contract_address));
 }
 
 const checkIfSoldOut = async (collectable) => {

@@ -6,6 +6,7 @@ const {Model} = require("objection");
 const {CollectableRepository} = require("./../repositories/index");
 const CollectableAuctionV1 = require("./watchers/v1/CollectableAuction")
 const CollectableSaleV1 = require("./watchers/v1/CollectableSale")
+const ethers = require('ethers');
 
 // init DB
 const knex = Knex(dbConfig)
@@ -17,7 +18,8 @@ const getCollectables = async () => {
     return collectables.filter(collectable => (collectable.purchase_type === SALE
         ? !collectable.is_sold_out
         : !collectable.winner_address)
-        && collectable.contract_address);
+        && collectable.contract_address
+        && ethers.utils.isAddress(collectable.contract_address));
 }
 
 let init = async () => {
