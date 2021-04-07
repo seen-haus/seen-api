@@ -15,7 +15,7 @@
     "fallback": "node ./src/workers/FallbackWorker.js",
     "user": "node ./src/workers/SetUser.js",
     "deploy": "pm2 deploy ./config/ecosystem.json production",
-    "watch": "nodemon --watch src --verbose -e js -L ./src/server.js "
+    "watch": "nodemon --watch src --verbose -e js -L ./src/server.js"
   },
   "author": "Crypto Samurai",
   "license": "ISC",

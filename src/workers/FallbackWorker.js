@@ -8,27 +8,24 @@ const filler = require('./../services/filler.service')
 const Web3Service = require('./../services/web3.service')
 const NFTV1Abi = require("../abis/v1/NFTSale.json");
 const AuctionV1Abi = require("../abis/v1/EnglishAuction.json");
-const {PUSHER: PUSHER_CONFIG} = require("../../config");
-const Pusher = require("pusher");
 
 // init DB
 const knex = Knex(dbConfig)
 Model.knex(knex)
 
 const getActiveCollectables = async () => {
-    return await CollectableRepository.active()
-        .filter(collectable => collectable.purchase_type === SALE
-            ? !collectable.is_sold_out
-            : !collectable.winner_address);
+    let collectables = await CollectableRepository.active();
+    return collectables.filter(collectable => (collectable.purchase_type === SALE
+        ? !collectable.is_sold_out
+        : !collectable.winner_address)
+        && collectable.contract_address);
 }
 
 const checkIfSoldOut = async (collectable) => {
     let service = new Web3Service(collectable.contract_address, NFTV1Abi);
     let isSoldOut = await service.isSoldOut();
     if (isSoldOut) {
-        collectable = await CollectableRepository.update({is_sold_out: 1}, collectable.id);
-        // Notify FE
-        await notify(collectable);
+        await CollectableRepository.update({is_sold_out: 1}, collectable.id);
     }
     return true
 };
@@ -38,26 +35,15 @@ const checkIfAuctionIsOver = async (collectable) => {
     let isOver = await service.isAuctionOver();
     if (isOver) {
         const winner = await EventRepository.getWinner(collectable.id);
-        collectable = await CollectableRepository.update({
+        await CollectableRepository.update({
             is_sold_out: 1,
             winner_address: winner.wallet_address
         }, collectable.id);
-        // Notify FE
-        await notify(collectable);
     }
     return true;
 };
 
-const notify = async (collectable) => {
-    try {
-        const pusher = new Pusher(PUSHER_CONFIG);
-        await pusher.trigger("collectable", 'update', collectable);
-    } catch (e) {
-        console.log(e)
-    }
-}
-
-const run = async () => {
+const run = async() => {
     const collectables = await getActiveCollectables();
     for (const collectable of collectables) {
         // Fill Events

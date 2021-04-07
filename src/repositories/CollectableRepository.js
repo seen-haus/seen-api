@@ -26,7 +26,6 @@ class CollectableRepository extends BaseRepository {
         return this.parserResult(result)
     }
 
-
     async paginate(perPage = 10, page = 1, query = {}) {
         let purchaseType = query.purchaseType ? parseInt(query.purchaseType) : null;
         let artistId = query.artistId ? parseInt(query.artistId) : null;
@@ -59,12 +58,7 @@ class CollectableRepository extends BaseRepository {
         fromDate = fromDate.toISOString();
 
         const result = await this.model.query()
-            .where('starts_at', '<=', fromDate)
-            .get();
-
-        if (!result) {
-            return null;
-        }
+            .where('starts_at', '<=', fromDate);
 
         return this.parserResult(result)
     }

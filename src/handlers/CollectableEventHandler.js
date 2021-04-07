@@ -13,7 +13,7 @@ class CollectableEventHandler extends BaseEventHandler {
         let dt = new Date();
         dt.setMinutes(dt.getMinutes() - 10);
         if (opt > dt) {
-            let price = CoinGeckoService.getTokenPrice("eth")
+            let price = await CoinGeckoService.getTokenPrice("eth")
                 .catch(e => {
                     console.log(e);
                     return 0;

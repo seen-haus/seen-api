@@ -11,26 +11,25 @@ const getTokenPrices = async () => {
     }
     const CoinGeckoClient = new CoinGecko();
     let response = await CoinGeckoClient.simple.price({
-        ids: ['wrapped-bitcoin', 'ethereum'],
+        ids: ['ethereum'],
         vs_currencies: ['usd'],
     });
     let data = {
-        eth: 0,
-        wbtc: 0
+        eth: 0
     };
     let responseData = response.data;
     if (!responseData) {
         return data
     }
     data.eth = responseData.ethereum.usd;
-    data.wbtc = responseData['wrapped-bitcoin'].usd;
     cache.set(cacheKey, JSON.stringify(data));
 
     return data;
 };
 
-const getTokenPrice = async (token) => {
-    return await getTokenPrices()[token.toLowerCase()];
+const getTokenPrice = async(token) => {
+    let response = await getTokenPrices();
+    return response[token.toLowerCase()];
 }
 
 module.exports = {

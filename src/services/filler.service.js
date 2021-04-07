@@ -250,7 +250,8 @@ module.exports = {
         }
 
         let service = new Web3Service(collectable.contract_address, abi);
-        let events = await service.findEvents(event)
+        let events = await service.findEvents(event);
+        console.log(events.length)
         for (let i = 0; i < events.length; i++) {
             await (new handler(collectable)).handle(events[i]);
         }

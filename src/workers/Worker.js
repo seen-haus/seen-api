@@ -12,12 +12,17 @@ const knex = Knex(dbConfig)
 Model.knex(knex)
 
 const getCollectables = async () => {
-    return await CollectableRepository.active()
-        .filter(collectable => !collectable.isPast);
+    let collectables = await CollectableRepository.active();
+
+    return collectables.filter(collectable => (collectable.purchase_type === SALE
+        ? !collectable.is_sold_out
+        : !collectable.winner_address)
+        && collectable.contract_address);
 }
 
 let init = async () => {
     const collectables = await getCollectables();
+
     collectables.forEach(collectable => {
         let watcher = {}
         switch (collectable.purchase_type) {
@@ -32,6 +37,7 @@ let init = async () => {
                     : new CollectableAuctionV1(collectable);
                 break;
         }
+
         try {
             watcher.init();
         } catch (e) {

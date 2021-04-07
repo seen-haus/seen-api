@@ -31,16 +31,19 @@ class Web3Service {
     }
 
     async isSoldOut() {
-        let contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
+        const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
         let supply = await contract.methods.supply().call();
 
         return parseInt(supply) === 0;
     }
 
     async isAuctionOver() {
-        /// Implement V2
+        const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
+        let startBidTide = await contract.methods.startBidTime().call();
+        let auctionLength = await contract.methods.auctionLength().call();
+        let endDate = new Date((parseInt(startBidTide) + parseInt(auctionLength)) * 1000);
 
-        return parseInt(supply) === 0;
+        return new Date() > endDate;
     }
 
 }

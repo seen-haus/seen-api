@@ -13,8 +13,9 @@ class BuyEventHandler extends CollectableEventHandler {
     async handle(event) {
         const returnValues = event.returnValues;
         const web3 = new Web3(INFURA_PROVIDER)
-        let block = await web3.eth.getBlock(event.blockNumber),
-            timestamp = block.timestamp,
+        let block = await web3.eth.getBlock(event.blockNumber);
+
+        let timestamp = block ? block.timestamp : (new Date() / 1000),
             eventId = event.id,
             amount = returnValues.amount,
             walletAddress = returnValues.buyer;
@@ -30,6 +31,7 @@ class BuyEventHandler extends CollectableEventHandler {
 
         try {
             usdValue = await this.resolveUsdValue((new DateHelper).resolveFromTimestamp(timestamp));
+            console.log(usdValue)
             usdValue = parseFloat(usdValue) * amount;
         } catch (e) {
             console.log(e);

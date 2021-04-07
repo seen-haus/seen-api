@@ -13,13 +13,6 @@ module.exports = class Collectable extends BaseModel {
         return "id"
     }
 
-    get isPast() {
-        let date = new Date();
-        date.setHours(date.getHours() + 6)
-        const total = this.ends_at  - (date / 1000);
-        return total < 0
-    }
-
     static get relationMappings() {
         return {
             artist: {

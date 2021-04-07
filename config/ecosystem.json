@@ -11,6 +11,28 @@
       "error_file": "/var/www/api.seen.haus/logs/server.err.log",
       "out_file": "/var/www/api.seen.haus/logs/server.out.log",
       "exec_mode": "cluster"
+    },
+    {
+      "name": "seen-fallback-worker",
+      "env": {
+        "NODE_ENV": "production"
+      },
+      "script": "./src/workers/FallbackWorker.js",
+      "cwd": "/var/www/api.seen.haus/webdir/source",
+      "error_file": "/var/www/api.seen.haus/logs/seen-fallback-worker.err.log",
+      "out_file": "/var/www/api.seen.haus/logs/seen-fallback-worker.out.log",
+      "exec_mode": "fork_mode"
+    },
+    {
+      "name": "seen-worker",
+      "env": {
+        "NODE_ENV": "production"
+      },
+      "script": "./src/workers/Worker.js",
+      "cwd": "/var/www/api.seen.haus/webdir/source",
+      "error_file": "/var/www/api.seen.haus/logs/seen-worker.err.log",
+      "out_file": "/var/www/api.seen.haus/logs/seen-worker.out.log",
+      "exec_mode": "fork_mode"
     }
   ],
   "deploy": {

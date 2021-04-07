@@ -15,6 +15,10 @@ class EventRepository extends BaseRepository {
             .where('collectable_id', collectableId)
             .orderBy('value', "DESC")
             .first();
+
+        if (!result) {
+            return null;
+        }
         return this.parserResult(result)
     }
 }
