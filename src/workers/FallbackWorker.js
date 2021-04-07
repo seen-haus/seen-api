@@ -35,6 +35,9 @@ const checkIfAuctionIsOver = async (collectable) => {
     let isOver = await service.isAuctionOver();
     if (isOver) {
         const winner = await EventRepository.getWinner(collectable.id);
+        if (!winner) {
+            return true;
+        }
         await CollectableRepository.update({
             is_sold_out: 1,
             winner_address: winner.wallet_address

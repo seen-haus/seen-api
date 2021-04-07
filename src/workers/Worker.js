@@ -41,7 +41,8 @@ let init = async () => {
         try {
             watcher.init();
         } catch (e) {
-            console.log("Watcher DESTROY")
+            console.log(e);
+            console.log("Watcher DESTROY", collectable.id, collectable.contract_address);
             watcher.destroy();
         }
     });
