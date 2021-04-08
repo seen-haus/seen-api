@@ -208,7 +208,7 @@ module.exports = {
                 type: item.type,
                 url: item.url,
                 position: i,
-                origin_url: "https://off---blue.s3-us-west-2.amazonaws.com/media" + url.pathname,
+                origin_url: "https://seen-assets.s3-us-west-2.amazonaws.com/" + url.pathname,
                 path,
                 collectable_id: collectable.id,
             })

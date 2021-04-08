@@ -15,15 +15,14 @@ class BidEventHandler extends CollectableEventHandler {
         const returnValues = event.returnValues;
         const web3 = new Web3(INFURA_PROVIDER)
         let block = await web3.eth.getBlock(event.blockNumber);
-
         let timestamp = block
             ? block.timestamp
             : parseInt(new Date() / 1000),
-            eventId = event.id,
+            transactionHash = event.transactionHash,
             walletAddress = returnValues.who,
             bid = web3.utils.fromWei(returnValues.amount);
 
-        let eventDb = await EventRepository.findByColumn('event_id', eventId);
+        let eventDb = await EventRepository.findByColumn('tx', transactionHash);
         if (eventDb) {
             return eventDb
         }
@@ -65,7 +64,7 @@ class BidEventHandler extends CollectableEventHandler {
             collectable_id: collectable.id,
             value: bid,
             value_in_usd: usdValue,
-            event_id: eventId,
+            tx: transactionHash,
             event_type: BID,
             raw: JSON.stringify(returnValues),
             created_at: (new DateHelper).resolveFromTimestamp(timestamp),

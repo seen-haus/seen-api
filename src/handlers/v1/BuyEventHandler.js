@@ -16,11 +16,11 @@ class BuyEventHandler extends CollectableEventHandler {
         let block = await web3.eth.getBlock(event.blockNumber);
 
         let timestamp = block ? block.timestamp : (new Date() / 1000),
-            eventId = event.id,
+            transactionHash = event.transactionHash,
             amount = returnValues.amount,
             walletAddress = returnValues.buyer;
 
-        let eventDb = await EventRepository.findByColumn('event_id', eventId);
+        let eventDb = await EventRepository.findByColumn('tx', transactionHash);
         if (eventDb) {
             return eventDb;
         }
@@ -41,7 +41,7 @@ class BuyEventHandler extends CollectableEventHandler {
             value_in_usd: usdValue,
             wallet_address: walletAddress,
             collectable_id: collectable.id,
-            event_id: eventId,
+            tx: transactionHash,
             event_type: BUY,
             raw: JSON.stringify(returnValues),
             created_at: (new DateHelper).resolveFromTimestamp(timestamp),
