@@ -12,7 +12,6 @@ class CollectableOutputTransformer extends BaseTransformer {
                 : [],
             events: collectable.events && collectable.events.length > 0
                 ? collectable.events.map(event => {
-                    delete event.raw
                     return event;
                 })
                 : [],
