@@ -197,11 +197,11 @@ module.exports = {
 
     async migrateMedia(collectable, media) {
         media = typeof media === 'string' ? JSON.parse(media) : media;
-        console.log(media)
         for (let i = 0; i < media.length; i++) {
             let item = media[i]
             let url = urlParse(item.url)
-            let path = url.charAt(0) === '/'
+
+            let path = item.url.charAt(0) === '/'
                 ? url.pathname.substr(1, url.pathname.length)
                 : url.pathname
             await MediaRepository.create({
@@ -234,6 +234,11 @@ module.exports = {
                         : NFTV1Abi;
                 }
                 if (collectable.type === TANGIBLE) {
+                    abi = collectable.version === V1
+                        ? EcommerceV1Abi
+                        : EcommerceV1Abi;
+                }
+                if (collectable.type === TANGIBLE_NFT) {
                     abi = collectable.version === V1
                         ? EcommerceV1Abi
                         : EcommerceV1Abi;

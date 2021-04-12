@@ -65,7 +65,7 @@ class CollectableRepository extends BaseRepository {
 
     async findByContractAddress(contractAddress) {
         const result = await this.model.query()
-            .withGraphFetched('[artist, media, events]')
+            .withGraphFetched('[artist.[collectables], media, events]')
             .where('contract_address', '=', contractAddress)
             .first();
         if (!result) {
