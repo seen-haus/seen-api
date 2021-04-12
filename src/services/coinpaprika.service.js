@@ -17,7 +17,6 @@ const getTokenPrice = async (token, timestamp) => {
             break
     }
 
-    console.log(coinId, timestamp)
     await bucket.throttle();
     let params = {
         coinId,
@@ -28,7 +27,6 @@ const getTokenPrice = async (token, timestamp) => {
             interval: '5m'
         },
     };
-    console.log(params)
     let response = await (new CoinpaprikaAPI())
         .getAllTickers(params).catch(e => {
             console.log(e);

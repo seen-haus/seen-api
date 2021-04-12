@@ -125,6 +125,7 @@ const migrateProducts = async (products) => {
 
 
 const migrateAuctions = async (auctions, tokens) => {
+    auctions = auctions.filter(a => a.id !== 9);
     for (let i = 0; i < auctions.length; i++) {
         let auction = auctions[i];
         let token = tokens.find(t => t.uuid === auction.token_uuid)
