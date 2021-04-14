@@ -13,6 +13,9 @@ class UserController extends Controller {
             return this.sendResponse(res, null);
         }
         let user = await UserRepository.findByAddress(walletAddress);
+        if (!user) {
+            return this.sendResponse(res, null);
+        }
         this.sendResponse(res, {user: UserOutputTransformer.transform(user)});
     }
 
