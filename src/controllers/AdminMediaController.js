@@ -40,6 +40,16 @@ class AdminMediaController extends Controller {
         )
     }
 
+    async preview(req, res) {
+        const id = req.params.id;
+        let media = await MediaRepository.find(id);
+        if (!media) {
+            return this.sendError(res, "Not Found")
+        }
+        await MediaRepository.update({is_preview: !media.is_preview }, id);
+        this.sendResponse(res, {status: "success"});
+    }
+
     async delete(req, res) {
         const id = req.params.id;
         let media = await MediaRepository.find(id);

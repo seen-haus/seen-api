@@ -13,27 +13,26 @@ const PasswordHelper = require("../utils/PasswordHelper")
 /**
  * Arguments
  */
-const wallet = argv.wallet;
+const id = argv.id;
 const password = argv.password;
 
-const setUser = async (wallet, password) => {
-    wallet = "0x" + wallet;
-    const user = await UserRepository.findByColumn('wallet', wallet);
-    console.log(user, password, wallet)
+const setUser = async (id, password) => {
+    const user = await UserRepository.find(id);
     password = PasswordHelper.getHashedPassword(password);
     if (user) {
         await UserRepository.update({password}, user.id)
-    } else {
-        await UserRepository.create({
-            wallet,
-            password
-        });
     }
+    // else {
+    //     await UserRepository.create({
+    //         wallet,
+    //         password
+    //     });
+    // }
     process.exit();
 };
 
-if (wallet && password) {
-    setUser(wallet, password);
+if (id && password) {
+    setUser(id, password);
 }
 
 

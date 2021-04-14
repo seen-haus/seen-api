@@ -155,6 +155,11 @@ Router.post('/admin/media/', [
     body('files').notEmpty(),
 ], 'AdminMediaController@store');
 
+
+Router.put('/admin/media/:id/preview', [
+    authenticateJWT,
+], 'AdminMediaController@preview');
+
 Router.put('/admin/media/:id', [
     authenticateJWT,
     body('position').isNumeric().notEmpty(),

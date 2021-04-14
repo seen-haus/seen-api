@@ -9,7 +9,7 @@ class MediaOutputTransformer extends BaseTransformer {
             position: media.position,
             type: media.type,
             collectable_id: media.collectable_id,
-            is_preview: media.is_preview,
+            is_preview: !!media.is_preview,
         }
     }
 }

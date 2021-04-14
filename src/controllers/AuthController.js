@@ -12,7 +12,12 @@ class AuthController extends Controller {
         const {wallet, password} = req.body;
 
         // Filter user from the users array by username and password
-        const user = await UserRepository.findByColumn('wallet', wallet);
+        const user = await UserRepository.findByColumn('username', wallet);
+
+         if (!user) {
+            this.sendResponse(res, null, "Username or password incorrect");
+            return;
+        }
 
         if (!user.password || user.password !== PasswordHelper.getHashedPassword(password)) {
             this.sendResponse(res, null, "Username or password incorrect");
@@ -20,7 +25,7 @@ class AuthController extends Controller {
         }
 
         // Generate an access token
-        const accessToken = jwt.sign({wallet: wallet}, JWT_SECRET, {expiresIn: "2d"});
+        const accessToken = jwt.sign({username: wallet}, JWT_SECRET, {expiresIn: "2d"});
         this.sendResponse(res, { accessToken });
     }
 }

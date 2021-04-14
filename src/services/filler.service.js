@@ -204,6 +204,12 @@ module.exports = {
             let path = item.url.charAt(0) === '/'
                 ? url.pathname.substr(1, url.pathname.length)
                 : url.pathname
+
+            // TODO test
+            if (item.url.includes("https://d2n6rvskq73172.cloudfront.net/")) {
+                item.url = item.url.replace("https://d2n6rvskq73172.cloudfront.net/", "https://assets.seen.haus/");
+            }
+
             await MediaRepository.create({
                 type: item.type,
                 url: item.url,
