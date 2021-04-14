@@ -100,7 +100,7 @@ Router.post('/admin/collectables/', [
     body('min_bid').if((value, {req}) => req.body.purchase_type === purchaseTypes.AUCTION).notEmpty(),
     body('price').if((value, {req}) => req.body.purchase_type === purchaseTypes.SALE).notEmpty().isNumeric(),
     body('available_qty').if((value, {req}) => req.body.purchase_type === purchaseTypes.SALE).notEmpty().isNumeric(),
-    body('edition').notEmpty().isNumeric(),
+    body('edition').if((value, {req}) => req.body.purchase_type === purchaseTypes.AUCTION).notEmpty().isNumeric(),
     body('artist_id').notEmpty().isNumeric(),
     body('edition_of').notEmpty().isNumeric(),
 ], 'AdminCollectableController@store');
