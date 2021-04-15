@@ -21,13 +21,11 @@ class AdminMediaController extends Controller {
                 for (let i = 0; i < req.files.length; i++) {
                     let file = req.files[i];
                     let url = urlParse(file.location);
-                    // TODO: replace this with url
-                    // CloudfrontHelper.replaceHost(file.location)
                     let path = url.pathname.charAt(0) === '/'
                         ? url.pathname.substr(1, url.pathname.length)
                         : url.pathname
                     let obj = await MediaRepository.create({
-                        url: file.location,
+                        url: CloudfrontHelper.replaceHost(file.location),
                         type: file.mimetype,
                         position: i,
                         origin_url: file.location,

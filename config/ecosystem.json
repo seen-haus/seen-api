@@ -13,17 +13,6 @@
       "exec_mode": "cluster"
     },
     {
-      "name": "seen-fallback-worker",
-      "env": {
-        "NODE_ENV": "production"
-      },
-      "script": "./src/workers/FallbackWorker.js",
-      "cwd": "/var/www/api.seen.haus/webdir/source",
-      "error_file": "/var/www/api.seen.haus/logs/seen-fallback-worker.err.log",
-      "out_file": "/var/www/api.seen.haus/logs/seen-fallback-worker.out.log",
-      "exec_mode": "fork_mode"
-    },
-    {
       "name": "seen-worker",
       "env": {
         "NODE_ENV": "production"
@@ -49,7 +38,7 @@
       "ref": "origin/master",
       "repo": "git@github.com:seen-haus/seen-api.git",
       "path": "/var/www/api.seen.haus/webdir",
-      "post-deploy": "npm install && npm run migrate && pm2 reload ./config/ecosystem.json && pm2 save"
+      "post-deploy": "npm install && npm run migrate && npm run fallback && pm2 reload ./config/ecosystem.json && pm2 save"
     }
   }
 }

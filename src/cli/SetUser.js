@@ -31,6 +31,7 @@ const setUser = async (id, password) => {
     process.exit();
 };
 
+console.log(id && password)
 if (id && password) {
     setUser(id, password);
 }

@@ -15,9 +15,8 @@ class BidEventHandler extends CollectableEventHandler {
         const returnValues = event.returnValues;
         const web3 = new Web3(INFURA_PROVIDER)
         let block = await web3.eth.getBlock(event.blockNumber);
-        let timestamp = block
-            ? block.timestamp
-            : parseInt(new Date() / 1000),
+
+        let timestamp = block ? block.timestamp : (new Date() / 1000),
             transactionHash = event.transactionHash,
             walletAddress = returnValues.who,
             bid = web3.utils.fromWei(returnValues.amount);

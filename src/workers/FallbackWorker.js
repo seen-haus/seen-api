@@ -50,6 +50,10 @@ const checkIfAuctionIsOver = async (collectable) => {
     return true;
 };
 
+/**
+ * Fills events, checkes if sale is sold out, auction is over.
+ * @return {Promise<void>}
+ */
 const run = async() => {
     const collectables = await getActiveCollectables();
     for (const collectable of collectables) {
@@ -64,6 +68,7 @@ const run = async() => {
                 break;
         }
     }
+    console.log("FALLBACK SUCCESSFULLY RAN")
     process.exit();
 }
 
