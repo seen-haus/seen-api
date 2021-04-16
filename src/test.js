@@ -6,9 +6,6 @@ const knex = Knex(dbConfig)
 const {CollectableRepository} = require("./repositories/index")
 const fillerService = require("./services/filler.service")
 Model.knex(knex)
-
-
-
 const init = async () => {
    let collectables = await CollectableRepository.all();
     for (let i = 0; i < collectables.length; i++) {
@@ -16,5 +13,4 @@ const init = async () => {
         await fillerService.fillEvents(collectable);
     }
 }
-
 init();
