@@ -133,6 +133,9 @@ module.exports = {
      * @return {Promise<void>}
      */
     async migrateCollectible(type, purchaseType, data, artist, media) {
+        if (artist.avatar.includes("https://d2n6rvskq73172.cloudfront.net/")) {
+            artist.avatar = artist.avatar.replace("https://d2n6rvskq73172.cloudfront.net/", "https://assets.seen.haus/");
+        }
         artist.socials = artist.socials == 'string' ? JSON.parse(artist.socials) : artist.socials
         artist.socials = artist.socials.map(social => {
             let url = new URL(social.url)
@@ -214,7 +217,7 @@ module.exports = {
                 type: item.type,
                 url: item.url,
                 position: i,
-                origin_url: "https://seen-assets.s3-us-west-2.amazonaws.com/" + url.pathname,
+                origin_url: "https://seen-assets.s3-us-west-2.amazonaws.com" + url.pathname,
                 path,
                 collectable_id: collectable.id,
             })

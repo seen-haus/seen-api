@@ -46,6 +46,20 @@ class Web3Service {
         return new Date() > endDate;
     }
 
+    // @todo test it
+    async isAuctionOverV2() {
+        const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
+        let endTime = await contract.methods.end().call();
+        let endDate = new Date((parseInt(endTime)) * 1000);
+
+        return new Date() > endDate;
+    }
+
+    async getWinningAddress() {
+        const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
+        return await contract.methods.winning().call();
+    }
+
 }
 
 module.exports = Web3Service;

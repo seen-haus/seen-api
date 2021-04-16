@@ -35,6 +35,7 @@ class LeaderboardController extends Controller {
             password: dbConfig.connection.password,
             database: dbConfig.connection.database,
             port: dbConfig.connection.port,
+            timezone: 'utc'
         });
 
         connection.connect();

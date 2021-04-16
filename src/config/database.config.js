@@ -9,6 +9,7 @@ module.exports =  {
         database: env("DB_NAME"),
         user: env("DB_USER"),
         password: env("DB_PASS"),
+        timezone: 'UTC',
     },
     migrations: {
         tableName: 'migrations_new',

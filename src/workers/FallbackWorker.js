@@ -38,13 +38,29 @@ const checkIfAuctionIsOver = async (collectable) => {
     const service = new Web3Service(collectable.contract_address, AuctionV1Abi);
     let isOver = await service.isAuctionOver();
     if (isOver) {
-        const winner = await EventRepository.getWinner(collectable.id);
-        if (!winner) {
+        const winnerAddress = await service.getWinningAddress();
+        if (!winnerAddress) {
             return true;
         }
         await CollectableRepository.update({
             is_sold_out: 1,
-            winner_address: winner.wallet_address
+            winner_address: winnerAddress
+        }, collectable.id);
+    }
+    return true;
+};
+
+const checkIfAuctionV2IsOver = async (collectable) => {
+    const service = new Web3Service(collectable.contract_address, AuctionV1Abi);
+    let isOver = await service.isAuctionOverV2();
+    if (isOver) {
+        const winnerAddress = await service.getWinningAddress();
+        if (!winnerAddress) {
+            return true;
+        }
+        await CollectableRepository.update({
+            is_sold_out: 1,
+            winner_address: winnerAddress
         }, collectable.id);
     }
     return true;
@@ -64,7 +80,13 @@ const run = async() => {
                 await checkIfSoldOut(collectable);
                 break;
             case AUCTION:
-                await checkIfAuctionIsOver(collectable);
+                if (collectable.version === V1) {
+                    await checkIfAuctionIsOver(collectable);
+                } else {
+                    // todo
+                    await checkIfAuctionIsOver(collectable);
+                    // await checkIfAuctionV2IsOver(collectable);
+                }
                 break;
         }
     }

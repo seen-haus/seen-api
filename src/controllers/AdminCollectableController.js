@@ -39,10 +39,11 @@ class AdminCollectableController extends Controller {
         }
 
         const payload = {...collectableDB, ...req.body};
+        console.log(payload, req.body)
         const transformer = purchaseTypes.SALE
             ? CollectableSaleTangibleTransformer
             : CollectableAuctionTransformer;
-        
+
         const collectable = await CollectableRepository
             .setTransformer(transformer)
             .update(transformer.transform(payload), id);

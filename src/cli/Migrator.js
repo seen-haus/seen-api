@@ -20,6 +20,7 @@ const connection = mysql.createConnection({
     password: dbConfig.connection.password,
     database: dbConfig.connection.database,
     port: dbConfig.connection.port,
+    timezone: 'utc'
 });
 /**
  * Arguments

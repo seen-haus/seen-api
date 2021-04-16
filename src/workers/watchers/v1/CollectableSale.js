@@ -11,11 +11,7 @@ module.exports = class CollectableSaleV1 extends Watcher {
     }
 
     async handleBuyEvent(evt) {
-        let event = await (new BuyEventHandler(this.collectable)).handle(evt)
-        console.log(evt)
-        if (event) {
-            await this.dispatch('event', {...event});
-        }
+        await (new BuyEventHandler(this.collectable)).handle(evt)
         return true;
     }
 

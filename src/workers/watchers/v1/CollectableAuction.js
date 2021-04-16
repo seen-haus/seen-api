@@ -11,14 +11,8 @@ module.exports = class CollectableAuctionV1 extends Watcher {
     }
 
     async handleBidEvent(evt) {
-          console.log(evt)
-        let event = await (new BidEventHandler(this.collectable)).handle(evt);
-        if (event) {
-            console.log(event)
-            await this.dispatch('event', {...event});
-        }
-
-        return event;
+        await (new BidEventHandler(this.collectable)).handle(evt);
+        return true;
     }
 
     async destroy() {
