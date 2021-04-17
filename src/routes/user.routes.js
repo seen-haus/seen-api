@@ -4,6 +4,8 @@ const {body} = require('express-validator');
 
 const Router = require("./Router");
 Router.get('/users/:walletAddress', [], 'UserController@show');
+Router.get('/users/:walletAddress/username', [], 'UserController@resolveUsername');
+
 // Router.post('/users/', [], 'UserController@create');
 Router.put('/users/:walletAddress', [
     body("sig").notEmpty().isString(),

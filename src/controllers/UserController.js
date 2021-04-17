@@ -19,6 +19,18 @@ class UserController extends Controller {
         this.sendResponse(res, {user: UserOutputTransformer.transform(user)});
     }
 
+    async resolveUsername(req, res) {
+        const walletAddress = req.params.walletAddress;
+        if (!walletAddress || (walletAddress && !ethers.utils.isAddress(walletAddress))) {
+            return this.sendResponse(res, null);
+        }
+        let user = await UserRepository.findByAddress(walletAddress);
+        if (!user) {
+            return this.sendResponse(res, null);
+        }
+        this.sendResponse(res, {username: user.username});
+    }
+
     async update(req, res) {
         const payload = req.body;
         const walletAddress = payload.walletAddress
