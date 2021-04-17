@@ -80,10 +80,12 @@ const run = async() => {
                 await checkIfSoldOut(collectable);
                 break;
             case AUCTION:
-                if (collectable.version === V1) {
+                if (collectable.version == V1) {
+                    console.log("AUCTION V1")
                     await checkIfAuctionIsOver(collectable);
                 } else {
                     // todo
+                    console.log("AUCTION V2")
                     await checkIfAuctionIsOver(collectable);
                     // await checkIfAuctionV2IsOver(collectable);
                 }
