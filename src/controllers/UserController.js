@@ -31,6 +31,27 @@ class UserController extends Controller {
         this.sendResponse(res, {username: user.username});
     }
 
+    async resolveUsernames(req, res) {
+        const payload = req.body;
+        const walletAddresses = payload.walletAddresses;
+        if (!walletAddresses || walletAddresses.length === 0) {
+            return this.sendResponse(res, []);
+        }
+
+        let users = await UserRepository.query().whereIn('wallet', walletAddresses);
+
+        if (users.length == 0) {
+            return this.sendResponse(res, []);
+        }
+
+        let arr = users.map(u => ({
+            walletAddress: u.wallet,
+            username: u.username
+        }));
+
+        this.sendResponse(res, arr);
+    }
+
     async update(req, res) {
         const payload = req.body;
         const walletAddress = payload.walletAddress

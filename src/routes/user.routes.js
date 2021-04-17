@@ -3,6 +3,11 @@
 const {body} = require('express-validator');
 
 const Router = require("./Router");
+
+Router.post('/users/usernames', [
+    body("walletAddresses").notEmpty(),
+], 'UserController@resolveUsernames');
+
 Router.get('/users/:walletAddress', [], 'UserController@show');
 Router.get('/users/:walletAddress/username', [], 'UserController@resolveUsername');
 
