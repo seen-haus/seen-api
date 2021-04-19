@@ -7,6 +7,7 @@ const Collectable = require('./collectable.routes')
 const Spotlight = require('./spotlight.routes')
 const Admin = require('./admin.routes')
 const Artist = require('./artist.routes')
+const Claim = require('./claim.routes');
 
 module.exports = app => {
     app.use("", Bespoke)
@@ -16,4 +17,5 @@ module.exports = app => {
     app.use("", Spotlight)
     app.use("", Admin)
     app.use("", Artist)
+    app.use("", Claim);
 }
