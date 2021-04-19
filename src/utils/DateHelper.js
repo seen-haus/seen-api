@@ -6,4 +6,10 @@ module.exports = class DateHelper {
     resolveCurrentTimestamp() {
         return (new Date()).getTime();
     }
+
+    resolveDBTimestamp(timestamp) {
+        let date = new Date(timestamp)
+        date.setSeconds(0);
+        return date;
+    }
 }

@@ -1,7 +1,8 @@
 const BaseTransformer = require("./../BaseTransformer");
-
+const DateHelper = require("./../../utils/DateHelper");
 class CollectableAuctionTransformer extends BaseTransformer {
     transform(collectable) {
+
         return {
             id: collectable.id,
             title: collectable.title,
@@ -19,8 +20,8 @@ class CollectableAuctionTransformer extends BaseTransformer {
             is_sold_out: collectable.is_sold_out,
             created_at: collectable.created_at,
             updated_at: collectable.updated_at,
-            starts_at: collectable.starts_at,
-            ends_at: collectable.ends_at,
+            starts_at: (new DateHelper).resolveDBTimestamp(collectable.starts_at),
+            ends_at: (new DateHelper).resolveDBTimestamp(collectable.ends_at),
             start_bid: collectable.min_bid,
             min_bid: collectable.min_bid,
             artist_statement: collectable.artist_statement,
