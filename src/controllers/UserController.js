@@ -38,7 +38,8 @@ class UserController extends Controller {
             return this.sendResponse(res, []);
         }
 
-        let users = await UserRepository.query().whereIn('wallet', walletAddresses);
+        let users = await UserRepository.query()
+            .whereIn('wallet', walletAddresses);
 
         if (users.length == 0) {
             return this.sendResponse(res, []);

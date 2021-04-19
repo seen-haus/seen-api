@@ -16,7 +16,7 @@ module.exports = class CollectableSaleV1 extends Watcher {
     }
 
     async destroy() {
-        console.log("=== DESTROY EVENTS ===");
+        console.log("=== DESTROY EVENTS ===", this.collectable.title, this.collectable.id)
         if (this.buySubscription) {
             try {
                 await this.buySubscription.unsubscribe()
@@ -45,7 +45,7 @@ module.exports = class CollectableSaleV1 extends Watcher {
                 .on('error', this.handleError.bind(this));
         }
 
-        console.log("Worker initialized", this.collectable.id)
+        console.log("Worker for ", this.collectable.title, this.collectable.id, " initialized")
     }
 
 }

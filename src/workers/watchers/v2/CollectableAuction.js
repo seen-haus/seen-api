@@ -1,10 +1,10 @@
 const Watcher = require("../Watcher");
-const BidEventHandler = require("../../../handlers/v1/BidEventHandler");
+const BidEventHandler = require("../../../handlers/v2/BidEventHandler");
 const {INFURA_PROVIDER} = require("../../../config");
 const Web3 = require('web3');
 const ABI = require("./../../../abis/v1/EnglishAuction.json");
 
-module.exports = class CollectableAuctionV1 extends Watcher {
+module.exports = class CollectableAuction extends Watcher {
     constructor(collectable) {
         super(collectable);
         this.abi = ABI;
@@ -16,7 +16,7 @@ module.exports = class CollectableAuctionV1 extends Watcher {
     }
 
     async destroy() {
-        console.log("=== DESTROY EVENTS ===", this.collectable.title, this.collectable.id)
+        console.log("=== DESTROY EVENTS ===", this.collectable.title, this.collectable.id);
         if (this.bidSubscription) {
             try {
                 await this.bidSubscription.unsubscribe()
@@ -35,6 +35,7 @@ module.exports = class CollectableAuctionV1 extends Watcher {
 
     init() {
         let web3 = new Web3(INFURA_PROVIDER);
+        console.log("contract", this.collectable.contract_address)
         let contract = new web3.eth.Contract(this.abi, this.collectable.contract_address)
         if (!this.bidSubscription) {
             console.log("bidSubscription INITIALIZE for  ", this.collectable.title, this.collectable.id)

@@ -1,7 +1,7 @@
 const CollectableEventHandler = require("../CollectableEventHandler");
 const {EventRepository, CollectableRepository} = require("../../repositories");
 const Web3 = require('web3');
-const ABI = require("./../../abis/v1/EnglishAuction.json")
+const ABI = require("./../../abis/v2/EnglishAuction.json")
 const DateHelper = require("./../../utils/DateHelper");
 const {INFURA_PROVIDER} = require("./../../config");
 const {BID} = require("./../../constants/Events");
@@ -29,14 +29,15 @@ class BidEventHandler extends CollectableEventHandler {
 
         const collectable = await CollectableRepository.find(this.collectable.id);
         const endsAtTimestamp = Date.parse(collectable.ends_at) / 1000;
-        let needsEndsAtUpdate = (timestamp >= endsAtTimestamp || (endsAtTimestamp - timestamp) <= 300);
-
+        let needsEndsAtUpdate = (timestamp >= endsAtTimestamp || (endsAtTimestamp - timestamp) <= 7200);
+        console.log("NEEDS UPDATE", needsEndsAtUpdate, endsAtTimestamp, timestamp)
         // block timestamp > ends at || diff between endsAtTimestamp and timestamp <= 5min
         if (collectable.min_bid < bid || needsEndsAtUpdate) {
             let endsAt = collectable.ends_at;
             if (needsEndsAtUpdate) {
                 const contract = new web3.eth.Contract(ABI, this.collectable.contract_address);
-                let endTime = await contract.methods.end().call();
+                let endTime = await contract.methods.endTime().call();
+                console.log(endTime)
                 endsAt = (new DateHelper).resolveFromTimestamp(parseInt(endTime))
             }
 
