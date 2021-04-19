@@ -74,6 +74,17 @@ class CollectableRepository extends BaseRepository {
         return this.parserResult(result)
     }
 
+    async findBySlug(contractAddress) {
+        const result = await this.model.query()
+            .withGraphFetched('[artist.[collectables], media, events]')
+            .where('slug', '=', contractAddress)
+            .first();
+        if (!result) {
+            return null;
+        }
+        return this.parserResult(result)
+    }
+
     async findById(id) {
         const result = await this.model.query()
             .withGraphFetched('[artist.[collectables], media, events]')

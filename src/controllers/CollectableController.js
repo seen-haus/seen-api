@@ -20,9 +20,17 @@ class CollectableController extends Controller {
 
     async show(req, res) {
         const contractAddress = req.params.contractAddress;
+
         let data = await CollectableRepository
-            .setTransformer(CollectableOutputTransformer)
-            .findByContractAddress(contractAddress);
+                .setTransformer(CollectableOutputTransformer)
+                .findBySlug(contractAddress);
+
+        if (!data) {
+             data = await CollectableRepository
+                .setTransformer(CollectableOutputTransformer)
+                .findByContractAddress(contractAddress);
+
+        }
 
         if (!data) {
             data = await CollectableRepository

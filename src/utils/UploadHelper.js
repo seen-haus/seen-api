@@ -33,7 +33,7 @@ const upload = multer({
         },
         key: function (req, file, cb) {
             const fileName = Date.now().toString() + file.originalname.replace(/\s/g, "-")
-            cb(null, folderPrefix + fileName);
+            cb(null, folderPrefix + fileName.toLowerCase());
         },
     }),
 });
