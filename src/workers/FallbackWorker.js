@@ -19,7 +19,7 @@ Model.knex(knex)
 const getActiveCollectables = async () => {
     let collectables = await CollectableRepository.active();
     return collectables.filter(collectable => (collectable.purchase_type === SALE
-        ? !collectable.is_sold_out
+        ? (!collectable.is_sold_out && !collectable.is_closed)
         : !collectable.winner_address)
         && collectable.contract_address
         && ethers.utils.isAddress(collectable.contract_address));
