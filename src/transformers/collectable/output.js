@@ -43,6 +43,7 @@ class CollectableOutputTransformer extends BaseTransformer {
             nft_token_id: collectable.nft_token_id,
             created_at: collectable.created_at,
             updated_at: collectable.updated_at,
+            is_closed: !!collectable.is_closed,
         }
     }
 }

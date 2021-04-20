@@ -33,6 +33,7 @@ class CollectableTransformer extends BaseTransformer {
             nft_contract_address: collectable.nft_contract_address,
             nft_ipfs_hash: collectable.nft_ipfs_hash,
             nft_token_id: collectable.nft_token_id,
+            is_closed: collectable.is_closed,
         }
     }
 }
