@@ -65,7 +65,7 @@ class ClaimController extends Controller {
         zip,
         country,
         province,
-        collectable_id: claimant.claim.collactable.contract_address,
+        collectable_id: claimant.claim.collectable.id,
         telegram_username,
         phone
     });
