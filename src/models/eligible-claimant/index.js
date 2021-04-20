@@ -1,5 +1,5 @@
-const {CLAIMS_TABLE, ELIGIBLE_CLAIMANTS_TABLE} = require("./../../constants/DBTables")
-const BaseModel = require("./../BaseModel");
+const {CLAIMS_TABLE, ELIGIBLE_CLAIMANTS_TABLE} = require("../../constants/DBTables")
+const BaseModel = require("../BaseModel");
 const Claim = require("../claim");
 
 module.exports = class EligibleClaimant extends BaseModel {

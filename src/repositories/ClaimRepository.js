@@ -14,6 +14,7 @@ class ClaimRepository extends BaseRepository {
         const result = await this.model.query()
             .withGraphJoined('collectable')
             .where('collectable.contract_address', '=', contractAddress)
+            .where('claims.is_active', true)
             .first();
         if (!result) {
             return null;

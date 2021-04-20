@@ -1,4 +1,4 @@
-const {EligibleClaimantModel} = require("./../models");
+const {EligibleClaimantModel} = require("../models");
 const BaseRepository = require("./BaseRepository");
 
 class EligibleClaimantRepository extends BaseRepository {
