@@ -25,7 +25,7 @@ const getCollectables = async () => {
 
 let init = async () => {
     const collectables = await getCollectables();
-
+    console.log("COLLECTABLES TO LISTEN: ", collectables.length)
     collectables.forEach(collectable => {
         let watcher = {}
         switch (collectable.purchase_type) {

@@ -56,7 +56,7 @@ class CollectableRepository extends BaseRepository {
         let fromDate = new Date();
         fromDate.setHours(fromDate.getHours() - 1)
         fromDate = fromDate.toISOString();
-
+        console.log("From date", fromDate)
         const result = await this.model.query()
             .where('starts_at', '<=', fromDate);
 
