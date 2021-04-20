@@ -5,7 +5,9 @@ const UserModel = require("./user")
 const SpotlightModel = require("./spotlight")
 const EventModel = require("./event")
 const MediaModel = require("./media")
+const ClaimModel = require("./claim")
+const EligibleClaimantModel = require("./eligible-claimant")
 
 module.exports = Object.freeze({
-    CollectableModel, UserModel, ArtistModel, EventModel, CollectableWinnerModel, SpotlightModel, MediaModel
+    CollectableModel, UserModel, ArtistModel, EventModel, CollectableWinnerModel, SpotlightModel, MediaModel, ClaimModel, EligibleClaimantModel
 });

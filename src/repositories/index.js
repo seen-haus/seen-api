@@ -5,6 +5,8 @@ const CollectableWinnerRepository = require("./CollectableWinnerRepository");
 const SpotlightRepository = require("./SpotlightRepository");
 const UserRepository = require("./UserRepository");
 const MediaRepository = require("./MediaRepository");
+const ClaimRepository = require("./ClaimRepository");
+const EligibleClaimantRepository = require("./EligibleClaimantRepository");
 
 module.exports = Object.freeze({
     ArtistRepository,
@@ -13,5 +15,7 @@ module.exports = Object.freeze({
     CollectableWinnerRepository,
     SpotlightRepository,
     UserRepository,
-    MediaRepository
+    MediaRepository,
+    ClaimRepository,
+    EligibleClaimantRepository,
 });
