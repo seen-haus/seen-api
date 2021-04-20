@@ -54,7 +54,7 @@ class CollectableRepository extends BaseRepository {
 
     async active() {
         let fromDate = new Date();
-        fromDate.setHours(fromDate.getHours() - 1)
+        fromDate.setHours(fromDate.getHours() + 1)
         fromDate = fromDate.toISOString();
         console.log("From date", fromDate)
         const result = await this.model.query()
