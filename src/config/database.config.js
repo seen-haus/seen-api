@@ -10,6 +10,7 @@ module.exports =  {
         user: env("DB_USER"),
         password: env("DB_PASS"),
         timezone: 'UTC',
+        charset : 'utf8mb4'
     },
     migrations: {
         tableName: 'migrations_new',
