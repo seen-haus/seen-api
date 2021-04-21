@@ -8,6 +8,7 @@ const filler = require('./../services/filler.service')
 const Web3Service = require('./../services/web3.service')
 const NFTV1Abi = require("../abis/v1/NFTSale.json");
 const AuctionV1Abi = require("../abis/v1/EnglishAuction.json");
+const AuctionV2Abi = require("../abis/v2/EnglishAuction.json");
 const ethers = require('ethers');
 
 // const
@@ -51,7 +52,8 @@ const checkIfAuctionIsOver = async (collectable) => {
 };
 
 const checkIfAuctionV2IsOver = async (collectable) => {
-    const service = new Web3Service(collectable.contract_address, AuctionV1Abi);
+    console.log("CALLED")
+    const service = new Web3Service(collectable.contract_address, AuctionV2Abi);
     let isOver = await service.isAuctionOverV2();
     if (isOver) {
         const winnerAddress = await service.getWinningAddress();
@@ -84,10 +86,8 @@ const run = async() => {
                     console.log("AUCTION V1")
                     await checkIfAuctionIsOver(collectable);
                 } else {
-                    // todo
                     console.log("AUCTION V2")
-                    await checkIfAuctionIsOver(collectable);
-                    // await checkIfAuctionV2IsOver(collectable);
+                    await checkIfAuctionV2IsOver(collectable);
                 }
                 break;
         }
