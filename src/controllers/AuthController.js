@@ -18,9 +18,10 @@ class AuthController extends Controller {
             this.sendResponse(res, null, "Username or password incorrect");
             return;
         }
-
-         console.log(user.password, PasswordHelper.getHashedPassword(password))
-        if (!user.password || user.password !== PasswordHelper.getHashedPassword(password)) {
+        let pass = user.password;
+         console.log(user)
+         console.log(pass, PasswordHelper.getHashedPassword(password))
+        if (!pass || pass !== PasswordHelper.getHashedPassword(password)) {
             this.sendResponse(res, null, "Username or password incorrect 2");
             return;
         }
