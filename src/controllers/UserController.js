@@ -4,6 +4,10 @@ const {UserOutputTransformer, UserTransformer} = require("./../transformers");
 const Web3Helper = require("./../utils/Web3Helper");
 const ethers = require('ethers');
 const {body, validationResult} = require('express-validator');
+const CloudfrontHelper = require("./../utils/CloudfrontHelper");
+const urlParse = require('url-parse');
+const uploadHelper = require("./../utils/AvatarHelper");
+
 
 class UserController extends Controller {
 
@@ -47,10 +51,25 @@ class UserController extends Controller {
 
         let arr = users.map(u => ({
             walletAddress: u.wallet,
-            username: u.username
+            username: u.username,
+            image: u.image
         }));
 
         this.sendResponse(res, arr);
+    }
+
+    async avatar(req, res) {
+        let fnc = uploadHelper.array("files", 1)
+        fnc(req, res, async (err) => {
+                if (err) {
+                    this.sendError(res, err, 400);
+                    return;
+                }
+                let file = req.files[0];
+                let url = CloudfrontHelper.replaceHost(file.location)
+                this.sendResponse(res, {url})
+            }
+        )
     }
 
     async update(req, res) {
@@ -77,12 +96,12 @@ class UserController extends Controller {
             .setTransformer(UserOutputTransformer)
             .findByAddress(walletAddress);
 
-        let {username, description, twitter, website} = payload;
+        let {username, description, twitter, website, image} = payload;
         twitter = twitter ? twitter : null
         website = website ? website : null
         let socials = !twitter && !website ? null : {twitter, website}
 
-        let data = {username, description, socials};
+        let data = {username, description, socials, image};
         if (!user) {
             data.wallet = walletAddress;
             user = await UserRepository

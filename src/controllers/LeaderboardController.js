@@ -12,12 +12,14 @@ class LeaderboardController extends Controller {
                 SUM(events.value) as total_amount,
                 s.wallet_address,
                 s.username,
+                s.image,
                 s.amount_spent
             FROM (
                 SELECT
                 COUNT(DISTINCT collectables.id) as won,
                 collectables.winner_address as wallet_address,
                 users.username as username,
+                users.image as image,
                 SUM(collectables.min_bid) as amount_spent
                 FROM collectables
                 LEFT JOIN users on users.wallet = collectables.winner_address

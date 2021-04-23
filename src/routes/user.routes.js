@@ -8,6 +8,10 @@ Router.post('/users/usernames', [
     body("walletAddresses").notEmpty(),
 ], 'UserController@resolveUsernames');
 
+Router.post('/users/avatars/', [
+    body('files').notEmpty(),
+], 'UserController@avatar');
+
 Router.get('/users/:walletAddress', [], 'UserController@show');
 Router.get('/users/:walletAddress/username', [], 'UserController@resolveUsername');
 
