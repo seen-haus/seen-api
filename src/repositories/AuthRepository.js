@@ -12,9 +12,9 @@ class AuthRepository extends BaseRepository {
         return UserModel
     }
 
-    async findUserByAddress(walletAddress) {
+    async findUsername(username) {
         const result = await this.model.query()
-            .where('wallet', walletAddress)
+            .where('username', username)
             .first();
 
         if (!result) {

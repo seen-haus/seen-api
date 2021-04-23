@@ -13,8 +13,7 @@ class AuthController extends Controller {
 
         // Filter user from the users array by username and password
         const user = await AuthRepository
-            .skipTransformer()
-            .findUserByAddress('username', wallet);
+            .findUsername(wallet);
 
          if (!user) {
             this.sendResponse(res, null, "Username or password incorrect");
