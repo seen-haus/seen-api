@@ -5,6 +5,7 @@ const {ArtistRepository, CollectableRepository, NFTTokenRepository, MediaReposit
 const EcommerceV1Abi = require("../abis/v1/Ecommerce.json");
 const NFTV1Abi = require("../abis/v1/NFTSale.json");
 const AuctionV1Abi = require("../abis/v1/EnglishAuction.json");
+const AuctionV2Abi = require("../abis/v2/EnglishAuction.json");
 const {SALE, AUCTION} = require("./../constants/PurchaseTypes");
 const {V1, V2} = require("./../constants/Versions");
 const {NFT, TANGIBLE_NFT, TANGIBLE} = require("./../constants/Collectables");
@@ -254,12 +255,12 @@ module.exports = {
                 }
                 break;
             case AUCTION:
-                console.log("AUCTION")
+                console.log("Bid")
                 event = 'Bid'
                 handler = BidEventHandlerV1;
                 abi = collectable.version === V1
                     ? AuctionV1Abi
-                    : AuctionV1Abi;
+                    : AuctionV2Abi;
                 break;
         }
 
