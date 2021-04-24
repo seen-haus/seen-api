@@ -8,26 +8,22 @@ const {Model} = require("objection");
 // init DB
 const knex = Knex(dbConfig)
 Model.knex(knex)
-
+const {CollectableRepository} = require("./../repositories/index");
 /**
  * Arguments
  */
-const all = argv.all;
+const id = argv.id;
 
-
-
-const getTokens = async () => {
-    return new Promise((resolve, reject) => {
-        connection.connect();
-        connection.query('SELECT * from tokens', function (error, results, fields) {
-            if (error) {
-                reject(error);
-                return;
-            }
-            resolve(results);
-        });
-        connection.end();
-    });
+const fill = async (id) => {
+    const collectable = await CollectableRepository.findById(id);
+    if (!collectable) {
+        process.exit()
+        return
+    }
+    const filler = require('./../services/filler.service')
+    await filler.fillEvents(collectable);
+    process.exit()
 };
-
-
+if (id) {
+    fill(id)
+}
