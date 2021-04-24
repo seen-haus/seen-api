@@ -1,10 +1,10 @@
-const filler = require("./../services/option-filler.service");
 const yargs = require('yargs/yargs')
 const {hideBin} = require('yargs/helpers')
 const argv = yargs(hideBin(process.argv)).argv
 const Knex = require("knex");
 const {dbConfig} = require("../config");
 const {Model} = require("objection");
+const filler = require("./../services/filler.service");
 // init DB
 const knex = Knex(dbConfig)
 Model.knex(knex)
@@ -20,7 +20,6 @@ const fill = async (id) => {
         process.exit()
         return
     }
-    const filler = require('./../services/filler.service')
     await filler.fillEvents(collectable);
     process.exit()
 };
