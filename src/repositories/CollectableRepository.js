@@ -29,6 +29,7 @@ class CollectableRepository extends BaseRepository {
     async paginate(perPage = 10, page = 1, query = {}) {
         let purchaseType = query.purchaseType ? parseInt(query.purchaseType) : null;
         let artistId = query.artistId ? parseInt(query.artistId) : null;
+        let includeIsHiddenFromDropList = query.includeIsHiddenFromDropList ? true : false;
         let type = query.type;
 
         const results = await this.model.query().where(function () {
@@ -42,6 +43,9 @@ class CollectableRepository extends BaseRepository {
                 if (purchaseType
                     && Object.values(purchaseTypes).includes(purchaseType)) {
                     this.where('purchase_type', purchaseType);
+                }
+                if (!includeIsHiddenFromDropList) {
+                    this.where('is_hidden_from_drop_list', false);
                 }
             })
             .withGraphFetched('[artist, media, events]')

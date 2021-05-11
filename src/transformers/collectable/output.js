@@ -30,6 +30,8 @@ class CollectableOutputTransformer extends BaseTransformer {
             edition_of: collectable.edition_of,
             description: collectable.description,
             is_active: !!collectable.is_active,
+            is_hidden_from_drop_list: !!collectable.is_hidden_from_drop_list,
+            is_slug_full_route: !!collectable.is_slug_full_route,
             start_bid: collectable.start_bid,
             min_bid: collectable.min_bid,
             version: collectable.version,

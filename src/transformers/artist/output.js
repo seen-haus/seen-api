@@ -6,6 +6,7 @@ class ArtistOutputTransformer extends BaseTransformer {
             id: artist.id,
             name: artist.name,
             slug: artist.slug,
+            is_hidden_from_artist_list: !!artist.is_hidden_from_artist_list,
             avatar: artist.avatar,
             video: artist.video,
             quote: artist.quote,
