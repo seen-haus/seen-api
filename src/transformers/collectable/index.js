@@ -17,6 +17,8 @@ class CollectableTransformer extends BaseTransformer {
             edition_of: collectable.edition_of,
             contract_address: collectable.contract_address,
             is_active: collectable.is_active,
+            is_hidden_from_drop_list: !!collectable.is_hidden_from_drop_list,
+            is_slug_full_route: !!collectable.is_slug_full_route,
             is_sold_out: collectable.is_sold_out,
             created_at: collectable.created_at,
             updated_at: collectable.updated_at,

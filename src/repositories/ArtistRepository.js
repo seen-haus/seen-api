@@ -11,8 +11,14 @@ class ArtistRepository extends BaseRepository {
         return ArtistModel
     }
 
-    async paginate(perPage = 10, page = 1) {
+    async paginate(perPage = 10, page = 1, query = {}) {
+        let includeIsHiddenFromArtistList = query.includeIsHiddenFromDropList ? true : false;
         const results = await this.model.query()
+            .where(function () {
+                if (!includeIsHiddenFromArtistList) {
+                    this.where('is_hidden_from_artist_list', false);
+                }
+            })
             .withGraphFetched('collectables')
             .orderBy('id', 'DESC')
             .page(page - 1, perPage)
