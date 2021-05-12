@@ -6,10 +6,10 @@ class ArtistController extends Controller {
 
     async index(req, res) {
         const pagination = this.extractPagination(req)
-        const includeIsHiddenFromDropList = req.query.includeIsHiddenFromDropList;
+        const includeIsHiddenFromArtistList = req.query.includeIsHiddenFromArtistList;
         const data = await ArtistRepository
             .setTransformer(ArtistOutputTransformer)
-            .paginate(pagination.perPage, pagination.page, {includeIsHiddenFromDropList});
+            .paginate(pagination.perPage, pagination.page, {includeIsHiddenFromArtistList});
 
         this.sendResponse(res, data);
     }
