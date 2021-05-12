@@ -12,7 +12,7 @@ class ArtistRepository extends BaseRepository {
     }
 
     async paginate(perPage = 10, page = 1, query = {}) {
-        let includeIsHiddenFromArtistList = query.includeIsHiddenFromDropList ? true : false;
+        let includeIsHiddenFromArtistList = query.includeIsHiddenFromArtistList ? true : false;
         const results = await this.model.query()
             .where(function () {
                 if (!includeIsHiddenFromArtistList) {
