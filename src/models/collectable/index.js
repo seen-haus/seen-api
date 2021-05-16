@@ -31,12 +31,20 @@ module.exports = class Collectable extends BaseModel {
                     to: `${EVENTS_TABLE}.collectable_id`,
                 }
             },
-             media: {
+            media: {
                 relation: BaseModel.HasManyRelation,
                 modelClass: Media,
                 join: {
                     from: `${COLLECTIBLES_TABLE}.id`,
                     to: `${MEDIA_TABLE}.collectable_id`,
+                }
+            },
+            bundleChildItems: {
+                relation: BaseModel.HasManyRelation,
+                modelClass: Collectable,
+                join: {
+                    from: `${COLLECTIBLES_TABLE}.bundle_parent_id`,
+                    to: `${COLLECTIBLES_TABLE}.bundle_child_id`,
                 }
             }
         }

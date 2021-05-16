@@ -15,6 +15,11 @@ class CollectableOutputTransformer extends BaseTransformer {
                     return event;
                 })
                 : [],
+            bundleChildItems: collectable.bundleChildItems && collectable.bundleChildItems.length > 0
+                ? collectable.bundleChildItems.map(bundleChildItem => {
+                    return bundleChildItem;
+                })
+                : [],
             purchase_type: collectable.purchase_type,
             type: collectable.type,
             contract_address: collectable.contract_address,

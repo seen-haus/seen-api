@@ -12,9 +12,10 @@ class CollectableController extends Controller {
         const purchaseType = req.query.purchaseType;
         const artistId = req.query.artistId;
         const includeIsHiddenFromDropList = req.query.includeIsHiddenFromDropList;
+        const bundleChildId = req.query.bundleChildId;
         const data = await CollectableRepository
             .setTransformer(CollectableOutputTransformer)
-            .paginate(pagination.perPage, pagination.page, {type, purchaseType, artistId, includeIsHiddenFromDropList});
+            .paginate(pagination.perPage, pagination.page, {type, purchaseType, artistId, includeIsHiddenFromDropList, bundleChildId});
 
         this.sendResponse(res, data);
     }
