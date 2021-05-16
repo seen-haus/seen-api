@@ -56,6 +56,29 @@ class AdminCollectableController extends Controller {
         this.sendResponse(res, collectable);
     }
 
+    async updateContractAndTokenData(req, res) {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return this.sendResponse(res, {errors: errors.array()}, "Validation error", 422);
+        }
+        const id = req.params.id;
+        let collectableDB = await CollectableRepository.find(id)
+        if (!collectableDB) {
+            return this.sendError(res, "Not found");
+        }
+
+        const payload = {...collectableDB, ...req.body};
+        const transformer = payload.purchase_type === purchaseTypes.SALE
+            ? CollectableSaleTangibleTransformer
+            : CollectableAuctionTransformer;
+
+        const collectable = await CollectableRepository
+            .setTransformer(transformer)
+            .update(transformer.transform(payload), id);
+
+        this.sendResponse(res, collectable);
+    }
+
     async delete(req, res) {
         const id = req.params.id;
         let collectable = await CollectableRepository.find(id)

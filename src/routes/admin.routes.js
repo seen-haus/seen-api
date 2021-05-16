@@ -130,6 +130,14 @@ Router.put('/admin/collectables/:id', [
     body('edition_of').notEmpty().isNumeric(),
 ], 'AdminCollectableController@update');
 
+Router.put('/admin/collectables/contract-and-token-data/:id', [
+    authenticateJWT,
+    body('purchase_type').notEmpty().custom(checkPurchaseType),
+    body('contract_address').notEmpty().custom(isETHAddress),
+    body('nft_contract_address').exists().custom(isETHAddress),
+    body('nft_token_id').notEmpty(),
+], 'AdminCollectableController@updateContractAndTokenData');
+
 Router.delete('/admin/collectables/:id', [authenticateJWT], 'AdminCollectableController@delete');
 
 /**
