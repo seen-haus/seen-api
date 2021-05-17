@@ -12,7 +12,7 @@ class ArtistOutputTransformer extends BaseTransformer {
             quote: artist.quote,
             bio: artist.bio,
             review: artist.review,
-            collectablesCount: artist.collectables && artist.collectables.length,
+            collectablesCount: artist.collectables && artist.collectables.filter(item => !item.is_hidden_from_drop_list).length,
             socials: typeof artist.socials !== 'string' ? artist.socials : JSON.parse(artist.socials),
         }
     }
