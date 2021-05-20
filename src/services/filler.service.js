@@ -1,5 +1,6 @@
 const Web3Service = require("./web3.service");
 const BidEventHandlerV1 = require("../handlers/v1/BidEventHandler");
+const BidEventHandlerV2 = require("../handlers/v2/BidEventHandler");
 const BuyEventHandlerV1 = require("../handlers/v1/BuyEventHandler");
 const {ArtistRepository, CollectableRepository, NFTTokenRepository, MediaRepository} = require("../repositories");
 const EcommerceV1Abi = require("../abis/v1/Ecommerce.json");
@@ -257,7 +258,9 @@ module.exports = {
             case AUCTION:
                 console.log("Bid")
                 event = 'Bid'
-                handler = BidEventHandlerV1;
+                handler = collectable.version === V1
+                    ? BidEventHandlerV1
+                    : BidEventHandlerV2;
                 abi = collectable.version === V1
                     ? AuctionV1Abi
                     : AuctionV2Abi;
