@@ -20,6 +20,7 @@ class CollectableOutputTransformer extends BaseTransformer {
                     return bundleChildItem;
                 })
                 : [],
+            claim: collectable.claim ? collectable.claim : null,
             purchase_type: collectable.purchase_type,
             type: collectable.type,
             contract_address: collectable.contract_address,
