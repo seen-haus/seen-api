@@ -8,6 +8,7 @@ class ClaimOutputTransformer extends BaseTransformer {
       collectable: claim.collectable
         ? CollectableOutputTransformer.transform(claim.collectable)
         : null,
+      is_active: claim.is_active,
       contract_address: claim.contract_address,
       title: claim.title,
       requires_message: claim.requires_message,

@@ -6,6 +6,7 @@ class ClaimTransformer extends BaseTransformer {
       id: claim.id,
       collectable_id: claim.collectable_id,
       contract_address: claim.contract_address,
+      is_active: claim.is_active,
       title: claim.title,
       requires_message: claim.requires_message,
       message_helper: claim.message_helper,
