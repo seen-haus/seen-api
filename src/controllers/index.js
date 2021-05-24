@@ -10,6 +10,8 @@ const ClaimController = require('./ClaimController');
 // Private
 const AdminArtistController = require('./AdminArtistController');
 const AdminCollectableController = require('./AdminCollectableController');
+const AdminClaimController = require('./AdminClaimController');
+const AdminEligibleClaimantController = require('./AdminEligibleClaimantController');
 const AdminConstantsController = require('./AdminConstantsController');
 const AdminMediaController = require('./AdminMediaController');
 const AdminSpotlightController = require("./AdminSpotlightController")
@@ -27,5 +29,7 @@ module.exports = {
     AuthController,
     ArtistController,
     ClaimController,
-    AdminSpotlightController
+    AdminSpotlightController,
+    AdminClaimController,
+    AdminEligibleClaimantController,
 };
