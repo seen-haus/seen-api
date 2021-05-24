@@ -52,7 +52,7 @@ class CollectableRepository extends BaseRepository {
                     this.where('bundle_child_id', bundleChildId);
                 }
             })
-            .withGraphFetched('[artist, media, events, bundleChildItems]')
+            .withGraphFetched('[artist, media, events, bundleChildItems, claim]')
             .orderBy('starts_at', 'DESC')
             .page(page - 1, perPage)
 
@@ -73,7 +73,7 @@ class CollectableRepository extends BaseRepository {
 
     async findByContractAddress(contractAddress) {
         const result = await this.model.query()
-            .withGraphFetched('[artist.[collectables], media, events]')
+            .withGraphFetched('[artist.[collectables], media, events, claim]')
             .where('contract_address', '=', contractAddress)
             .first();
         if (!result) {
@@ -84,7 +84,7 @@ class CollectableRepository extends BaseRepository {
 
     async findBySlug(contractAddress) {
         const result = await this.model.query()
-            .withGraphFetched('[artist.[collectables], media, events]')
+            .withGraphFetched('[artist.[collectables], media, events, claim]')
             .where('slug', '=', contractAddress)
             .first();
         if (!result) {
@@ -95,7 +95,7 @@ class CollectableRepository extends BaseRepository {
 
     async findById(id) {
         const result = await this.model.query()
-            .withGraphFetched('[artist.[collectables], media, events]')
+            .withGraphFetched('[artist.[collectables], media, events, claim]')
             .where('id', '=', id)
             .first();
         if (!result) {
@@ -106,7 +106,7 @@ class CollectableRepository extends BaseRepository {
 
     async queryByTokenIds(tokenIds) {
         const results = await this.model.query()
-            .withGraphFetched('[artist, media, events]')
+            .withGraphFetched('[artist, media, events, claim]')
             .whereIn('nft_token_id', tokenIds);
 
         return this.parserResult(results);
