@@ -50,6 +50,7 @@ class ClaimController extends Controller {
       telegram_username,
       phone,
       sig,
+      message,
     } = req.body;
 
     let claimant = await EligibleClaimantRepository.findByAddress(
@@ -95,6 +96,7 @@ class ClaimController extends Controller {
       collectable_id: claimant.claim.collectable.id,
       telegram_username,
       phone,
+      message,
     });
 
     this.sendResponse(res, []);

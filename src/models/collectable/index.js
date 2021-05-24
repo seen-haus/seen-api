@@ -10,7 +10,6 @@ const BaseModel = require("./../BaseModel");
 const Artist = require("../artist");
 const Event = require("../event");
 const Media = require("../media");
-const Claim = require("../claim");
 
 module.exports = class Collectable extends BaseModel {
     static get tableName() {
@@ -22,6 +21,7 @@ module.exports = class Collectable extends BaseModel {
     }
 
     static get relationMappings() {
+        const Claim = require("../claim");
         return {
             artist: {
                 relation: BaseModel.HasOneRelation,

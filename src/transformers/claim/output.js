@@ -10,6 +10,8 @@ class ClaimOutputTransformer extends BaseTransformer {
         : null,
       contract_address: claim.contract_address,
       title: claim.title,
+      requires_message: claim.requires_message,
+      message_helper: claim.message_helper,
     };
   }
 }

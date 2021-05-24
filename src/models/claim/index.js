@@ -1,6 +1,5 @@
 const {CLAIMS_TABLE, COLLECTIBLES_TABLE} = require("./../../constants/DBTables")
 const BaseModel = require("./../BaseModel");
-const Collectable = require("../collectable");
 
 module.exports = class Claim extends BaseModel {
     static get tableName() {
@@ -12,6 +11,7 @@ module.exports = class Claim extends BaseModel {
     }
 
     static get relationMappings() {
+        const Collectable = require("../collectable");
         return {
             collectable: {
                 relation: BaseModel.HasOneRelation,

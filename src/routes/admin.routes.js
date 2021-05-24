@@ -140,6 +140,19 @@ Router.put('/admin/collectables/contract-and-token-data/:id', [
 
 Router.delete('/admin/collectables/:id', [authenticateJWT], 'AdminCollectableController@delete');
 
+Router.post('/admin/claims/', [
+    authenticateJWT,
+    body('collectable_id').notEmpty().isNumeric(),
+    body('is_active').notEmpty().isBoolean(),
+    body('requires_message').notEmpty().isBoolean(),
+], 'AdminClaimController@store');
+
+Router.post('/admin/eligible-claimant/', [
+    authenticateJWT,
+    body('claim_id').notEmpty().isNumeric(),
+    body('wallet_address').notEmpty().custom(isETHAddress),
+], 'AdminEligibleClaimantController@store');
+
 /**
  * Constants
  */
