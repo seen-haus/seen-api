@@ -1,6 +1,6 @@
 const Controller = require('./Controller');
-const EligibleClaimantTransformer = require("../transformers/claim");
-const EligibleClaimantOutputTransformer = require("../transformers/claim/output");
+const EligibleClaimantTransformer = require("../transformers/eligible_claimant");
+const EligibleClaimantOutputTransformer = require("../transformers/eligible_claimant/output");
 const {EligibleClaimantRepository} = require("../repositories")
 const {validationResult} = require('express-validator');
 
