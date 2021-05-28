@@ -52,7 +52,7 @@ class CollectableRepository extends BaseRepository {
                     this.where('bundle_child_id', bundleChildId);
                 }
             })
-            .withGraphFetched('[artist, media, events, bundleChildItems, claim]')
+            .withGraphFetched('[artist, media, events, bundleChildItems.[events], claim]')
             .orderBy('starts_at', 'DESC')
             .page(page - 1, perPage)
 
