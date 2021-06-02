@@ -4,7 +4,8 @@ const {
     CLAIMS_TABLE,
     EVENTS_TABLE,
     NFT_TOKENS_TABLE,
-    MEDIA_TABLE
+    MEDIA_TABLE,
+    FEATURED_DROP_TABLE,
 } = require("./../../constants/DBTables");
 const BaseModel = require("./../BaseModel");
 const Artist = require("../artist");
@@ -22,6 +23,7 @@ module.exports = class Collectable extends BaseModel {
 
     static get relationMappings() {
         const Claim = require("../claim");
+        const FeaturedDrop = require("../featured-drop");
         return {
             artist: {
                 relation: BaseModel.HasOneRelation,
@@ -61,6 +63,14 @@ module.exports = class Collectable extends BaseModel {
                 join: {
                     from: `${COLLECTIBLES_TABLE}.id`,
                     to: `${CLAIMS_TABLE}.collectable_id`,
+                }
+            },
+            featured_drop: {
+                relation: BaseModel.HasOneRelation,
+                modelClass: FeaturedDrop,
+                join: {
+                    from: `${COLLECTIBLES_TABLE}.id`,
+                    to: `${FEATURED_DROP_TABLE}.collectable_id`,
                 }
             }
         }
