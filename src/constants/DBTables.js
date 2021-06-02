@@ -2,6 +2,7 @@ const USERS_TABLE = "users";
 const COLLECTIBLES_TABLE = "collectables";
 const COLLECTIBLE_WINNER_TABLE = "collectable_winner";
 const CLAIMS_TABLE = "claims";
+const FEATURED_DROP_TABLE = "featured_drop";
 const ELIGIBLE_CLAIMANTS_TABLE = "eligible_claimants";
 const NFT_TOKENS_TABLE = "nft_tokens";
 const SPOTLIGHT_TABLE = "spotlight_submissions";
@@ -20,4 +21,5 @@ module.exports = Object.freeze({
     MEDIA_TABLE,
     CLAIMS_TABLE,
     ELIGIBLE_CLAIMANTS_TABLE,
+    FEATURED_DROP_TABLE,
 });
