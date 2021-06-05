@@ -10,6 +10,7 @@ class ArtistTransformer extends BaseTransformer {
             name: artist.name,
             is_hidden_from_artist_list: !!artist.is_hidden_from_artist_list,
             avatar: artist.avatar,
+            header_image: artist.header_image,
             video: artist.video,
             quote: artist.quote,
             bio: artist.bio,
