@@ -8,6 +8,7 @@ const MediaRepository = require("./MediaRepository");
 const ClaimRepository = require("./ClaimRepository");
 const EligibleClaimantRepository = require("./EligibleClaimantRepository");
 const AuthRepository = require("./AuthRepository");
+const BidRegistrationRepository = require("./BidRegistrationRepository");
 
 module.exports = Object.freeze({
     ArtistRepository,
@@ -20,4 +21,5 @@ module.exports = Object.freeze({
     ClaimRepository,
     EligibleClaimantRepository,
     AuthRepository,
+    BidRegistrationRepository,
 });
