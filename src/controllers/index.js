@@ -6,6 +6,7 @@ const CollectableController = require('./CollectableController');
 const AuthController = require('./AuthController');
 const ArtistController = require('./ArtistController');
 const ClaimController = require('./ClaimController');
+const BidRegistrationController = require('./BidRegistrationController');
 
 // Private
 const AdminArtistController = require('./AdminArtistController');
@@ -22,6 +23,7 @@ module.exports = {
     BespokeController,
     SpotlightController,
     CollectableController,
+    BidRegistrationController,
     AdminArtistController,
     AdminCollectableController,
     AdminConstantsController,
