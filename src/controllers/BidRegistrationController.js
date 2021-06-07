@@ -42,7 +42,7 @@ class BidRegistrationController extends Controller {
             return this.sendResponse(res, {errors: errors.array()}, "Not found", 400);
         }
 
-        const msg = `First name: ${first_name}\nLast name: ${last_name}\nEmail: ${email}\nCollectable ID: ${collectable_id}`;
+        const msg = `First name: ${first_name}\nLast name: ${last_name}\nEmail: ${email}\nCollectable ID: ${collectable_id}\nI accept Propy's terms and conditions and privacy policy.`;
         try {
             let isValidSignature = await Web3Helper.verifySignature(msg, sig, wallet_address);
             if (!isValidSignature) {
