@@ -29,7 +29,7 @@ class CollectableRepository extends BaseRepository {
     async paginate(perPage = 10, page = 1, query = {}) {
         let purchaseType = query.purchaseType ? parseInt(query.purchaseType) : null;
         let artistId = query.artistId ? parseInt(query.artistId) : null;
-        let includeIsHiddenFromDropList = query.includeIsHiddenFromDropList ? true : false;
+        let includeIsHiddenFromDropList = query.includeIsHiddenFromDropList === 'true' ? true : false;
         let bundleChildId = query.bundleChildId ? query.bundleChildId : null;
         let type = query.type;
 
