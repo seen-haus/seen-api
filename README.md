@@ -33,8 +33,8 @@ npm run listen
 # Run fallback worker (fill missing events, close finished auctions, mark collectables as sold out)
 npm run fallback
 
-# Set user's password
-npm run user --id={id} --password="password"
+# Set user's password (don't do this unless you want to grant admin dashboard access)
+npm run user -- --id={id} --password="password"
 ```
 
 ### Running the app in production

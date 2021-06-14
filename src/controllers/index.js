@@ -16,6 +16,7 @@ const AdminEligibleClaimantController = require('./AdminEligibleClaimantControll
 const AdminConstantsController = require('./AdminConstantsController');
 const AdminMediaController = require('./AdminMediaController');
 const AdminSpotlightController = require("./AdminSpotlightController")
+const AdminFeaturedDropController = require('./AdminFeaturedDropController');
 
 module.exports = {
     LeaderboardController,
@@ -34,4 +35,5 @@ module.exports = {
     AdminSpotlightController,
     AdminClaimController,
     AdminEligibleClaimantController,
+    AdminFeaturedDropController,
 };

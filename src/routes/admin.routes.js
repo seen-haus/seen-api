@@ -140,6 +140,11 @@ Router.put('/admin/collectables/contract-and-token-data/:id', [
 
 Router.delete('/admin/collectables/:id', [authenticateJWT], 'AdminCollectableController@delete');
 
+Router.put('/admin/update-hero', [
+    authenticateJWT,
+    body('collectable_id').notEmpty().isNumeric(),
+], 'AdminFeaturedDropController@update');
+
 Router.post('/admin/claims/', [
     authenticateJWT,
     body('collectable_id').notEmpty().isNumeric(),

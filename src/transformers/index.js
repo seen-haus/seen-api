@@ -8,6 +8,7 @@ const MediaTransformer = require("./media")
 const MediaOutputTransformer = require("./media/output")
 const UserTransformer = require("./user")
 const UserOutputTransformer = require("./user/output")
+const FeaturedDropTransformer = require("./featured_drop")
 
 module.exports = Object.freeze({
     ArtistTransformer,
@@ -19,5 +20,6 @@ module.exports = Object.freeze({
     MediaTransformer,
     MediaOutputTransformer,
     UserTransformer,
-    UserOutputTransformer
+    UserOutputTransformer,
+    FeaturedDropTransformer,
 });
