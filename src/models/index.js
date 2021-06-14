@@ -8,7 +8,18 @@ const MediaModel = require("./media")
 const ClaimModel = require("./claim")
 const EligibleClaimantModel = require("./eligible-claimant")
 const BidRegistrationModel = require("./bid-registration")
+const FeaturedDropModel = require("./featured-drop")
 
 module.exports = Object.freeze({
-    CollectableModel, UserModel, ArtistModel, EventModel, CollectableWinnerModel, SpotlightModel, MediaModel, ClaimModel, EligibleClaimantModel, BidRegistrationModel
+    CollectableModel,
+    UserModel,
+    ArtistModel,
+    EventModel,
+    CollectableWinnerModel,
+    SpotlightModel,
+    MediaModel,
+    ClaimModel,
+    EligibleClaimantModel,
+    BidRegistrationModel,
+    FeaturedDropModel,
 });
