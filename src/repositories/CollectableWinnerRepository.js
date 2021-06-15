@@ -1,5 +1,6 @@
 const {CollectableWinnerModel} = require("./../models");
 const BaseRepository = require("./BaseRepository");
+const Pagination = require("./../utils/Pagination");
 
 class CollectableWinnerRepository extends BaseRepository {
     constructor(props) {
@@ -29,6 +30,23 @@ class CollectableWinnerRepository extends BaseRepository {
             .where('txn_hash', txnHash)
             .first();
         return this.parserResult(result)
+    }
+
+    async paginate(perPage = 5, page = 1, query = {}) {
+        // let collectableId = query.collectableId ? parseInt(query.collectableId) : null;
+
+        const results = await this.model.query()
+            // TODO
+            // .where(function () {
+            //     if (collectableId) {
+            //         this.where('collectable_id', collectableId);
+            //     }
+            // })
+            .withGraphFetched('[collectable]')
+            .orderBy('id', 'DESC')
+            .page(page - 1, perPage)
+
+        return this.parserResult(new Pagination(results, perPage, page))
     }
 
 }

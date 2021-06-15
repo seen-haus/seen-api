@@ -3,7 +3,7 @@
 const Router = require("./Router");
 const {body} = require('express-validator');
 const ethers = require('ethers');
-const authenticateJWT = require("../middleware/authenticate")
+const { authenticateJWT, authenticateShippingInfoJWT } = require("../middleware/authenticate")
 const isETHAddress = (value) => {
     try {
         return ethers.utils.isAddress(value)
@@ -157,6 +157,12 @@ Router.post('/admin/eligible-claimant/', [
     body('claim_id').notEmpty().isNumeric(),
     body('wallet_address').notEmpty().custom(isETHAddress),
 ], 'AdminEligibleClaimantController@store');
+
+
+/** 
+ * Claims Info Handling
+ */
+Router.get('/admin/claims/', [authenticateShippingInfoJWT], 'AdminClaimsController@index');
 
 /**
  * Constants
