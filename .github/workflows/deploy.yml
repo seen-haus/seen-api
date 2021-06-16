@@ -40,6 +40,9 @@ jobs:
           SSH_KEY: ${{secrets.SSH_KEY}}
           SSH_KNOWN_HOSTS: ${{secrets.SSH_KNOWN_HOSTS}}
           PRODUCTION_ENV_VARS: ${{secrets.PRODUCTION_ENV_VARS}}
+          MAILGUN_DOMAIN: ${{secrets.MAILGUN_DOMAIN}}
+          MAILGUN_API_KEY: ${{secrets.MAILGUN_API_KEY}}
+          CLAIMS_ADMIN_RECIPIENTS: ${{secrets.CLAIMS_ADMIN_RECIPIENTS}}
 
       - name: install pm2
         run: sudo npm install -g pm2
