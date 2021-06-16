@@ -4,6 +4,7 @@ const {
   CollectableWinnerRepository,
   EligibleClaimantRepository,
 } = require("./../repositories");
+const { claimAdminEmailAddresses } = require('./../constants/Email')
 const { validationResult } = require("express-validator");
 const Web3Helper = require("./../utils/Web3Helper");
 const ClaimOutputTransformer = require("../transformers/claim/output");
@@ -83,23 +84,31 @@ class ClaimController extends Controller {
       return;
     }
 
-    await CollectableWinnerRepository.create({
-      wallet_address,
-      email,
-      first_name,
-      last_name,
-      address,
-      city,
-      zip,
-      country,
-      province,
-      collectable_id: claimant.claim.collectable.id,
-      telegram_username,
-      phone,
-      message,
-    });
+    try {
+      await CollectableWinnerRepository.create({
+        wallet_address,
+        email,
+        first_name,
+        last_name,
+        address,
+        city,
+        zip,
+        country,
+        province,
+        collectable_id: claimant.claim.collectable.id,
+        telegram_username,
+        phone,
+        message,
+      });
+  
+      this.sendResponse(res, []);
 
-    this.sendResponse(res, []);
+      if(claimAdminEmailAddresses && claimAdminEmailAddresses.length > 0) {
+        sendMail(claimAdminEmailAddresses, `New Claim - ${claimant.claim.collectable.title}`, `A new claim has been submitted on ${claimant.claim.collectable.title}`);
+      }
+    } catch (e) {
+      this.sendError(res, "Error: you may have already submitted a claim, please contact the team if you need to amend details.");
+    }
   }
 }
 
