@@ -8,6 +8,7 @@ const { claimAdminEmailAddresses } = require('./../constants/Email')
 const { validationResult } = require("express-validator");
 const Web3Helper = require("./../utils/Web3Helper");
 const ClaimOutputTransformer = require("../transformers/claim/output");
+const { sendMail } = require('../services/mailgun.service.js');
 
 class ClaimController extends Controller {
   async show(req, res) {
@@ -107,6 +108,7 @@ class ClaimController extends Controller {
         sendMail(claimAdminEmailAddresses, `New Claim - ${claimant.claim.collectable.title}`, `A new claim has been submitted on ${claimant.claim.collectable.title}`);
       }
     } catch (e) {
+      console.log(e)
       this.sendError(res, "Error: you may have already submitted a claim, please contact the team if you need to amend details.");
     }
   }
