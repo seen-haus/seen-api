@@ -50,6 +50,9 @@ class Web3Service {
     async isAuctionOverV2() {
         const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
         let endTime = await contract.methods.endTime().call();
+        if(parseInt(endTime) === 0) {
+            return false; // Reserve price auctions do not have an endTime set until the reserve price is hit
+        }
         let endDate = new Date((parseInt(endTime)) * 1000);
         let now = new Date();
         now.setHours(now.getHours() - 1)

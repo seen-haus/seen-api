@@ -29,23 +29,30 @@ class BidEventHandler extends CollectableEventHandler {
 
         const collectable = await CollectableRepository.find(this.collectable.id);
         const endsAtTimestamp = Date.parse(collectable.ends_at) / 1000;
-        let needsEndsAtUpdate = (timestamp >= endsAtTimestamp || (endsAtTimestamp - timestamp) <= 7200);
+        let needsEndsAtUpdate = (timestamp >= endsAtTimestamp || (endsAtTimestamp - timestamp) <= 7200) || isNaN(endsAtTimestamp);
         console.log("NEEDS UPDATE", needsEndsAtUpdate, endsAtTimestamp, timestamp)
         // block timestamp > ends at || diff between endsAtTimestamp and timestamp <= 5min
         if (collectable.min_bid < bid || needsEndsAtUpdate) {
             let endsAt = collectable.ends_at;
+            let startsAt = collectable.starts_at;
             if (needsEndsAtUpdate) {
                 const contract = new web3.eth.Contract(ABI, this.collectable.contract_address);
                 let endTime = await contract.methods.endTime().call();
                 console.log(endTime)
                 endsAt = (new DateHelper).resolveFromTimestamp(parseInt(endTime))
+                if(collectable.is_reserve_price_auction) {
+                    // Update startsAt time to cater for reservePrice auctions
+                    let startTime = await contract.methods.startTime().call();
+                    startsAt = (new DateHelper).resolveFromTimestamp(parseInt(startTime))
+                }
             }
 
             await CollectableRepository.update({
                 min_bid: collectable.min_bid < bid
                     ? bid
                     : collectable.min_bid,
-                ends_at: endsAt
+                ends_at: endsAt,
+                starts_at: startsAt,
             }, collectable.id);
         }
 
