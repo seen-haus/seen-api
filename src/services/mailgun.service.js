@@ -7,7 +7,7 @@ const sendMail = (to = [], subject,  message) => {
     try {
         if((message && message.length > 0) && (subject && subject.length > 0) && (to && to.length > 0)) {
             mg.messages.create(process.env.MAILGUN_DOMAIN, {
-                from: `SEEN.HAUS <${process.env.MAILGUN_DOMAIN}>`,
+                from: `SEEN.HAUS <mailgun@${process.env.MAILGUN_DOMAIN}>`,
                 to,
                 subject,
                 text: message,
