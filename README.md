@@ -46,4 +46,4 @@ Setup a cronjob to run "npm run fallback" every 10 min.
 
 ### ENV Variable Management
 
-TODO
+Update .env manually in `/var/www/api.seen.haus/webdir/source`
