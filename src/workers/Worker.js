@@ -23,6 +23,8 @@ const getCollectables = async () => {
         && ethers.utils.isAddress(collectable.contract_address));
 }
 
+let watchers = [];
+
 let init = async () => {
     const collectables = await getCollectables();
     console.log("COLLECTABLES TO LISTEN: ", collectables.length)
@@ -43,6 +45,7 @@ let init = async () => {
 
         try {
             watcher.init();
+            watchers.push({watcher, collectableId: collectable.id, collectableContractAddress: collectable.contract_address});
         } catch (e) {
             console.log(e);
             console.log("Watcher DESTROY", collectable.id, collectable.contract_address);
@@ -51,4 +54,23 @@ let init = async () => {
     });
 }
 
+let restartWatchers = async () => {
+    console.log("Restarting contract watchers")
+    for(let watcherItem of watchers) {
+        let {watcher, collectableId, collectableContractAddress} = watcherItem;
+        console.log("Watcher DESTROY", {collectableId}, {collectableContractAddress});
+        await watcher.destroy();
+    }
+    watchers = [];
+    init();
+}
+
 init();
+
+let restartWatchersAfterMinutes = 15;
+
+setInterval(() => {
+    // This is done so that if new auctions are added after the worker has started, or if contract addresses are changed for existing auctions
+    // They restart will ensure that the worker listens to events on the new auctions/contracts instead of relying on the fallback job
+    restartWatchers();
+}, 60000 * restartWatchersAfterMinutes)

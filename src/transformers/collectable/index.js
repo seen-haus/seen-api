@@ -36,6 +36,7 @@ class CollectableTransformer extends BaseTransformer {
             nft_ipfs_hash: collectable.nft_ipfs_hash,
             nft_token_id: collectable.nft_token_id,
             is_closed: collectable.is_closed,
+            is_reserve_price_auction: !!collectable.is_reserve_price_auction,
         }
     }
 }

@@ -55,6 +55,7 @@ class CollectableOutputTransformer extends BaseTransformer {
             pill_override: collectable.pill_override,
             featured_drop: collectable.featured_drop,
             requires_registration: collectable.requires_registration,
+            is_reserve_price_auction: !!collectable.is_reserve_price_auction,
         }
     }
 }
