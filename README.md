@@ -43,3 +43,7 @@ pm2 startOrRestart ./config/ecosystem.json
 
 Setup a cronjob to run "npm run fallback" every 10 min.
 ```
+
+### ENV Variable Management
+
+TODO
