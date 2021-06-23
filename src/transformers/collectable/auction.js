@@ -23,7 +23,7 @@ class CollectableAuctionTransformer extends BaseTransformer {
             created_at: collectable.created_at,
             updated_at: collectable.updated_at,
             starts_at: (new DateHelper).resolveDBTimestamp(collectable.starts_at),
-            ends_at: (new DateHelper).resolveDBTimestamp(collectable.ends_at),
+            ends_at: collectable.ends_at ? (new DateHelper).resolveDBTimestamp(collectable.ends_at) : null,
             start_bid: collectable.min_bid,
             min_bid: collectable.min_bid,
             artist_statement: collectable.artist_statement,
