@@ -64,6 +64,11 @@ class Web3Service {
         return await contract.methods.winning().call();
     }
 
+    async balanceOf(wallet_address, nft_token_id) {
+        const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
+        return await contract.methods.balanceOf(wallet_address, nft_token_id).call();
+    }
+
 }
 
 module.exports = Web3Service;
