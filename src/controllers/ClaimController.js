@@ -61,12 +61,10 @@ class ClaimController extends Controller {
 
     let collectable = await CollectableRepository.setTransformer(CollectableOutputTransformer).findByContractAddress(contractAddress);
     let hasBalance = false;
-    if(!presetClaimant) {
-      let nftContractService = new Web3Service(collectable.nft_contract_address, seenNFTABI); //EIP-1155
-      let balanceOfClaimer = await nftContractService.balanceOf(wallet_address, collectable.nft_token_id);
-      if(parseInt(balanceOfClaimer) > 0) {
-        hasBalance = true;
-      }
+    let nftContractService = new Web3Service(collectable.nft_contract_address, seenNFTABI); //EIP-1155
+    let balanceOfClaimer = await nftContractService.balanceOf(wallet_address, collectable.nft_token_id);
+    if(parseInt(balanceOfClaimer) > 0) {
+      hasBalance = true;
     }
     
     if (!hasBalance) {
