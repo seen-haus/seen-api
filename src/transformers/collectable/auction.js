@@ -36,6 +36,7 @@ class CollectableAuctionTransformer extends BaseTransformer {
             nft_token_id: collectable.nft_token_id,
             is_closed: collectable.is_closed,
             is_reserve_price_auction: !!collectable.is_reserve_price_auction,
+            auto_generate_claim_page: !!collectable.auto_generate_claim_page,
         }
     }
 }

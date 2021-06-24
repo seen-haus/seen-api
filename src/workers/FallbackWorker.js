@@ -3,7 +3,7 @@ const {dbConfig} = require("./../config");
 const {AUCTION, SALE} = require("./../constants/PurchaseTypes");
 const {V1, V2} = require("./../constants/Versions");
 const {Model} = require("objection");
-const {CollectableRepository, EventRepository} = require("./../repositories/index");
+const {CollectableRepository, EventRepository, ClaimRepository} = require("./../repositories/index");
 const filler = require('./../services/filler.service')
 const Web3Service = require('./../services/web3.service')
 const NFTV1Abi = require("../abis/v1/NFTSale.json");
@@ -47,6 +47,12 @@ const checkIfAuctionIsOver = async (collectable) => {
             is_sold_out: 1,
             winner_address: winnerAddress
         }, collectable.id);
+        if(collectable.auto_generate_claim_page) {
+            await ClaimRepository.create({
+                collectable_id: collectable.id,
+                is_active: 1,
+            });
+        }
     }
     return true;
 };
@@ -64,6 +70,12 @@ const checkIfAuctionV2IsOver = async (collectable) => {
             is_sold_out: 1,
             winner_address: winnerAddress
         }, collectable.id);
+        if(collectable.auto_generate_claim_page) {
+            await ClaimRepository.create({
+                collectable_id: collectable.id,
+                is_active: 1,
+            });
+        }
     }
     return true;
 };

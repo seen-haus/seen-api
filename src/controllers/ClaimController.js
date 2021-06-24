@@ -1,9 +1,13 @@
 const Controller = require("./Controller");
+const Web3Service = require("../services/web3.service");
+const seenNFTABI = require("../abis/seennftabi.json");
 const {
   ClaimRepository,
+  CollectableRepository,
   CollectableWinnerRepository,
   EligibleClaimantRepository,
 } = require("./../repositories");
+const CollectableOutputTransformer = require("../transformers/collectable/output");
 const { claimAdminEmailAddresses } = require('./../constants/Email')
 const { validationResult } = require("express-validator");
 const Web3Helper = require("./../utils/Web3Helper");
@@ -55,16 +59,22 @@ class ClaimController extends Controller {
       message,
     } = req.body;
 
-    let claimant = await EligibleClaimantRepository.findByAddress(
-      contractAddress,
-      wallet_address
-    );
-    if (!claimant) {
+    let collectable = await CollectableRepository.setTransformer(CollectableOutputTransformer).findByContractAddress(contractAddress);
+    let hasBalance = false;
+    if(!presetClaimant) {
+      let nftContractService = new Web3Service(collectable.nft_contract_address, seenNFTABI); //EIP-1155
+      let balanceOfClaimer = await nftContractService.balanceOf(wallet_address, collectable.nft_token_id);
+      if(parseInt(balanceOfClaimer) > 0) {
+        hasBalance = true;
+      }
+    }
+    
+    if (!hasBalance) {
       return this.sendResponse(
         res,
         { errors: errors.array() },
         "Not found",
-        400
+        403
       );
     }
 
@@ -96,7 +106,7 @@ class ClaimController extends Controller {
         zip,
         country,
         province,
-        collectable_id: claimant.claim.collectable.id,
+        collectable_id: collectable.id,
         telegram_username,
         phone,
         message,
@@ -105,7 +115,7 @@ class ClaimController extends Controller {
       this.sendResponse(res, []);
 
       if(claimAdminEmailAddresses && claimAdminEmailAddresses.length > 0) {
-        sendMail(claimAdminEmailAddresses, `New Claim - ${claimant.claim.collectable.title}`, `A new claim has been submitted on ${claimant.claim.collectable.title}`);
+        sendMail(claimAdminEmailAddresses, `New Claim - ${collectable.title}`, `A new claim has been submitted on ${collectable.title}`);
       }
     } catch (e) {
       console.log(e)
