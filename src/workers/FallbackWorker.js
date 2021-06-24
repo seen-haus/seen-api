@@ -70,6 +70,12 @@ const checkIfAuctionV2IsOver = async (collectable) => {
             is_sold_out: 1,
             winner_address: winnerAddress
         }, collectable.id);
+        if(collectable.auto_generate_claim_page) {
+            await ClaimRepository.create({
+                collectable_id: collectable.id,
+                is_active: 1,
+            });
+        }
     }
     return true;
 };
