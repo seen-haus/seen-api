@@ -56,6 +56,7 @@ class CollectableOutputTransformer extends BaseTransformer {
             featured_drop: collectable.featured_drop,
             requires_registration: collectable.requires_registration,
             is_reserve_price_auction: !!collectable.is_reserve_price_auction,
+            auto_generate_claim_page: !!collectable.auto_generate_claim_page,
         }
     }
 }
