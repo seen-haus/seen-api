@@ -50,13 +50,17 @@ class Web3Service {
     async isAuctionOverV2() {
         const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
         let endTime = await contract.methods.endTime().call();
+        // Important to keep this before checking isLive value
         if(parseInt(endTime) === 0) {
             return false; // Reserve price auctions do not have an endTime set until the reserve price is hit
         }
-        let endDate = new Date((parseInt(endTime)) * 1000);
-        let now = new Date();
-        now.setHours(now.getHours() - 1)
-        return now > endDate;
+        // Make sure not to rely on isLive as indicator of auction being over unless endTime is already set on contract (more than zero)
+        // as endTime value will be zero (therefore isLive false) before reserve price is hit
+        let isLive = await contract.methods.live().call();
+        if(isLive === false) {
+            return true;
+        }
+        return false;
     }
 
     async getWinningAddress() {
