@@ -1,6 +1,7 @@
 const CollectableEventHandler = require("../CollectableEventHandler");
 const {EventRepository} = require("../../repositories");
 const Web3 = require('web3');
+const BigNumber = require('bignumber.js');
 const DateHelper = require("./../../utils/DateHelper");
 const {INFURA_PROVIDER} = require("./../../config");
 const {BUY} = require("./../../constants/Events");
@@ -27,17 +28,17 @@ class BuyEventHandler extends CollectableEventHandler {
 
         let usdValue = 0;
         const collectable = this.collectable;
-        amount = parseFloat(collectable.price) * parseFloat(amount);
+        let ethValue = parseFloat(new BigNumber(collectable.price).multipliedBy(amount).toNumber());
 
         try {
             usdValue = await this.resolveUsdValue((new DateHelper).resolveFromTimestamp(timestamp));
             console.log(usdValue)
-            usdValue = parseFloat(usdValue) * amount;
+            usdValue = parseFloat(usdValue) * ethValue;
         } catch (e) {
             console.log(e);
         }
         return await EventRepository.create({
-            value: amount,
+            value: ethValue,
             value_in_usd: usdValue,
             wallet_address: walletAddress,
             collectable_id: collectable.id,
