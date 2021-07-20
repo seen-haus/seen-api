@@ -7,6 +7,7 @@ const {CollectableRepository, EventRepository, ClaimRepository} = require("./../
 const filler = require('./../services/filler.service')
 const Web3Service = require('./../services/web3.service')
 const NFTV1Abi = require("../abis/v1/NFTSale.json");
+const NFTV2OpenEdition = require("../abis/v2/OpenEdition.json");
 const AuctionV1Abi = require("../abis/v1/EnglishAuction.json");
 const AuctionV2Abi = require("../abis/v2/EnglishAuction.json");
 const ethers = require('ethers');
@@ -34,6 +35,15 @@ const checkIfSoldOut = async (collectable) => {
     }
     return true
 };
+
+const checkIfOpenEditionHasClosed = async (collectable) => {
+    let service = new Web3Service(collectable.contract_address, NFTV2OpenEdition);
+    let isClosed = await service.isOpenEditionClosed();
+    if (isClosed) {
+        await CollectableRepository.update({is_sold_out: 1}, collectable.id);
+    }
+    return true
+}
 
 const checkIfAuctionIsOver = async (collectable) => {
     const service = new Web3Service(collectable.contract_address, AuctionV1Abi);
@@ -91,7 +101,11 @@ const run = async() => {
         await filler.fillEvents(collectable);
         switch (collectable.purchase_type) {
             case SALE:
-                await checkIfSoldOut(collectable);
+                if (collectable.is_open_edition !== 1) {
+                    await checkIfSoldOut(collectable);
+                } else {
+                    await checkIfOpenEditionHasClosed(collectable);
+                }
                 break;
             case AUCTION:
                 if (collectable.version == V1) {
