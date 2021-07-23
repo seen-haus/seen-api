@@ -37,6 +37,13 @@ class Web3Service {
         return parseInt(supply) === 0;
     }
 
+    async isOpenEditionClosed() {
+        const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
+        let isClosed = await contract.methods.isClosed().call();
+
+        return isClosed;
+    }
+
     async isAuctionOver() {
         const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
         let startBidTide = await contract.methods.startBidTime().call();
