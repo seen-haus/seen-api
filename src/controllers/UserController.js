@@ -6,7 +6,7 @@ const ethers = require('ethers');
 const {body, validationResult} = require('express-validator');
 const CloudfrontHelper = require("./../utils/CloudfrontHelper");
 const urlParse = require('url-parse');
-const uploadHelper = require("./../utils/AvatarHelper");
+const avatarHelper = require("./../utils/AvatarHelper");
 
 
 class UserController extends Controller {
@@ -59,7 +59,7 @@ class UserController extends Controller {
     }
 
     async avatar(req, res) {
-        let fnc = uploadHelper.array("files", 1)
+        let fnc = avatarHelper.array("files", 1)
         fnc(req, res, async (err) => {
                 if (err) {
                     this.sendError(res, err, 400);

@@ -7,6 +7,7 @@ const AuthController = require('./AuthController');
 const ArtistController = require('./ArtistController');
 const ClaimController = require('./ClaimController');
 const BidRegistrationController = require('./BidRegistrationController');
+const IPFSController = require('./IPFSController');
 
 // Private
 const AdminArtistController = require('./AdminArtistController');
@@ -26,6 +27,7 @@ module.exports = {
     SpotlightController,
     CollectableController,
     BidRegistrationController,
+    IPFSController,
     AdminArtistController,
     AdminCollectableController,
     AdminConstantsController,
