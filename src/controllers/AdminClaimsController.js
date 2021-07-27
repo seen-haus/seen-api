@@ -11,10 +11,11 @@ class AdminClaimsController extends Controller {
             return this.sendResponse(res, {errors: errors.array()}, "Validation error", 422);
         }
         const collectableId = req.params.collectableId;
-        const pagination = this.extractPagination(req);
 
         let data;
         if(isNaN(collectableId)) {
+            const pagination = this.extractPagination(req);
+            
             data = await CollectableWinnerRepository
                 .setTransformer(CollectableWinnerOutputTransformer)
                 .paginate(pagination.perPage, pagination.page, {property: 'id', direction: 'DESC'});
@@ -22,7 +23,6 @@ class AdminClaimsController extends Controller {
             data = await CollectableWinnerRepository
                 .findByColumn("collectable_id", collectableId)
                 .setTransformer(CollectableWinnerOutputTransformer)
-                .paginate(pagination.perPage, pagination.page, {property: 'id', direction: 'DESC'});
         }
 
         this.sendResponse(res, data);
