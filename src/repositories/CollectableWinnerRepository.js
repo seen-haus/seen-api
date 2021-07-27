@@ -35,6 +35,7 @@ class CollectableWinnerRepository extends BaseRepository {
     async findByCollectableId(collectableId) {
         const result = await this.model.query()
             .where('collectable_id', collectableId)
+            .withGraphFetched('[collectable]')
         return this.parserResult(result)
     }
 
