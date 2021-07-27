@@ -13,16 +13,21 @@ class AdminClaimsController extends Controller {
         const collectableId = req.query.collectableId;
 
         let data;
+        const pagination = this.extractPagination(req);
+        
         if(isNaN(collectableId)) {
-            const pagination = this.extractPagination(req);
-
             data = await CollectableWinnerRepository
                 .setTransformer(CollectableWinnerOutputTransformer)
                 .paginate(pagination.perPage, pagination.page, {property: 'id', direction: 'DESC'});
         }else{
             data = await CollectableWinnerRepository
-                .findByColumn("collectable_id", collectableId)
+                .where(function () {
+                    if (!isNaN(collectableId)) {
+                        this.where('collectable_id', collectableId);
+                    }
+                })
                 .setTransformer(CollectableWinnerOutputTransformer)
+                .paginate(pagination.perPage, pagination.page, {property: 'id', direction: 'DESC'});
         }
 
         this.sendResponse(res, data);
