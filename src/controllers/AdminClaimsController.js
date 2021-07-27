@@ -13,7 +13,7 @@ class AdminClaimsController extends Controller {
         const collectableId = req.params.collectableId;
         const pagination = this.extractPagination(req);
 
-        const data;
+        let data;
         if(isNaN(collectableId)) {
             data = await CollectableWinnerRepository
                 .setTransformer(CollectableWinnerOutputTransformer)
