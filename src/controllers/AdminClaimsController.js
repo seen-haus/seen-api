@@ -21,13 +21,8 @@ class AdminClaimsController extends Controller {
                 .paginate(pagination.perPage, pagination.page, {property: 'id', direction: 'DESC'});
         }else{
             data = await CollectableWinnerRepository
-                .where(function () {
-                    if (!isNaN(collectableId)) {
-                        this.where('collectable_id', collectableId);
-                    }
-                })
                 .setTransformer(CollectableWinnerOutputTransformer)
-                .paginate(pagination.perPage, pagination.page, {property: 'id', direction: 'DESC'});
+                .findByCollectableId(collectableId);
         }
 
         this.sendResponse(res, data);
