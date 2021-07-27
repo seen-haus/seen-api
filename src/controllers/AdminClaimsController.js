@@ -10,12 +10,12 @@ class AdminClaimsController extends Controller {
         if (!errors.isEmpty()) {
             return this.sendResponse(res, {errors: errors.array()}, "Validation error", 422);
         }
-        const collectableId = req.params.collectableId;
+        const collectableId = req.query.collectableId;
 
         let data;
         if(isNaN(collectableId)) {
             const pagination = this.extractPagination(req);
-            
+
             data = await CollectableWinnerRepository
                 .setTransformer(CollectableWinnerOutputTransformer)
                 .paginate(pagination.perPage, pagination.page, {property: 'id', direction: 'DESC'});
