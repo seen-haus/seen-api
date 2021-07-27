@@ -10,6 +10,7 @@ const EVENTS_TABLE = "events";
 const ARTISTS_TABLE = "artists";
 const MEDIA_TABLE = "media";
 const BID_REGISTRATIONS_TABLE = "bid_registrations";
+const IPFS_MEDIA_TABLE = "ipfs_media";
 
 module.exports = Object.freeze({
     EVENTS_TABLE,
@@ -24,4 +25,5 @@ module.exports = Object.freeze({
     ELIGIBLE_CLAIMANTS_TABLE,
     FEATURED_DROP_TABLE,
     BID_REGISTRATIONS_TABLE,
+    IPFS_MEDIA_TABLE,
 });
