@@ -117,11 +117,11 @@ class BidEventHandler extends CollectableEventHandler {
             // Provided the following, we can send the notification
             if(preferencesAllowNotification && !preventOutbidNotification) {
                 let collectableImage = false;
-                if(collectable?.media.length > 0) {
+                if(collectable.media && collectable.media.length > 0) {
                     let sortedMedia = [...collectable.media].sort((a, b) => a.position - b.position);
                     for(let media of sortedMedia) {
-                        if(media?.type === 'image/jpeg' || media?.type === 'image/png') {
-                            collectableImage = media?.url;
+                        if(media.type && (media.type === 'image/jpeg') || (media.type === 'image/png')) {
+                            collectableImage = media && media.url;
                             // Use first image
                             break;
                         }
