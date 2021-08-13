@@ -1,3 +1,4 @@
+// Table names
 const USERS_TABLE = "users";
 const COLLECTIBLES_TABLE = "collectables";
 const COLLECTIBLE_WINNER_TABLE = "collectable_winner";
