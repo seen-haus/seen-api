@@ -271,7 +271,7 @@ module.exports = {
         let events = await service.findEvents(event);
         console.log(events.length)
         for (let i = 0; i < events.length; i++) {
-            await (new handler(collectable)).handle(events[i]);
+            await (new handler(collectable)).handle(events[i], i, events);
         }
 
         return true

@@ -8,6 +8,8 @@ const MediaTransformer = require("./media")
 const MediaOutputTransformer = require("./media/output")
 const UserTransformer = require("./user")
 const UserOutputTransformer = require("./user/output")
+const UserEmailPreferencesTransformer = require("./user_email_preferences");
+const UserEmailPreferencesOutputTransformer = require("./user_email_preferences/output");
 const FeaturedDropTransformer = require("./featured_drop")
 
 module.exports = Object.freeze({
@@ -21,5 +23,7 @@ module.exports = Object.freeze({
     MediaOutputTransformer,
     UserTransformer,
     UserOutputTransformer,
+    UserEmailPreferencesTransformer,
+    UserEmailPreferencesOutputTransformer,
     FeaturedDropTransformer,
 });

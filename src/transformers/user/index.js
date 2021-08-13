@@ -11,6 +11,7 @@ class UserTransformer extends BaseTransformer {
             uuid: user.uuid ? user.uuid : randomIntFromInterval(1, 100000000),
             description: user.description,
             image: user.image,
+            email: user.email,
             username: user.username,
             socials: user.socials ? JSON.stringify(user.socials) : null,
             wallet: user.wallet,

@@ -9,6 +9,7 @@ const ClaimModel = require("./claim")
 const EligibleClaimantModel = require("./eligible-claimant")
 const BidRegistrationModel = require("./bid-registration")
 const FeaturedDropModel = require("./featured-drop")
+const UserEmailPreferencesModel = require("./user-email-preferences");
 
 module.exports = Object.freeze({
     CollectableModel,
@@ -22,4 +23,5 @@ module.exports = Object.freeze({
     EligibleClaimantModel,
     BidRegistrationModel,
     FeaturedDropModel,
+    UserEmailPreferencesModel,
 });

@@ -1,6 +1,6 @@
 const Controller = require('./Controller');
-const {UserRepository} = require("./../repositories");
-const {UserOutputTransformer, UserTransformer} = require("./../transformers");
+const {UserRepository, UserEmailPreferencesRepository} = require("./../repositories");
+const {UserOutputTransformer, UserTransformer, UserEmailPreferencesTransformer, UserEmailPreferencesOutputTransformer} = require("./../transformers");
 const Web3Helper = require("./../utils/Web3Helper");
 const ethers = require('ethers');
 const {body, validationResult} = require('express-validator');
@@ -96,12 +96,12 @@ class UserController extends Controller {
             .setTransformer(UserOutputTransformer)
             .findByAddress(walletAddress);
 
-        let {username, description, twitter, website, image} = payload;
+        let {username, description, twitter, website, image, email} = payload;
         twitter = twitter ? twitter : null
         website = website ? website : null
         let socials = !twitter && !website ? null : {twitter, website}
 
-        let data = {username, description, socials, image};
+        let data = {username, description, socials, image, email};
         if (!user) {
             data.wallet = walletAddress;
             user = await UserRepository
@@ -112,6 +112,202 @@ class UserController extends Controller {
         }
 
         this.sendResponse(res, {user: UserOutputTransformer.transform(user)});
+    }
+
+    async updateEmailAndPreferences(req, res) {
+        const payload = req.body;
+
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return this.sendResponse(res, {errors: errors.array()}, "Validation error", 422);
+        }
+
+        // Validate signature
+        let parsedMessage = false;
+        let signer = false;
+        if(req.body.msg && JSON.parse(req.body.msg) && req.body.signature) {
+            parsedMessage = JSON.parse(req.body.msg);
+            if(!parsedMessage['timestamp']) {
+                this.sendError(res, 'Error: No signature timestamp provided', 400);
+                return;
+            }
+            if(!parsedMessage['account']) {
+                this.sendError(res, 'Error: No signature account provided', 400);
+                return;
+            }else{
+                signer = parsedMessage['account'];
+            }
+            let currentTimestamp = Math.floor(new Date().getTime() / 1000);
+            let secondsDifference = currentTimestamp - Number(parsedMessage['timestamp']);
+            // Checks that signature is less than 10 minutes old
+            if(secondsDifference < 600) {
+                let reconstructedMessage = `{"reason":"Update SEEN.HAUS account email address & preferences","account":"${signer}","timestamp":${parsedMessage['timestamp']}}`;
+
+                let isValidSignature = await Web3Helper.verifySignature(reconstructedMessage, req.body.signature, signer);
+                if (!isValidSignature) {
+                    this.sendError(res, 'Error: invalid signature message provided', 400);
+                    return;
+                }
+
+                let user = await UserRepository
+                    .setTransformer(UserOutputTransformer)
+                    .findByAddress(signer);
+
+                let {email, global_disable, outbid, claim_page_go_live} = payload;
+                let data = {email, global_disable, outbid, claim_page_go_live};
+
+                if (!user) {
+                    data.wallet = signer;
+                    user = await UserRepository
+                        .create(UserTransformer.transform(data))
+                } else {
+                    user = await UserRepository
+                        .update(UserTransformer.transform(data), user.id)
+                }
+
+                let preferences = await UserEmailPreferencesRepository
+                    .setTransformer(UserEmailPreferencesOutputTransformer)
+                    .findPreferencesByUserId(user.id);
+
+                if (!preferences) {
+                    preferences = await UserEmailPreferencesRepository
+                        .create(UserEmailPreferencesOutputTransformer.transform(Object.assign(data, {user_id: user.id})))
+                } else {
+                    preferences = await UserEmailPreferencesRepository
+                        .update(UserEmailPreferencesOutputTransformer.transform(Object.assign(data, {user_id: user.id})), preferences.id)
+                }
+
+                this.sendResponse(res, {
+                    user: Object.assign(UserOutputTransformer.transform(user), {email: email}),
+                    email_preferences: UserEmailPreferencesOutputTransformer.transform(preferences)
+                });
+            } else {
+                this.sendError(res, 'Error: signature must be less than 10 minutes old', 400);
+                return;
+            }
+        } else {
+            this.sendError(res, 'Error: invalid signature message provided', 400);
+            return;
+        }
+    }
+
+    async getEmailAndPreferences(req, res) {
+        const payload = req.body;
+
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return this.sendResponse(res, {errors: errors.array()}, "Validation error", 422);
+        }
+
+        // Validate signature
+        let parsedMessage = false;
+        let signer = false;
+        if(req.body.msg && JSON.parse(req.body.msg) && req.body.signature) {
+            parsedMessage = JSON.parse(req.body.msg);
+            if(!parsedMessage['timestamp']) {
+                this.sendError(res, 'Error: No signature timestamp provided', 400);
+                return;
+            }
+            if(!parsedMessage['account']) {
+                this.sendError(res, 'Error: No signature account provided', 400);
+                return;
+            }else{
+                signer = parsedMessage['account'];
+            }
+            
+            let currentTimestamp = Math.floor(new Date().getTime() / 1000);
+            let secondsDifference = currentTimestamp - Number(parsedMessage['timestamp']);
+            // Checks that signature is less than 10 minutes old
+            if(secondsDifference < 600) {
+                let reconstructedMessage = `{"reason":"Show SEEN.HAUS account email address and preferences","account":"${signer}","timestamp":${parsedMessage['timestamp']}}`;
+
+                let isValidSignature = await Web3Helper.verifySignature(reconstructedMessage, req.body.signature, signer);
+                if (!isValidSignature) {
+                    this.sendError(res, 'Error: invalid signature message provided');
+                    return;
+                }
+
+                let user = await UserRepository
+                    .setTransformer(UserOutputTransformer)
+                    .findByAddress(signer);
+
+                let email = await UserRepository.findEmailByAddress(signer);
+
+                let preferences = await UserEmailPreferencesRepository
+                    .setTransformer(UserEmailPreferencesOutputTransformer)
+                    .findPreferencesByUserId(user.id);
+
+                this.sendResponse(res, {
+                    user: Object.assign(UserOutputTransformer.transform(user), {email}),
+                    email_preferences: UserEmailPreferencesOutputTransformer.transform(preferences)
+                });
+            } else {
+                this.sendError(res, 'Error: signature must be less than 10 minutes old', 400);
+                return;
+            }
+        } else {
+            this.sendError(res, 'Error: invalid signature message provided', 400);
+            return;
+        }
+    }
+
+    async deleteEmail(req, res) {
+
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return this.sendResponse(res, {errors: errors.array()}, "Validation error", 422);
+        }
+
+        // Validate signature
+        let parsedMessage = false;
+        let signer = false;
+        if(req.body.msg && JSON.parse(req.body.msg) && req.body.signature) {
+            parsedMessage = JSON.parse(req.body.msg);
+            if(!parsedMessage['timestamp']) {
+                this.sendError(res, 'Error: No signature timestamp provided', 400);
+                return;
+            }
+            if(!parsedMessage['account']) {
+                this.sendError(res, 'Error: No signature account provided', 400);
+                return;
+            }else{
+                signer = parsedMessage['account'];
+            }
+            
+            let currentTimestamp = Math.floor(new Date().getTime() / 1000);
+            let secondsDifference = currentTimestamp - Number(parsedMessage['timestamp']);
+            // Checks that signature is less than 10 minutes old
+            if(secondsDifference < 600) {
+                let reconstructedMessage = `{"reason":"Delete SEEN.HAUS account email address","account":"${signer}","timestamp":${parsedMessage['timestamp']}}`;
+
+                let isValidSignature = await Web3Helper.verifySignature(reconstructedMessage, req.body.signature, signer);
+                if (!isValidSignature) {
+                    this.sendError(res, 'Error: invalid signature message provided');
+                    return;
+                }
+
+                // Check that user exists
+                let user = await UserRepository.setTransformer(UserOutputTransformer).findByAddress(signer);
+                
+                if (!user) {
+                    this.sendError(res, 'Error: user does not exist', 400);
+                } else {
+                    // Remove user's email address
+                    user = await UserRepository
+                        .update(UserTransformer.transform({email: null}), user.id)
+                }
+
+                this.sendResponse(res, {
+                    user: Object.assign(UserOutputTransformer.transform(user)),
+                });
+            } else {
+                this.sendError(res, 'Error: signature must be less than 10 minutes old', 400);
+                return;
+            }
+        } else {
+            this.sendError(res, 'Error: invalid signature message provided', 400);
+            return;
+        }
     }
 }
 
