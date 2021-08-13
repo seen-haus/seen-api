@@ -115,7 +115,7 @@ const checkIfAuctionV2IsOver = async (collectable) => {
                         let sortedMedia = [...collectable.media].sort((a, b) => a.position - b.position);
                         for(let media of sortedMedia) {
                             if(media.type && (media.type === 'image/jpeg') || (media.type === 'image/png')) {
-                                collectableImage = media && media.url;
+                                collectableImage = media.url ? media.url : false;
                                 // Use first image
                                 break;
                             }
