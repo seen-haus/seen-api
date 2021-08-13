@@ -10,6 +10,7 @@ const EligibleClaimantRepository = require("./EligibleClaimantRepository");
 const AuthRepository = require("./AuthRepository");
 const BidRegistrationRepository = require("./BidRegistrationRepository");
 const FeaturedDropRepository = require("./FeaturedDropRepository");
+const UserEmailPreferencesRepository = require("./UserEmailPreferencesRepository");
 
 module.exports = Object.freeze({
     ArtistRepository,
@@ -24,4 +25,5 @@ module.exports = Object.freeze({
     AuthRepository,
     BidRegistrationRepository,
     FeaturedDropRepository,
+    UserEmailPreferencesRepository,
 });

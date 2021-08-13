@@ -12,7 +12,7 @@ const { claimAdminEmailAddresses } = require('./../constants/Email')
 const { validationResult } = require("express-validator");
 const Web3Helper = require("./../utils/Web3Helper");
 const ClaimOutputTransformer = require("../transformers/claim/output");
-const { sendMail } = require('../services/mailgun.service.js');
+const { sendMail } = require('../services/sendgrid.service.js');
 
 class ClaimController extends Controller {
   async show(req, res) {
@@ -113,7 +113,7 @@ class ClaimController extends Controller {
       this.sendResponse(res, []);
 
       if(claimAdminEmailAddresses && claimAdminEmailAddresses.length > 0) {
-        sendMail(claimAdminEmailAddresses, `New Claim - ${collectable.title}`, `A new claim has been submitted on ${collectable.title}`);
+        sendMail(claimAdminEmailAddresses, `New Claim - ${collectable.title}`, `A new claim has been submitted on ${collectable.title}`, `<p>A new claim has been submitted on <strong>${collectable.title}</strong></p>`);
       }
     } catch (e) {
       console.log(e)

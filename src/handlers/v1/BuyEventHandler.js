@@ -11,7 +11,7 @@ class BuyEventHandler extends CollectableEventHandler {
         super(collectable);
     }
 
-    async handle(event) {
+    async handle(event, currentIndex, allEvents) {
         const returnValues = event.returnValues;
         const web3 = new Web3(INFURA_PROVIDER)
         let block = await web3.eth.getBlock(event.blockNumber);

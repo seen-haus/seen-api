@@ -3,9 +3,11 @@ const {dbConfig} = require("./../config");
 const {AUCTION, SALE} = require("./../constants/PurchaseTypes");
 const {V1, V2} = require("./../constants/Versions");
 const {Model} = require("objection");
-const {CollectableRepository, EventRepository, ClaimRepository} = require("./../repositories/index");
+const {CollectableRepository, UserEmailPreferencesRepository, EventRepository, ClaimRepository, UserRepository} = require("./../repositories/index");
+const {CollectableOutputTransformer, UserEmailPreferencesOutputTransformer} = require("./../transformers");
 const filler = require('./../services/filler.service')
 const Web3Service = require('./../services/web3.service')
+const { sendClaimPageNotification } = require('./../services/sendgrid.service');
 const NFTV1Abi = require("../abis/v1/NFTSale.json");
 const NFTV2OpenEdition = require("../abis/v2/OpenEdition.json");
 const AuctionV1Abi = require("../abis/v1/EnglishAuction.json");
@@ -81,10 +83,51 @@ const checkIfAuctionV2IsOver = async (collectable) => {
             winner_address: winnerAddress
         }, collectable.id);
         if(collectable.auto_generate_claim_page) {
-            await ClaimRepository.create({
+            let createdClaim = await ClaimRepository.create({
                 collectable_id: collectable.id,
                 is_active: 1,
             });
+            console.log({createdClaim})
+            let createdClaimId = createdClaim.id;
+            if(!isNaN(createdClaimId)) {
+                let preferencesAllowNotification = false;
+
+                // First check if we have an email address for the winnerAddress, and if their notification preferences enable outbid notifications
+                let emailAddress = await UserRepository.findEmailByAddress(winnerAddress);
+
+                if(emailAddress) {
+                    let user = await UserRepository.findByAddress(winnerAddress);
+                    // Check notification preferences
+                    let preferences = await UserEmailPreferencesRepository
+                        .setTransformer(UserEmailPreferencesOutputTransformer)
+                        .findPreferencesByUserId(user.id);
+
+                    if(preferences && !preferences.global_disable && preferences.claim_page_go_live) {
+                        preferencesAllowNotification = true;
+                    }
+                }
+
+                // Provided the following, we can send the notification
+                if(preferencesAllowNotification) {
+                    const collectableWithMedia = await CollectableRepository.setTransformer(CollectableOutputTransformer).findById(collectable.id);
+                    let collectableImage = false;
+                    if(collectableWithMedia?.media.length > 0) {
+                        let sortedMedia = [...collectableWithMedia.media].sort((a, b) => a.position - b.position);
+                        for(let media of sortedMedia) {
+                            if(media?.type === 'image/jpeg' || media?.type === 'image/png') {
+                                collectableImage = media?.url;
+                                // Use first image
+                                break;
+                            }
+                        }
+                    }
+                    let collectableTitle = collectable.title;
+                    let slug = collectable.slug;
+                    let claimLink = collectable.is_slug_full_route ? `https://seen.haus/${slug}` : `https://seen.haus/drops/${slug}`
+                    await sendClaimPageNotification(emailAddress, claimLink, collectableTitle, collectableImage);
+                }
+            }
+            // await sendMail(['jay@society0x.org', 'thealchemicalopus@gmail.com'], `New Claim - Test Title`, `A new claim has been submitted on Test Title`, `<p>A new claim has been submitted on <strong>Test Title</strong></p>`);
         }
     }
     return true;
