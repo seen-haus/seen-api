@@ -3,7 +3,6 @@ const {USER_EMAIL_PREFERENCES_TABLE} = require("./../../constants/DBTables");
 exports.up = (knex) => knex.schema.createTable(USER_EMAIL_PREFERENCES_TABLE, table => {
     table.increments();
     table.integer("user_id")
-        .index()
         .notNullable()
         .unique()
         .unsigned()
