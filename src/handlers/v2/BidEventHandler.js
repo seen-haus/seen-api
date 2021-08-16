@@ -1,7 +1,9 @@
 const CollectableEventHandler = require("../CollectableEventHandler");
-const {EventRepository, CollectableRepository} = require("../../repositories");
+const {EventRepository, CollectableRepository, UserRepository, UserEmailPreferencesRepository} = require("../../repositories");
+const {UserEmailPreferencesOutputTransformer, CollectableOutputTransformer} = require("../../transformers");
 const Web3 = require('web3');
 const ABI = require("./../../abis/v2/EnglishAuction.json")
+const { sendOutbidNotification } = require('../../services/sendgrid.service');
 const DateHelper = require("./../../utils/DateHelper");
 const {INFURA_PROVIDER} = require("./../../config");
 const {BID} = require("./../../constants/Events");
@@ -12,7 +14,7 @@ class BidEventHandler extends CollectableEventHandler {
         super(collectable);
     }
 
-    async handle(event) {
+    async handle(event, currentIndex, allEvents) {
         const returnValues = event.returnValues;
         const web3 = new Web3(INFURA_PROVIDER)
         let block = await web3.eth.getBlock(event.blockNumber);
@@ -27,7 +29,7 @@ class BidEventHandler extends CollectableEventHandler {
             return eventDb
         }
 
-        const collectable = await CollectableRepository.find(this.collectable.id);
+        const collectable = await CollectableRepository.setTransformer(CollectableOutputTransformer).findById(this.collectable.id);
         const endsAtTimestamp = Date.parse(collectable.ends_at) / 1000;
         let needsEndsAtUpdate = (timestamp >= endsAtTimestamp || (endsAtTimestamp - timestamp) <= 7200) || isNaN(endsAtTimestamp);
         console.log("NEEDS UPDATE", needsEndsAtUpdate, endsAtTimestamp, timestamp)
@@ -64,6 +66,72 @@ class BidEventHandler extends CollectableEventHandler {
             console.log(usdValue)
         } catch (e) {
             console.log(e)
+        }
+
+        if(currentIndex >= 1) {
+            const previousBidderAddress = allEvents[currentIndex - 1].returnValues.who;
+            const currentBidderAddress = event.returnValues.who;
+
+            let preventOutbidNotification = false;
+            let preferencesAllowNotification = false;
+
+            // First check if we have an email address for the previous bidder, and if their notification preferences enable outbid notifications
+            let emailAddress = await UserRepository.findEmailByAddress(previousBidderAddress);
+
+            if(emailAddress) {
+                let user = await UserRepository.findByAddress(previousBidderAddress);
+                // Check notification preferences
+                let preferences = await UserEmailPreferencesRepository
+                    .setTransformer(UserEmailPreferencesOutputTransformer)
+                    .findPreferencesByUserId(user.id);
+
+                if(!preferences) {
+                    preventOutbidNotification = true;
+                } else if (preferences.global_disable || !preferences.outbid) {
+                    // If notifications are globally disabled or outbid notification are disabled, prevent notification
+                    preventOutbidNotification = true;
+                } else if(!preferences.global_disable && preferences.outbid) {
+                    // Somewhat redundant but good as a safeguard against errors
+                    preferencesAllowNotification = true;
+                }
+            } else {
+                preventOutbidNotification = true;
+            }
+
+            //Check that this isn't the last event, also checks current status to avoid potentially unnecessary for loop
+            if(preferencesAllowNotification && !preventOutbidNotification && allEvents.length > (currentIndex + 1)) {
+                // Check if the previous bidder has made a subsequent bid since this event
+                for(let remainingEvent of allEvents.slice(currentIndex + 1)) {
+                    if(remainingEvent.returnValues.who === previousBidderAddress) {
+                        // Previous bidder has made a subsequent bid, therefore no need to notify of outbid
+                        preventOutbidNotification = true;
+                        break;
+                    }
+                }
+            }
+            if(previousBidderAddress === currentBidderAddress) {
+                // Previous bidder is the same as the current bidder, therefore no need to notify of outbid
+                preventOutbidNotification = true;
+            }
+
+            // Provided the following, we can send the notification
+            if(preferencesAllowNotification && !preventOutbidNotification) {
+                let collectableImage = false;
+                if(collectable.media && collectable.media.length > 0) {
+                    let sortedMedia = [...collectable.media].sort((a, b) => a.position - b.position);
+                    for(let media of sortedMedia) {
+                        if(media.type && (media.type === 'image/jpeg') || (media.type === 'image/png')) {
+                            collectableImage = media.url ? media.url : false;
+                            // Use first image
+                            break;
+                        }
+                    }
+                }
+                let collectableTitle = collectable.title;
+                let slug = collectable.slug;
+                let auctionLink = collectable.is_slug_full_route ? `https://seen.haus/${slug}` : `https://seen.haus/drops/${slug}`
+                await sendOutbidNotification(emailAddress, auctionLink, collectableTitle, collectableImage);
+            }
         }
 
         return await EventRepository.create({

@@ -10,10 +10,20 @@ class AdminClaimsController extends Controller {
         if (!errors.isEmpty()) {
             return this.sendResponse(res, {errors: errors.array()}, "Validation error", 422);
         }
+        const collectableId = req.query.collectableId;
+
+        let data;
         const pagination = this.extractPagination(req);
-        const data = await CollectableWinnerRepository
-            .setTransformer(CollectableWinnerOutputTransformer)
-            .paginate(pagination.perPage, pagination.page, {property: 'id', direction: 'DESC'})
+        
+        if(isNaN(collectableId)) {
+            data = await CollectableWinnerRepository
+                .setTransformer(CollectableWinnerOutputTransformer)
+                .paginate(pagination.perPage, pagination.page, {property: 'id', direction: 'DESC'});
+        }else{
+            data = await CollectableWinnerRepository
+                .setTransformer(CollectableWinnerOutputTransformer)
+                .findByCollectableId(collectableId);
+        }
 
         this.sendResponse(res, data);
     }

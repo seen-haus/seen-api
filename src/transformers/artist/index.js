@@ -8,6 +8,7 @@ class ArtistTransformer extends BaseTransformer {
                 ? artist.slug
                 : StringHelper.slugify(artist.name),
             name: artist.name,
+            email: artist.email,
             is_hidden_from_artist_list: !!artist.is_hidden_from_artist_list,
             avatar: artist.avatar,
             header_image: artist.header_image,

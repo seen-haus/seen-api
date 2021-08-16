@@ -5,6 +5,7 @@ class UserOutputTransformer extends BaseTransformer {
         return {
             id: user.id,
             uuid: user.uuid,
+            email: user.email ? true : false,
             description: user.description,
             image: user.image,
             username: user.username,
