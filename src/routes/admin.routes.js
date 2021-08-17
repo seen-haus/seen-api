@@ -60,7 +60,7 @@ const checkVersion = (value) => {
 Router.post('/admin/artists/', [
     authenticateJWT,
     body('name').isLength({min: 2}),
-    body("email").notEmpty().isEmail(),
+    body("email").optional().isEmail(),
     body('avatar')
         .notEmpty()
         .isURL(),
@@ -70,7 +70,7 @@ Router.post('/admin/artists/', [
 Router.put('/admin/artists/:id', [
     authenticateJWT,
     body('name').isLength({min: 2}),
-    body("email").notEmpty().isEmail(),
+    body("email").optional().isEmail(),
     body('avatar')
         .notEmpty()
         .isURL(),
