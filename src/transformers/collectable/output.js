@@ -1,6 +1,8 @@
 const BaseTransformer = require("./../BaseTransformer");
 const ArtistOutputTransformer = require("../artist/output")
+const UserOutputTransformer = require("../user/output")
 const MediaOutputTransformer = require("../media/output")
+const TagOutputTransformer = require("../tag/output")
 
 class CollectableOutputTransformer extends BaseTransformer {
     transform(collectable) {
@@ -58,6 +60,18 @@ class CollectableOutputTransformer extends BaseTransformer {
             is_reserve_price_auction: !!collectable.is_reserve_price_auction,
             auto_generate_claim_page: !!collectable.auto_generate_claim_page,
             is_open_edition: !!collectable.is_open_edition,
+            user: collectable.user ? UserOutputTransformer.transform(collectable.user) : null,
+            consignment_id: collectable.consignment_id,
+            market_type: collectable.market_type,
+            market_handler_type: collectable.market_handler_type,
+            clock_type: collectable.clock_type,
+            state: collectable.state,
+            outcome: collectable.outcome,
+            multi_token: collectable.multi_token,
+            released: collectable.released,
+            tags: collectable.tags && collectable.tags.length > 0
+                ? collectable.tags.map(tag => TagOutputTransformer.transform(tag))
+                : [],
         }
     }
 }

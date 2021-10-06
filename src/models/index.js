@@ -11,6 +11,8 @@ const BidRegistrationModel = require("./bid-registration")
 const FeaturedDropModel = require("./featured-drop")
 const IPFSMediaModel = require("./ipfs-media")
 const UserEmailPreferencesModel = require("./user-email-preferences");
+const TagModel = require("./tag");
+const TagToCollectableModel = require("./tag-to-collectable");
 
 module.exports = Object.freeze({
     CollectableModel,
@@ -26,4 +28,6 @@ module.exports = Object.freeze({
     FeaturedDropModel,
     IPFSMediaModel,
     UserEmailPreferencesModel,
+    TagModel,
+    TagToCollectableModel,
 });

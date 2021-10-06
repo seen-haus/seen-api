@@ -13,6 +13,9 @@ const MEDIA_TABLE = "media";
 const BID_REGISTRATIONS_TABLE = "bid_registrations";
 const IPFS_MEDIA_TABLE = "ipfs_media";
 const USER_EMAIL_PREFERENCES_TABLE = "user_email_preferences";
+const SELF_MINTING_INTERNAL_ACCESS_REQUESTS_TABLE = "self_minting_internal_access_requests";
+const TAGS_TABLE = "tags";
+const TAG_TO_COLLECTABLE_TABLE = "tag_to_collectable";
 
 module.exports = Object.freeze({
     EVENTS_TABLE,
@@ -29,4 +32,7 @@ module.exports = Object.freeze({
     BID_REGISTRATIONS_TABLE,
     IPFS_MEDIA_TABLE,
     USER_EMAIL_PREFERENCES_TABLE,
+    SELF_MINTING_INTERNAL_ACCESS_REQUESTS_TABLE,
+    TAGS_TABLE,
+    TAG_TO_COLLECTABLE_TABLE,
 });

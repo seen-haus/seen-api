@@ -52,7 +52,7 @@ class CollectableRepository extends BaseRepository {
                     this.where('bundle_child_id', bundleChildId);
                 }
             })
-            .withGraphFetched('[artist, media, events, bundleChildItems.[events], claim, featured_drop]')
+            .withGraphFetched('[artist, user, tags, media, events, bundleChildItems.[events], claim, featured_drop]')
             .orderBy('starts_at', 'DESC')
             .page(page - 1, perPage)
 
@@ -73,7 +73,7 @@ class CollectableRepository extends BaseRepository {
 
     async findByContractAddress(contractAddress) {
         const result = await this.model.query()
-            .withGraphFetched('[artist.[collectables], media, events, claim]')
+            .withGraphFetched('[artist.[collectables], user.[collectables], tags, media, events, claim]')
             .where('contract_address', '=', contractAddress)
             .first();
         if (!result) {
@@ -84,7 +84,7 @@ class CollectableRepository extends BaseRepository {
 
     async findBySlug(contractAddress) {
         const result = await this.model.query()
-            .withGraphFetched('[artist.[collectables], media, events, claim]')
+            .withGraphFetched('[artist.[collectables], user.[collectables], tags, media, events, claim]')
             .where('slug', '=', contractAddress)
             .first();
         if (!result) {
@@ -95,8 +95,19 @@ class CollectableRepository extends BaseRepository {
 
     async findById(id) {
         const result = await this.model.query()
-            .withGraphFetched('[artist.[collectables], media, events, claim]')
+            .withGraphFetched('[artist.[collectables], user.[collectables], tags, media, events, claim]')
             .where('id', '=', id)
+            .first();
+        if (!result) {
+            return null;
+        }
+        return this.parserResult(result)
+    }
+
+    async findByConsignmentId(id) {
+        const result = await this.model.query()
+            .withGraphFetched('[user.[collectables], tags, media, events, claim]')
+            .where('consignment_id', '=', id)
             .first();
         if (!result) {
             return null;
@@ -106,7 +117,7 @@ class CollectableRepository extends BaseRepository {
 
     async queryByTokenIds(tokenIds) {
         const results = await this.model.query()
-            .withGraphFetched('[artist, media, events, claim]')
+            .withGraphFetched('[artist, user, tags, media, events, claim]')
             .where('nft_contract_address', '0x13bAb10a88fc5F6c77b87878d71c9F1707D2688A')
             .whereIn('nft_token_id', tokenIds);
 

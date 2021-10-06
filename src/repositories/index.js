@@ -12,6 +12,8 @@ const BidRegistrationRepository = require("./BidRegistrationRepository");
 const FeaturedDropRepository = require("./FeaturedDropRepository");
 const IPFSMediaRepository = require("./IPFSMediaRepository");
 const UserEmailPreferencesRepository = require("./UserEmailPreferencesRepository");
+const TagRepository = require("./TagRepository");
+const TagToCollectableRepository = require("./TagToCollectableRepository");
 
 module.exports = Object.freeze({
     ArtistRepository,
@@ -28,4 +30,6 @@ module.exports = Object.freeze({
     FeaturedDropRepository,
     IPFSMediaRepository,
     UserEmailPreferencesRepository,
+    TagRepository,
+    TagToCollectableRepository,
 });

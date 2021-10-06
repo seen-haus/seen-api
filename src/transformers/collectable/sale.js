@@ -36,6 +36,16 @@ class CollectableSaleTransformer extends BaseTransformer {
             is_closed: collectable.is_closed,
             is_reserve_price_auction: !!collectable.is_reserve_price_auction,
             is_open_edition: !!collectable.is_open_edition,
+            user_id: collectable.user_id,
+            consignment_id: collectable.consignment_id,
+            market_type: collectable.market_type,
+            market_handler_type: collectable.market_handler_type,
+            state: collectable.state,
+            outcome: collectable.outcome,
+            multi_token: collectable.multi_token,
+            released: collectable.released,
+            rights: collectable.rights,
+            attributes: collectable.attributes,
         }
     }
 }
