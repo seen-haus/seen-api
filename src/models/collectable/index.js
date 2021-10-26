@@ -9,6 +9,7 @@ const {
     USERS_TABLE,
     TAG_TO_COLLECTABLE_TABLE,
     TAGS_TABLE,
+    SECONDARY_MARKET_LISTINGS,
 } = require("./../../constants/DBTables");
 const BaseModel = require("./../BaseModel");
 const Artist = require("../artist");
@@ -29,6 +30,7 @@ module.exports = class Collectable extends BaseModel {
     static get relationMappings() {
         const Claim = require("../claim");
         const FeaturedDrop = require("../featured-drop");
+        const SecondaryMarketListing = require("../secondary-market-listing");
         return {
             artist: {
                 relation: BaseModel.HasOneRelation,
@@ -97,7 +99,15 @@ module.exports = class Collectable extends BaseModel {
                     from: `${COLLECTIBLES_TABLE}.id`,
                     to: `${FEATURED_DROP_TABLE}.collectable_id`,
                 }
-            }
+            },
+            secondaryMarketListings: {
+                relation: BaseModel.HasManyRelation,
+                modelClass: SecondaryMarketListing,
+                join: {
+                    from: `${COLLECTIBLES_TABLE}.id`,
+                    to: `${SECONDARY_MARKET_LISTINGS}.collectable_id`,
+                }
+            },
         }
     }
 }

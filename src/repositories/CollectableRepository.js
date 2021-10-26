@@ -124,6 +124,25 @@ class CollectableRepository extends BaseRepository {
         return this.parserResult(results);
     }
 
+    async queryByTokenContractAddressWithTokenIds(tokenContractAddress, tokenIds) {
+        const results = await this.model.query()
+            .withGraphFetched('[artist, user, tags, media, events, claim]')
+            .where('nft_contract_address', tokenContractAddress)
+            .whereIn('nft_token_id', tokenIds);
+
+        return this.parserResult(results);
+    }
+
+    async queryByTokenContractAddressWithTokenId(tokenContractAddress, tokenId) {
+        const result = await this.model.query()
+            .withGraphFetched('[artist, user, tags, media, events, claim]')
+            .where('nft_contract_address', tokenContractAddress)
+            .where('nft_token_id', tokenId)
+            .first();
+
+        return this.parserResult(result);
+    }
+
 }
 
 module.exports = new CollectableRepository()

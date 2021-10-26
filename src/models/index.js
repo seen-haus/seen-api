@@ -13,6 +13,9 @@ const IPFSMediaModel = require("./ipfs-media")
 const UserEmailPreferencesModel = require("./user-email-preferences");
 const TagModel = require("./tag");
 const TagToCollectableModel = require("./tag-to-collectable");
+const FallbackWorkerConsignmentEventBlockTrackerModel = require('./fallback-worker-consignment-event-block-tracker');
+const EthPriceCacheModel = require("./eth-price-cache");
+const SecondaryMarketListingModel = require("./secondary-market-listing");
 
 module.exports = Object.freeze({
     CollectableModel,
@@ -30,4 +33,7 @@ module.exports = Object.freeze({
     UserEmailPreferencesModel,
     TagModel,
     TagToCollectableModel,
+    FallbackWorkerConsignmentEventBlockTrackerModel,
+    EthPriceCacheModel,
+    SecondaryMarketListingModel,
 });

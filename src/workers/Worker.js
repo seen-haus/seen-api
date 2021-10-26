@@ -1,12 +1,14 @@
 const Knex = require("knex");
 const {dbConfig} = require("./../config");
 const {AUCTION, SALE} = require("./../constants/PurchaseTypes");
-const {V1, V2} = require("./../constants/Versions");
+const {V1, V2, V3} = require("./../constants/Versions");
 const {Model} = require("objection");
 const {CollectableRepository} = require("./../repositories/index");
 const CollectableAuctionV1 = require("./watchers/v1/CollectableAuction")
 const CollectableAuctionV2 = require("./watchers/v2/CollectableAuction")
+const CollectableAuctionV3 = require("./watchers/v3/CollectableAuction")
 const CollectableSaleV1 = require("./watchers/v1/CollectableSale")
+const CollectableSaleV3 = require("./watchers/v3/CollectableSale")
 const ethers = require('ethers');
 
 // init DB
@@ -32,14 +34,23 @@ let init = async () => {
         let watcher = {}
         switch (collectable.purchase_type) {
             case SALE:
-                watcher = collectable.version === V1
-                    ? new CollectableSaleV1(collectable)
-                    : new CollectableSaleV1(collectable);
+                watcher;
+                if(collectable.version === V3) {
+                    watcher = new CollectableSaleV3(collectable)
+                } else if(collectable.version === V2) {
+                    watcher = new CollectableSaleV1(collectable)
+                } else if(collectable.version === V1) {
+                    watcher = new CollectableSaleV1(collectable)
+                }
                 break;
             case AUCTION:
-                watcher = collectable.version === V1
-                    ? new CollectableAuctionV1(collectable)
-                    : new CollectableAuctionV2(collectable);
+                if(collectable.version === V3) {
+                    watcher = new CollectableAuctionV3(collectable)
+                } else if(collectable.version === V2) {
+                    watcher = new CollectableAuctionV2(collectable)
+                } else if(collectable.version === V1) {
+                    watcher = new CollectableAuctionV1(collectable)
+                }
                 break;
         }
 
@@ -52,6 +63,7 @@ let init = async () => {
             watcher.destroy();
         }
     });
+    console.log({"test": 1})
 }
 
 let restartWatchers = async () => {
@@ -67,7 +79,7 @@ let restartWatchers = async () => {
 
 init();
 
-let restartWatchersAfterMinutes = 15;
+let restartWatchersAfterMinutes = 5;
 
 setInterval(() => {
     // This is done so that if new auctions are added after the worker has started, or if contract addresses are changed for existing auctions

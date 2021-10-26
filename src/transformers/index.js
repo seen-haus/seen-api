@@ -11,6 +11,9 @@ const UserOutputTransformer = require("./user/output")
 const UserEmailPreferencesTransformer = require("./user_email_preferences");
 const UserEmailPreferencesOutputTransformer = require("./user_email_preferences/output");
 const FeaturedDropTransformer = require("./featured_drop")
+const SecondaryMarketListingAuctionTransformer = require("./secondary_market_listing/auction");
+const SecondaryMarketListingSaleTransformer = require("./secondary_market_listing/sale");
+const SecondaryMarketListingOutputTransformer = require("./secondary_market_listing/output");
 
 module.exports = Object.freeze({
     ArtistTransformer,
@@ -26,4 +29,7 @@ module.exports = Object.freeze({
     UserEmailPreferencesTransformer,
     UserEmailPreferencesOutputTransformer,
     FeaturedDropTransformer,
+    SecondaryMarketListingAuctionTransformer,
+    SecondaryMarketListingSaleTransformer,
+    SecondaryMarketListingOutputTransformer,
 });
