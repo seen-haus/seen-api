@@ -31,6 +31,8 @@ class CollectableRepository extends BaseRepository {
         let artistId = query.artistId ? parseInt(query.artistId) : null;
         let includeIsHiddenFromDropList = query.includeIsHiddenFromDropList === 'true' ? true : false;
         let bundleChildId = query.bundleChildId ? query.bundleChildId : null;
+        let collectionName = query.collectionName ? query.collectionName : null;
+        let excludeEnded = query.excludeEnded ? query.excludeEnded : null;
         let type = query.type;
 
         const results = await this.model.query().where(function () {
@@ -50,6 +52,14 @@ class CollectableRepository extends BaseRepository {
                 }
                 if (bundleChildId) {
                     this.where('bundle_child_id', bundleChildId);
+                }
+                if(collectionName) {
+                    this.where('collection_name', collectionName);
+                }
+                if(excludeEnded) {
+                    let currentDate = new Date();
+                    this.where('ends_at', '>', currentDate);
+                    this.orWhere('ends_at', null);
                 }
             })
             .withGraphFetched('[artist, media, events, bundleChildItems.[events], claim, featured_drop]')
