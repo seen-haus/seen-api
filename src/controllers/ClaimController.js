@@ -117,7 +117,7 @@ class ClaimController extends Controller {
       }
     } catch (e) {
       console.log(e)
-      this.sendError(res, "Error: you may have already submitted a claim, please contact the team if you need to amend details.");
+      this.sendError(res, "Error: you may have already submitted a claim, please contact the team via Telegram if you need to amend details.");
     }
   }
 }

@@ -25,6 +25,7 @@ const AuctionV1Abi = require("../abis/v1/EnglishAuction.json");
 const AuctionV2Abi = require("../abis/v2/EnglishAuction.json");
 const AuctionV3Abi = require("../abis/v3/auctionBuilderABI.json");
 const SaleV3Abi = require("../abis/v3/saleBuilderABI.json");
+const nftV3Abi = require("../abis/v3/seenHausNFTABI.json");
 const MarketClerkABI = require("../abis/v3/marketClerkABI.json");
 const MarketConfigABI = require("../abis/v3/marketConfigABI.json");
 const TicketerABI = require("../abis/v3/ticketerABI.json");
@@ -73,11 +74,9 @@ const checkIfSaleV3IsSoldOut = async (collectable) => {
     const serviceMarketClerkContract = new Web3Service(networkNameToMarketDiamond[useNetwork], MarketClerkABI);
     const consignment = await serviceMarketClerkContract.getConsignment(collectable.consignment_id);
     let isPhysical, ticketClaimsIssued = false;
-    console.log({'consignment.market': consignment.market, PRIMARY})
     if(consignment.market === PRIMARY) {
-        const serviceNFTContract = new Web3Service(collectable.contract_address, SaleV3Abi);
-        isPhysical = await serviceNFTContract.isPhysical(consignment.tokenId);
-        console.log({isPhysical})
+        const serviceNFTContract = new Web3Service(collectable.nft_contract_address, nftV3Abi);
+        isPhysical = serviceNFTContract.isPhysical && await serviceNFTContract.isPhysical(consignment.tokenId);
         if(isPhysical) {
             const serviceMarketConfigContract = new Web3Service(networkNameToMarketDiamond[useNetwork], MarketConfigABI);
             const ticketerAddress = await serviceMarketConfigContract.getEscrowTicketer(consignment.id);

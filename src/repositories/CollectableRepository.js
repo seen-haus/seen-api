@@ -52,7 +52,7 @@ class CollectableRepository extends BaseRepository {
                     this.where('bundle_child_id', bundleChildId);
                 }
             })
-            .withGraphFetched('[artist, user, tags, media, events, bundleChildItems.[events], claim, featured_drop]')
+            .withGraphFetched('[artist, user, tags, media, events, bundleChildItems.[events], claim, featured_drop, secondaryMarketListings]')
             .orderBy('starts_at', 'DESC')
             .page(page - 1, perPage)
 
@@ -73,7 +73,7 @@ class CollectableRepository extends BaseRepository {
 
     async findByContractAddress(contractAddress) {
         const result = await this.model.query()
-            .withGraphFetched('[artist.[collectables], user.[collectables], tags, media, events, claim]')
+            .withGraphFetched('[artist.[collectables], user.[collectables], tags, media, events, claim, secondaryMarketListings.[user, events]]')
             .where('contract_address', '=', contractAddress)
             .first();
         if (!result) {
@@ -84,7 +84,7 @@ class CollectableRepository extends BaseRepository {
 
     async findBySlug(contractAddress) {
         const result = await this.model.query()
-            .withGraphFetched('[artist.[collectables], user.[collectables], tags, media, events, claim]')
+            .withGraphFetched('[artist.[collectables], user.[collectables], tags, media, events, claim, secondaryMarketListings.[user, events]]')
             .where('slug', '=', contractAddress)
             .first();
         if (!result) {
@@ -95,7 +95,7 @@ class CollectableRepository extends BaseRepository {
 
     async findById(id) {
         const result = await this.model.query()
-            .withGraphFetched('[artist.[collectables], user.[collectables], tags, media, events, claim]')
+            .withGraphFetched('[artist.[collectables], user.[collectables], tags, media, events, claim, secondaryMarketListings.[user, events]]')
             .where('id', '=', id)
             .first();
         if (!result) {

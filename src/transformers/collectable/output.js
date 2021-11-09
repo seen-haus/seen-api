@@ -22,6 +22,11 @@ class CollectableOutputTransformer extends BaseTransformer {
                     return bundleChildItem;
                 })
                 : [],
+            secondary_market_listings: collectable.secondaryMarketListings && collectable.secondaryMarketListings.length > 0
+                ? collectable.secondaryMarketListings.map(secondaryMarketListing => {
+                    return secondaryMarketListing;
+                })
+                : [],
             claim: collectable.claim ? collectable.claim : null,
             purchase_type: collectable.purchase_type,
             type: collectable.type,

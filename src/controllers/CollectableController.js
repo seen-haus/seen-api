@@ -1,6 +1,15 @@
 const Controller = require('./Controller');
 const ethers = require('ethers');
-const {SecondaryMarketListingRepository, CollectableRepository, CollectableWinnerRepository, UserRepository, MediaRepository, IPFSMediaRepository, TagRepository, TagToCollectableRepository} = require("./../repositories");
+const {
+    SecondaryMarketListingRepository,
+    CollectableRepository,
+    CollectableWinnerRepository,
+    UserRepository,
+    MediaRepository,
+    IPFSMediaRepository,
+    TagRepository,
+    TagToCollectableRepository,
+} = require("./../repositories");
 const {
     CollectableSaleTangibleTransformer,
     CollectableAuctionTransformer, 
@@ -80,6 +89,16 @@ class CollectableController extends Controller {
                 .setTransformer(CollectableOutputTransformer)
                 .findById(contractAddress);
         }
+
+        this.sendResponse(res, data);
+    }
+
+    async showSecondary(req, res) {
+        const slug = req.params.slug;
+
+        let data = await SecondaryMarketListingRepository
+            .setTransformer(SecondaryMarketListingOutputTransformer)
+            .findBySlug(slug);
 
         this.sendResponse(res, data);
     }
@@ -310,9 +329,9 @@ class CollectableController extends Controller {
                                 ...(tokenMetadata.attributes && { attributes: JSON.stringify(tokenMetadata.attributes) }),
                             }
 
-                            // collectable = await CollectableRepository
-                            //     .setTransformer(CollectableAuctionTransformer)
-                            //     .create(CollectableAuctionTransformer.transform(collectablePayload));
+                            collectable = await CollectableRepository
+                                .setTransformer(CollectableAuctionTransformer)
+                                .create(CollectableAuctionTransformer.transform(collectablePayload));
 
                         } else if (consignment.market === SECONDARY) {
                             console.log("IS SECONDARY")
@@ -402,13 +421,19 @@ class CollectableController extends Controller {
                                 ...(tokenMetadata.attributes && { attributes: JSON.stringify(tokenMetadata.attributes) }),
                             }
 
-                            // collectable = await CollectableRepository
-                            //     .setTransformer(CollectableSaleTangibleTransformer)
-                            //     .create(CollectableSaleTangibleTransformer.transform(collectablePayload));
+                            collectable = await CollectableRepository
+                                .setTransformer(CollectableSaleTangibleTransformer)
+                                .create(CollectableSaleTangibleTransformer.transform(collectablePayload));
 
                         } else if (consignment.market === SECONDARY) {
 
-                            let collectablePayload = {
+                            // Check if there is a primary collectable associated with this secondary listing
+                            let primaryCollectable = await CollectableRepository.queryByTokenContractAddressWithTokenId(consignment.tokenAddress, consignment.tokenId);
+
+                            console.log({primaryCollectable, 'primaryCollectable.id': primaryCollectable.id})
+
+                            let secondaryMarketListingPayload = {
+                                collectable_id: primaryCollectable.id,
                                 slug,
                                 purchase_type: SALE,
                                 available_qty: consignment.supply,
@@ -430,6 +455,10 @@ class CollectableController extends Controller {
                                 multi_token: consignment.multiToken,
                                 released: consignment.released,
                             }
+
+                            secondaryMarketListing = await SecondaryMarketListingRepository
+                                .setTransformer(SecondaryMarketListingSaleTransformer)
+                                .create(SecondaryMarketListingSaleTransformer.transform(secondaryMarketListingPayload));
 
                         }
 
@@ -498,8 +527,8 @@ class CollectableController extends Controller {
 
                     console.log({createdSecondaryMarketListing})
 
-                    // this.sendResponse(res, createdSecondaryMarketListing);
-
+                    this.sendResponse(res, createdSecondaryMarketListing);
+                    return;
                 } else {
                     this.sendError(res, "Collectable Payload Generation Error");
                 }

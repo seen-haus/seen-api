@@ -52,6 +52,8 @@ Router.post('/collectables/:contractAddress/winner', [
 
 Router.get('/collectables/:contractAddress', [], 'CollectableController@show');
 
+Router.get('/collectables/secondary/:slug', [], 'CollectableController@showSecondary');
+
 Router.post('/collectables/publish-consignment', [
     body("consignment_id").notEmpty().isNumeric(),
 ], 'CollectableController@publishCollectableFromConsignmentId');
