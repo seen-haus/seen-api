@@ -67,10 +67,8 @@ class ClaimController extends Controller {
     if((collectable.nft_token_id.indexOf("[") === 0) || collectable.is_vrf_drop) {
       let tokenIds = JSON.parse(collectable.nft_token_id);
       for(let tokenId of tokenIds) {
-        console.log({tokenId})
         let tokenBalanceCurrentId = await nftContractService.balanceOf(wallet_address, tokenId);
         balanceOfClaimer += parseInt(tokenBalanceCurrentId);
-        console.log({balanceOfClaimer})
       }
     } else {
       balanceOfClaimer = await nftContractService.balanceOf(wallet_address, collectable.nft_token_id);
