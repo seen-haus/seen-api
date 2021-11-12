@@ -10,6 +10,7 @@ const Web3Service = require('./../services/web3.service')
 const { sendClaimPageNotification } = require('./../services/sendgrid.service');
 const NFTV1Abi = require("../abis/v1/NFTSale.json");
 const NFTV2OpenEdition = require("../abis/v2/OpenEdition.json");
+const VRFSaleAbi = require("../abis/v2/VRFSale.json");
 const AuctionV1Abi = require("../abis/v1/EnglishAuction.json");
 const AuctionV2Abi = require("../abis/v2/EnglishAuction.json");
 const ethers = require('ethers');
@@ -43,6 +44,15 @@ const checkIfOpenEditionHasClosed = async (collectable) => {
     let isClosed = await service.isOpenEditionClosed();
     if (isClosed) {
         await CollectableRepository.update({is_sold_out: 1}, collectable.id);
+    }
+    return true
+}
+
+const checkIfVrfDropHasClosed = async (collectable) => {
+    let service = new Web3Service(collectable.contract_address, VRFSaleAbi);
+    let isClosed = await service.isReservationPeriodOver();
+    if (isClosed) {
+        await CollectableRepository.update({is_sold_out: 1, is_closed: 1}, collectable.id);
     }
     return true
 }
@@ -144,10 +154,12 @@ const run = async() => {
         await filler.fillEvents(collectable);
         switch (collectable.purchase_type) {
             case SALE:
-                if (collectable.is_open_edition !== 1) {
-                    await checkIfSoldOut(collectable);
-                } else {
+                if (collectable.is_open_edition) {
                     await checkIfOpenEditionHasClosed(collectable);
+                } else if(collectable.is_vrf_drop) {
+                    await checkIfVrfDropHasClosed(collectable);
+                } else {
+                    await checkIfSoldOut(collectable);
                 }
                 break;
             case AUCTION:
