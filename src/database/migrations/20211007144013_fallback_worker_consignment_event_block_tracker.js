@@ -2,7 +2,7 @@ const { FALLBACK_WORKER_CONSIGNMENT_EVENT_BLOCK_TRACKER_TABLE } = require("./../
 
 exports.up = (knex) => knex.schema.createTable(FALLBACK_WORKER_CONSIGNMENT_EVENT_BLOCK_TRACKER_TABLE, table => {
   table.increments();
-  table.integer("consignment_id") // If you are running this locally, use integer instead of biginterger
+  table.integer("consignment_id")
     .index()
     .unique()
     .notNullable()
