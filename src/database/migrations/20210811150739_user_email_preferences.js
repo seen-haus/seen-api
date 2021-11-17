@@ -2,7 +2,7 @@ const {USER_EMAIL_PREFERENCES_TABLE} = require("./../../constants/DBTables");
 
 exports.up = (knex) => knex.schema.createTable(USER_EMAIL_PREFERENCES_TABLE, table => {
     table.increments();
-    table.integer("user_id") // If you are running this locally, use integer instead of biginterger
+    table[process.env.NODE_ENV === 'local' ? 'integer' : 'biginteger']("user_id") // If you are running this locally, use integer instead of biginterger
         .index()
         .notNullable()
         .unique()

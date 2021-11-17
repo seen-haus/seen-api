@@ -31,7 +31,7 @@ exports.up = (knex) => knex.schema.createTable(SECONDARY_MARKET_LISTINGS, table 
       .unsigned()
       .unique()
       .index();
-    table.biginteger("user_id") // If you are running this locally, use integer instead of biginterger
+    table[process.env.NODE_ENV === 'local' ? 'integer' : 'biginteger']("user_id") // If you are running this locally, use integer instead of biginterger
       .unsigned()
       .references("users.id")
       .onUpdate('CASCADE')
