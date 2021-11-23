@@ -77,6 +77,7 @@ class CollectableOutputTransformer extends BaseTransformer {
             tags: collectable.tags && collectable.tags.length > 0
                 ? collectable.tags.map(tag => TagOutputTransformer.transform(tag))
                 : [],
+            is_vrf_drop: !!collectable.is_vrf_drop,
         }
     }
 }

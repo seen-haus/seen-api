@@ -21,6 +21,7 @@ const Web3Service = require('./../services/web3.service')
 const { sendClaimPageNotification } = require('./../services/sendgrid.service');
 const NFTV1Abi = require("../abis/v1/NFTSale.json");
 const NFTV2OpenEdition = require("../abis/v2/OpenEdition.json");
+const VRFSaleAbi = require("../abis/v2/VRFSale.json");
 const AuctionV1Abi = require("../abis/v1/EnglishAuction.json");
 const AuctionV2Abi = require("../abis/v2/EnglishAuction.json");
 const AuctionV3Abi = require("../abis/v3/auctionBuilderABI.json");
@@ -94,6 +95,15 @@ const checkIfSaleV3IsSoldOut = async (collectable) => {
     }
     return true
 };
+
+const checkIfVrfDropHasClosed = async (collectable) => {
+    let service = new Web3Service(collectable.contract_address, VRFSaleAbi);
+    let isClosed = await service.isReservationPeriodOver();
+    if (isClosed) {
+        await CollectableRepository.update({is_sold_out: 1, is_closed: 1}, collectable.id);
+    }
+    return true
+}
 
 const checkIfAuctionIsOver = async (collectable) => {
     const service = new Web3Service(collectable.contract_address, AuctionV1Abi);
@@ -292,10 +302,12 @@ const run = async() => {
                     if (collectable.version == V3) {
                         batchFunction = checkIfSaleV3IsSoldOut(collectable);
                     } else if (collectable.version == V2 || collectable.version == V1) {
-                        if (collectable.is_open_edition !== 1) {
-                            batchFunction = checkIfSoldOut(collectable);
+                        if (collectable.is_open_edition) {
+                            await checkIfOpenEditionHasClosed(collectable);
+                        } else if(collectable.is_vrf_drop) {
+                            await checkIfVrfDropHasClosed(collectable);
                         } else {
-                            batchFunction = checkIfOpenEditionHasClosed(collectable);
+                            await checkIfSoldOut(collectable);
                         }
                     }
                     break;

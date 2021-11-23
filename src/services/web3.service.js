@@ -47,6 +47,13 @@ class Web3Service {
         return isClosed;
     }
 
+    async isReservationPeriodOver() {
+        const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
+        let isClosed = await contract.methods.isReservationPeriodOver().call();
+
+        return isClosed;
+    }
+
     async isAuctionOver() {
         const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
         let startBidTide = await contract.methods.startBidTime().call();

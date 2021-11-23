@@ -62,7 +62,18 @@ class ClaimController extends Controller {
     let collectable = await CollectableRepository.setTransformer(CollectableOutputTransformer).findByContractAddress(contractAddress);
     let hasBalance = false;
     let nftContractService = new Web3Service(collectable.nft_contract_address, seenNFTABI); //EIP-1155
-    let balanceOfClaimer = await nftContractService.balanceOf(wallet_address, collectable.nft_token_id);
+    let balanceOfClaimer = 0;
+
+    if((collectable.nft_token_id.indexOf("[") === 0) || collectable.is_vrf_drop) {
+      let tokenIds = JSON.parse(collectable.nft_token_id);
+      for(let tokenId of tokenIds) {
+        let tokenBalanceCurrentId = await nftContractService.balanceOf(wallet_address, tokenId);
+        balanceOfClaimer += parseInt(tokenBalanceCurrentId);
+      }
+    } else {
+      balanceOfClaimer = await nftContractService.balanceOf(wallet_address, collectable.nft_token_id);
+    }
+    
     if(parseInt(balanceOfClaimer) > 0) {
       hasBalance = true;
     }
@@ -112,13 +123,19 @@ class ClaimController extends Controller {
   
       this.sendResponse(res, []);
 
-      if(claimAdminEmailAddresses && claimAdminEmailAddresses.length > 0) {
-        sendMail(claimAdminEmailAddresses, `New Claim - ${collectable.title}`, `A new claim has been submitted on ${collectable.title}`, `<p>A new claim has been submitted on <strong>${collectable.title}</strong></p>`);
+      try {
+        if(claimAdminEmailAddresses && claimAdminEmailAddresses.length > 0) {
+          sendMail(claimAdminEmailAddresses, `New Claim - ${collectable.title}`, `A new claim has been submitted on ${collectable.title}`, `<p>A new claim has been submitted on <strong>${collectable.title}</strong></p>`);
+        }
+      } catch(e) {
+        console.error({e})
       }
+
     } catch (e) {
       console.log(e)
-      this.sendError(res, "Error: you may have already submitted a claim, please contact the team via Telegram if you need to amend details.");
+      this.sendError(res, "You have already submitted a claim, please contact the team if you need to amend details.");
     }
+    
   }
 }
 
