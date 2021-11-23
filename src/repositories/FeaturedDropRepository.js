@@ -9,6 +9,18 @@ class FeaturedDropRepository extends BaseRepository {
     getModel() {
         return FeaturedDropModel
     }
+
+    async findHeroCollectable() {
+        const result = await this.model.query()
+            .withGraphFetched('[collectable, collectable.[artist.[collectables], user.[collectables], tags, media, events, claim, secondaryMarketListings.[user, events]]]')
+            .first();
+
+        console.log({result})
+        if (!result) {
+            return null;
+        }
+        return this.parserResult(result.collectable)
+    }
 }
 
 module.exports = new FeaturedDropRepository()

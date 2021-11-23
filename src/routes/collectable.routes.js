@@ -34,6 +34,8 @@ Router.post('/collectables/map', [
     body("tokenIds").notEmpty(),
 ], 'CollectableController@map');
 
+Router.get('/hero', [], 'CollectableController@hero');
+
 Router.post('/collectables/mapWithTokenContractAddress', [
     body("tokenContractAddressesToIds").notEmpty().isObject().custom(checkTokenContractAddressToTokenMappings),
 ], 'CollectableController@mapWithTokenContractAddress');

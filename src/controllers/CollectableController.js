@@ -3,6 +3,7 @@ const ethers = require('ethers');
 const {
     SecondaryMarketListingRepository,
     CollectableRepository,
+    FeaturedDropRepository,
     CollectableWinnerRepository,
     UserRepository,
     MediaRepository,
@@ -89,6 +90,15 @@ class CollectableController extends Controller {
                 .setTransformer(CollectableOutputTransformer)
                 .findById(contractAddress);
         }
+
+        this.sendResponse(res, data);
+    }
+
+    async hero(req, res) {
+
+        let data = await FeaturedDropRepository
+                .setTransformer(CollectableOutputTransformer)
+                .findHeroCollectable();
 
         this.sendResponse(res, data);
     }
