@@ -33,6 +33,7 @@ class CollectableRepository extends BaseRepository {
         let bundleChildId = query.bundleChildId ? query.bundleChildId : null;
         let collectionName = query.collectionName ? query.collectionName : null;
         let excludeEnded = query.excludeEnded ? query.excludeEnded : null;
+        let excludeLive = query.excludeLive ? query.excludeLive : null;
         let type = query.type;
 
         const results = await this.model.query().where(function () {
@@ -60,6 +61,11 @@ class CollectableRepository extends BaseRepository {
                     let currentDate = new Date();
                     this.where('ends_at', '>', currentDate);
                     this.orWhere('ends_at', null);
+                }
+                if(excludeLive) {
+                    let currentDate = new Date();
+                    this.where('ends_at', '<', currentDate);
+                    this.orWhere('is_closed', true);
                 }
             })
             .withGraphFetched('[artist, user, tags, media, events, bundleChildItems.[events], claim, featured_drop, secondaryMarketListings]')
