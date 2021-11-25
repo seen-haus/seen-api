@@ -10,10 +10,6 @@ module.exports =  {
         const pubKey = util.ecrecover(util.toBuffer(prefixedMsg), res.v, res.r, res.s);
         const addrBuf = util.pubToAddress(pubKey);
         const calcAddr = await util.bufferToHex(addrBuf);
-        console.log({ 
-            calcAddr,
-            walletAddress
-        })
         return (walletAddress.toLowerCase() === calcAddr);
     },
 
