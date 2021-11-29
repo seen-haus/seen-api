@@ -34,6 +34,7 @@ class CollectableRepository extends BaseRepository {
         let collectionName = query.collectionName ? query.collectionName : null;
         let excludeEnded = query.excludeEnded ? query.excludeEnded : null;
         let excludeLive = query.excludeLive ? query.excludeLive : null;
+        let excludeComingSoon = query.excludeComingSoon ? query.excludeComingSoon : null;
         let type = query.type;
 
         const results = await this.model.query().where(function () {
@@ -56,6 +57,10 @@ class CollectableRepository extends BaseRepository {
                 }
                 if(collectionName) {
                     this.where('collection_name', collectionName);
+                }
+                if(excludeComingSoon) {
+                    let currentDate = new Date();
+                    this.where('starts_at', '<', currentDate);
                 }
                 if(excludeEnded) {
                     let currentDate = new Date();

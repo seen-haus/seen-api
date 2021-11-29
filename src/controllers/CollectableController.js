@@ -67,9 +67,10 @@ class CollectableController extends Controller {
         const collectionName = req.query.collectionName;
         const excludeEnded = req.query.excludeEnded;
         const excludeLive = req.query.excludeLive;
+        const excludeComingSoon = req.query.excludeComingSoon;
         const data = await CollectableRepository
             .setTransformer(CollectableOutputTransformer)
-            .paginate(pagination.perPage, pagination.page, {type, purchaseType, artistId, includeIsHiddenFromDropList, bundleChildId, collectionName, excludeEnded, excludeLive});
+            .paginate(pagination.perPage, pagination.page, {type, purchaseType, artistId, includeIsHiddenFromDropList, bundleChildId, collectionName, excludeEnded, excludeLive, excludeComingSoon});
 
         this.sendResponse(res, data);
     }
