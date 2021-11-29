@@ -16,6 +16,7 @@ const TagToCollectableModel = require("./tag-to-collectable");
 const FallbackWorkerConsignmentEventBlockTrackerModel = require('./fallback-worker-consignment-event-block-tracker');
 const EthPriceCacheModel = require("./eth-price-cache");
 const SecondaryMarketListingModel = require("./secondary-market-listing");
+const SelfMintingInternalAccessRequests = require("./self-minting-internal-access-requests");
 
 module.exports = Object.freeze({
     CollectableModel,
@@ -36,4 +37,5 @@ module.exports = Object.freeze({
     FallbackWorkerConsignmentEventBlockTrackerModel,
     EthPriceCacheModel,
     SecondaryMarketListingModel,
+    SelfMintingInternalAccessRequests
 });

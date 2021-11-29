@@ -3,7 +3,7 @@ const {USERS_TABLE} = require("./../../constants/DBTables");
 
 exports.up = (knex) => knex.schema.createTable(USERS_TABLE, table => {
     table.increments();
-    table.string("wallet_address").unique()
+    table.string("wallet").unique()
         .index()
         .notNullable();
     table.string("username").unique().nullable();
