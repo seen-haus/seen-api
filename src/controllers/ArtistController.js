@@ -2,7 +2,7 @@ const Controller = require('./Controller');
 const {ArtistRepository} = require("./../repositories");
 const ArtistOutputTransformer = require("../transformers/artist/output");
 const { validationResult } = require("express-validator");
-const { sendMail } = require('../services/sendgrid.service.js');
+const { sendSelfMintingAccessRequestReceivedNotification } = require('../services/sendgrid.service.js');
 const Web3Helper = require("./../utils/Web3Helper");
 const SelfMintingInternalAccessRequestsRepository = require('../repositories/SelfMintingInternalAccessRequestsRepository');
 const { SelfMintingInternalAccessRequests } = require('../models');
@@ -107,7 +107,7 @@ class ArtistController extends Controller {
           this.sendResponse(res, []);
     
           if(email && email.length > 0) {
-            sendMail(email, `Self-minting request received`, `Thank you for submitting a request to self mint`, `<p>Your request has reached our team and we will reach out to you as soon as possible.</p>`);
+            sendSelfMintingAccessRequestReceivedNotification(email);
           }
         } catch (e) {
           console.log(e)
