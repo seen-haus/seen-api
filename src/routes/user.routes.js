@@ -12,6 +12,10 @@ Router.post('/users/avatars/', [
     body('files').notEmpty(),
 ], 'UserController@avatar');
 
+Router.post('/users/banners/', [
+    body('files').notEmpty(),
+], 'UserController@banner');
+
 Router.get('/users/:walletAddress', [], 'UserController@show');
 Router.get('/users/:walletAddress/username', [], 'UserController@resolveUsername');
 

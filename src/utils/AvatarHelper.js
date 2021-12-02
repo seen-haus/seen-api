@@ -11,7 +11,7 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-const maxSize = 500000;
+const maxSize = 1500000;
 const folderPrefix = 'media/avatars/'
 const s3 = new S3({
     signatureVersion: 'v4',
