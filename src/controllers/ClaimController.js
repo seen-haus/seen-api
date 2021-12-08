@@ -64,9 +64,8 @@ class ClaimController extends Controller {
     let nftContractService = new Web3Service(collectable.nft_contract_address, seenNFTABI); //EIP-1155
     let balanceOfClaimer = 0;
 
-    if((collectable.nft_token_id.indexOf("[") === 0) || collectable.is_vrf_drop) {
-      let tokenIds = JSON.parse(collectable.nft_token_id);
-      for(let tokenId of tokenIds) {
+    if(Array.isArray(collectable.nft_token_id) || collectable.is_vrf_drop) {
+      for(let tokenId of collectable.nft_token_id) {
         let tokenBalanceCurrentId = await nftContractService.balanceOf(wallet_address, tokenId);
         balanceOfClaimer += parseInt(tokenBalanceCurrentId);
       }

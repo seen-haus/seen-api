@@ -3,6 +3,7 @@ const BaseRepository = require("./BaseRepository");
 const Pagination = require("./../utils/Pagination");
 const types = require("./../constants/Collectables");
 const purchaseTypes = require("./../constants/PurchaseTypes");
+const { raw } = require('objection');
 
 class CollectableRepository extends BaseRepository {
     constructor(props) {
@@ -29,6 +30,7 @@ class CollectableRepository extends BaseRepository {
     async paginate(perPage = 10, page = 1, query = {}) {
         let purchaseType = query.purchaseType ? parseInt(query.purchaseType) : null;
         let artistId = query.artistId ? parseInt(query.artistId) : null;
+        let userId = query.userId ? parseInt(query.userId) : null;
         let includeIsHiddenFromDropList = query.includeIsHiddenFromDropList === 'true' ? true : false;
         let bundleChildId = query.bundleChildId ? query.bundleChildId : null;
         let collectionName = query.collectionName ? query.collectionName : null;
@@ -44,6 +46,9 @@ class CollectableRepository extends BaseRepository {
                 }
                 if (artistId) {
                     this.where('artist_id', artistId);
+                }
+                if (userId) {
+                    this.where('user_id', userId);
                 }
                 if (purchaseType
                     && Object.values(purchaseTypes).includes(purchaseType)) {
@@ -150,6 +155,22 @@ class CollectableRepository extends BaseRepository {
             .withGraphFetched('[artist, user, tags, media, events, claim]')
             .where('nft_contract_address', tokenContractAddress)
             .whereIn('nft_token_id', tokenIds);
+
+        return this.parserResult(results);
+    }
+
+    async queryByTokenContractAddressWithMultiTokenIds(tokenContractAddress, multiTokenIds) {
+        const results = await this.model.query().where(function () {
+            this.where('nft_contract_address', tokenContractAddress)
+            this.where(
+                function() {
+                    for(let multiTokenId of multiTokenIds) {
+                        this.orWhere(raw(`FIND_IN_SET('${multiTokenId}', nft_token_id)`))
+                    }
+                }
+            )
+        })
+        .withGraphFetched('[artist, user, tags, media, events, claim]')
 
         return this.parserResult(results);
     }

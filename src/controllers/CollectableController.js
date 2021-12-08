@@ -62,6 +62,7 @@ class CollectableController extends Controller {
         const type = req.query.type;
         const purchaseType = req.query.purchaseType;
         const artistId = req.query.artistId;
+        const userId = req.query.userId;
         const includeIsHiddenFromDropList = req.query.includeIsHiddenFromDropList;
         const bundleChildId = req.query.bundleChildId;
         const collectionName = req.query.collectionName;
@@ -70,7 +71,7 @@ class CollectableController extends Controller {
         const excludeComingSoon = req.query.excludeComingSoon;
         const data = await CollectableRepository
             .setTransformer(CollectableOutputTransformer)
-            .paginate(pagination.perPage, pagination.page, {type, purchaseType, artistId, includeIsHiddenFromDropList, bundleChildId, collectionName, excludeEnded, excludeLive, excludeComingSoon});
+            .paginate(pagination.perPage, pagination.page, {type, purchaseType, artistId, includeIsHiddenFromDropList, bundleChildId, collectionName, excludeEnded, excludeLive, excludeComingSoon, userId});
 
         this.sendResponse(res, data);
     }
@@ -147,18 +148,46 @@ class CollectableController extends Controller {
         const {
             tokenContractAddressesToIds,
         } = req.body;
-
-        let data = [];
+        
+        // ensure any possible duplicates are removed, as duplicates can arise from combining multiTokenFragment with dataFragment
+        let consolidatedData = [];
+        let idTracker = [];
 
         for(let [tokenContractAddress, tokenIds] of Object.entries(tokenContractAddressesToIds)) {
+
+            let parsedTokenIds = tokenIds.map(t => parseInt(t));
+
             let dataFragment = await CollectableRepository
                 .setTransformer(CollectableOutputTransformer)
-                .queryByTokenContractAddressWithTokenIds(tokenContractAddress, tokenIds.map(t => parseInt(t)));
+                .queryByTokenContractAddressWithTokenIds(tokenContractAddress, parsedTokenIds);
 
-            data = [...data, ...dataFragment];
+            let matchedIds = dataFragment.map(item => parseInt(item.nft_token_id));
+            let unmatchedIds = parsedTokenIds.filter(item => matchedIds.indexOf(item) == -1);
+
+            let multiTokenFragment = [];
+            if(unmatchedIds.length > 0) {
+                // Check for multitoken drop matches, e.g. where nft_token_id is a set (e.g. 1,2,3,4) instead of just one value
+                let multiTokenFragmentRaw = await CollectableRepository
+                    .setTransformer(CollectableOutputTransformer)
+                    .queryByTokenContractAddressWithMultiTokenIds(tokenContractAddress, unmatchedIds);
+
+                if(multiTokenFragmentRaw.length > 0) {
+                    multiTokenFragment = multiTokenFragmentRaw;
+                }
+            }
+
+
+            let data = [...consolidatedData, ...dataFragment, ...multiTokenFragment];
+
+            for(let item of data) {
+                if(idTracker.indexOf(item.id) === -1) {
+                    consolidatedData.push(item);
+                    idTracker.push(item.id);
+                }
+            }
         }
 
-        this.sendResponse(res, data);
+        this.sendResponse(res, consolidatedData);
     }
 
     async winner(req, res) {

@@ -55,7 +55,7 @@ class CollectableOutputTransformer extends BaseTransformer {
             shipping_location: collectable.shipping_location,
             nft_contract_address: collectable.nft_contract_address,
             nft_ipfs_hash: collectable.nft_ipfs_hash,
-            nft_token_id: collectable.nft_token_id,
+            nft_token_id: collectable.nft_token_id.indexOf(',') > 0 ? collectable.nft_token_id.split(',').map(item => Number(item)) : collectable.nft_token_id,
             created_at: collectable.created_at,
             updated_at: collectable.updated_at,
             is_closed: !!collectable.is_closed,
