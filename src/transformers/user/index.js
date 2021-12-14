@@ -15,7 +15,7 @@ class UserTransformer extends BaseTransformer {
             email: user.email,
             username: user.username,
             socials: user.socials ? JSON.stringify(user.socials) : null,
-            wallet: user.wallet,
+            wallet_address: user.wallet_address,
         }
     }
 }

@@ -125,7 +125,7 @@ class UserController extends Controller {
 
         let data = {username, description, socials, avatar_image, banner_image, email};
         if (!user) {
-            data.wallet = walletAddress;
+            data.wallet_address = walletAddress;
             user = await UserRepository
                 .create(UserTransformer.transform(data))
         } else {

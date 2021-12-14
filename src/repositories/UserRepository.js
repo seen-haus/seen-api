@@ -14,7 +14,7 @@ class UserRepository extends BaseRepository {
 
     async findByAddress(walletAddress) {
         const result = await this.model.query()
-            .where('wallet', walletAddress)
+            .where('wallet_address', walletAddress)
             .first();
 
         if (!result) {
@@ -38,7 +38,7 @@ class UserRepository extends BaseRepository {
 
     async findEmailByAddress(walletAddress) {
         const result = await this.model.query()
-            .where('wallet', walletAddress)
+            .where('wallet_address', walletAddress)
             .first();
 
         if (!result || !result.email) {

@@ -315,7 +315,7 @@ class CollectableController extends Controller {
 
                 if (!user) {
                     let data = {
-                        wallet: consignment.seller,
+                        wallet_address: consignment.seller,
                     }
                     user = await UserRepository
                         .create(UserTransformer.transform(data))
