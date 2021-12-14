@@ -19,8 +19,10 @@ npm run migrate
 
 # Seed data 
 npm run seed 
-```
 
+# Copy the example environment file and configure to your needs
+cp .env.example .env
+```
 
 ### Running the app
 ```
