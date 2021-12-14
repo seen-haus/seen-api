@@ -65,3 +65,6 @@ config/ecosystem.local.json
 logs/
 deploy.php
 nginx.conf
+
+# docker
+docker/
