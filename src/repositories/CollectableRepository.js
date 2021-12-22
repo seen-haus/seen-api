@@ -57,9 +57,15 @@ class CollectableRepository extends BaseRepository {
                     this.where('collection_name', collectionName);
                 }
                 if(excludeEnded) {
-                    let currentDate = new Date();
-                    this.where('ends_at', '>', currentDate);
-                    this.orWhere('ends_at', null);
+                    const currentDate = new Date();
+                    this.where((builder) => 
+                      builder.where((builder) =>
+                          builder.where('ends_at', '>', currentDate)
+                          .orWhere('ends_at', null)
+                      )
+                      .andWhere('is_closed', false)
+                      .andWhere('is_sold_out', false)
+                    );
                 }
             })
             .withGraphFetched('[artist, media, events, bundleChildItems.[events], claim, featured_drop]')
