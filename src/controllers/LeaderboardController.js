@@ -19,7 +19,7 @@ class LeaderboardController extends Controller {
                 COUNT(DISTINCT collectables.id) as won,
                 collectables.winner_address as wallet_address,
                 users.username as username,
-                users.image as image,
+                users.avatar_image as avatar_image,
                 SUM(collectables.min_bid) as amount_spent
                 FROM collectables
                 LEFT JOIN users on users.wallet = collectables.winner_address
