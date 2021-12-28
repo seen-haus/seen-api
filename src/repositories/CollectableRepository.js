@@ -37,7 +37,11 @@ class CollectableRepository extends BaseRepository {
         let excludeEnded = query.excludeEnded ? query.excludeEnded : null;
         let excludeLive = query.excludeLive ? query.excludeLive : null;
         let excludeComingSoon = query.excludeComingSoon ? query.excludeComingSoon : null;
+        let awaitingReserveBid = query.awaitingReserveBid ? query.awaitingReserveBid : null;
+        let soldOut = query.soldOut ? query.soldOut : null;
         let type = query.type;
+        let collectableModel = this.model;
+        let currentDate = new Date();
 
         const results = await this.model.query().where(function () {
                 if (type
@@ -64,18 +68,23 @@ class CollectableRepository extends BaseRepository {
                     this.where('collection_name', collectionName);
                 }
                 if(excludeComingSoon) {
-                    let currentDate = new Date();
                     this.where('starts_at', '<', currentDate);
                 }
                 if(excludeEnded) {
-                    let currentDate = new Date();
                     this.where('ends_at', '>', currentDate);
                     this.orWhere('ends_at', null);
                 }
                 if(excludeLive) {
-                    let currentDate = new Date();
                     this.where('ends_at', '<', currentDate);
                     this.orWhere('is_closed', true);
+                }
+                if(awaitingReserveBid) {
+                    this.whereNotExists(collectableModel.relatedQuery('events'));
+                    this.where('purchase_type', purchaseTypes.AUCTION);
+                    this.where('starts_at', '<', currentDate);
+                }
+                if(soldOut) {
+                    this.where('is_closed', 1);
                 }
             })
             .withGraphFetched('[artist, user, tags, media, events, bundleChildItems.[events], claim, featured_drop, secondaryMarketListings]')
