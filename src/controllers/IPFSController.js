@@ -8,6 +8,8 @@ const { IPFSMediaRepository } = require("../repositories");
 const Web3Helper = require("./../utils/Web3Helper");
 const Controller = require('./Controller');
 const uploadHelper = require("./../utils/UploadHelper");
+const useAccessControllerContract = require("./../services/contracts/useAccessControllerContract");
+const RoleTypes = require("./../constants/RoleTypes");
 
 const PINATA_JWT = process.env.PINATA_JWT;
 
@@ -47,7 +49,14 @@ class IPFSController extends Controller {
                             this.sendError(res, 'Error: invalid signature provided', 400);
                             return;
                         } else {
-                            // TODO, check that account has IPFS permissions (i.e. hasRole minter/escrowAgent on the smart contracts)
+                            const accessControllerContract = useAccessControllerContract();
+                            const isGranted = await accessControllerContract.hasRole(RoleTypes.MINTER, signer)
+                                || await accessControllerContract.hasRole(RoleTypes.ESCROW_AGENT, signer);
+
+                            if (!isGranted) {
+                                persistThis.sendError(res, 'Error: signer does not have sufficient permission', 400);
+                                return;
+                            }        
                         }
                     } else {
                         this.sendError(res, 'Error: signature must be less than 10 minutes old', 400);
@@ -157,7 +166,14 @@ class IPFSController extends Controller {
                         persistThis.sendError(res, 'Error: invalid signature provided', 400);
                         return;
                     } else {
-                        // TODO, check that account has IPFS permissions (i.e. hasRole minter/escrowAgent on the smart contracts)
+                        const accessControllerContract = useAccessControllerContract();
+                        const isGranted = await accessControllerContract.hasRole(RoleTypes.MINTER, signer)
+                            || await accessControllerContract.hasRole(RoleTypes.ESCROW_AGENT, signer);
+
+                        if (!isGranted) {
+                            persistThis.sendError(res, 'Error: signer does not have sufficient permission', 400);
+                            return;
+                        }                        
                     }
                 } else {
                     persistThis.sendError(res, 'Error: signature must be less than 10 minutes old', 400);
