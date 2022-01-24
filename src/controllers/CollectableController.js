@@ -22,7 +22,7 @@ const {
 } = require("../transformers/");
 const {body, validationResult} = require('express-validator');
 const {SALE, AUCTION} = require("../constants/PurchaseTypes")
-const { PRIMARY, SECONDARY } = require("../constants/MarketTypes");
+const MarketTypes = require("../constants/MarketTypes");
 const Web3Helper = require("./../utils/Web3Helper");
 const Web3Service = require("../services/web3.service");
 const fillerService = require("../services/filler.service");
@@ -71,9 +71,14 @@ class CollectableController extends Controller {
         const excludeComingSoon = req.query.excludeComingSoon;
         const awaitingReserveBid = req.query.awaitingReserveBid;
         const soldOut = req.query.soldOut;
+        const marketTypes = req.query.marketType ? (
+            Array.isArray(req.query.marketType)
+                ? req.query.marketType.filter(marketType => marketType)
+                : [req.query.marketType]
+        ) : [MarketTypes.PRIMARY,];
         const data = await CollectableRepository
             .setTransformer(CollectableOutputTransformer)
-            .paginate(pagination.perPage, pagination.page, {type, purchaseType, artistId, includeIsHiddenFromDropList, bundleChildId, collectionName, excludeEnded, excludeLive, excludeComingSoon, userId, awaitingReserveBid, soldOut});
+            .paginate(pagination.perPage, pagination.page, {type, purchaseType, artistId, includeIsHiddenFromDropList, bundleChildId, collectionName, excludeEnded, excludeLive, excludeComingSoon, userId, awaitingReserveBid, soldOut, marketTypes,});
 
         this.sendResponse(res, data);
     }
@@ -338,7 +343,7 @@ class CollectableController extends Controller {
                     if(auction) {
                         console.log({auction})
 
-                        if(consignment.market === PRIMARY) {
+                        if(consignment.market === MarketTypes.PRIMARY) {
 
                             let collectablePayload = {
                                 title: tokenMetadata.name,
@@ -378,7 +383,7 @@ class CollectableController extends Controller {
                                 .setTransformer(CollectableAuctionTransformer)
                                 .create(CollectableAuctionTransformer.transform(collectablePayload));
 
-                        } else if (consignment.market === SECONDARY) {
+                        } else if (consignment.market === MarketTypes.SECONDARY) {
                             console.log("IS SECONDARY")
 
                             // Check if there is a primary collectable associated with this secondary listing
@@ -432,7 +437,7 @@ class CollectableController extends Controller {
                     if(sale) {
                         console.log({sale})
 
-                        if(consignment.market === PRIMARY) {
+                        if(consignment.market === MarketTypes.PRIMARY) {
 
                             let collectablePayload = {
                                 title: tokenMetadata.name,
@@ -470,7 +475,7 @@ class CollectableController extends Controller {
                                 .setTransformer(CollectableSaleTangibleTransformer)
                                 .create(CollectableSaleTangibleTransformer.transform(collectablePayload));
 
-                        } else if (consignment.market === SECONDARY) {
+                        } else if (consignment.market === MarketTypes.SECONDARY) {
 
                             // Check if there is a primary collectable associated with this secondary listing
                             let primaryCollectable = await CollectableRepository.queryByTokenContractAddressWithTokenId(consignment.tokenAddress, consignment.tokenId);

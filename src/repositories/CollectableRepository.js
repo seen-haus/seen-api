@@ -28,6 +28,7 @@ class CollectableRepository extends BaseRepository {
     }
 
     async paginate(perPage = 10, page = 1, query = {}) {
+        const marketTypes = query.marketTypes ? query.marketTypes.filter(marketType => Number.isInteger(parseInt(marketType))) : null;
         let purchaseType = query.purchaseType ? parseInt(query.purchaseType) : null;
         let artistId = query.artistId ? parseInt(query.artistId) : null;
         let userId = query.userId ? parseInt(query.userId) : null;
@@ -53,6 +54,9 @@ class CollectableRepository extends BaseRepository {
                 }
                 if (userId) {
                     this.where('user_id', userId);
+                }
+                if (marketTypes) {
+                    this.whereIn('market_type', marketTypes)
                 }
                 if (purchaseType
                     && Object.values(purchaseTypes).includes(purchaseType)) {
