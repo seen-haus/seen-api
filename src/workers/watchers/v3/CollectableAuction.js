@@ -45,7 +45,7 @@ module.exports = class CollectableAuction extends Watcher {
         let contract = new web3.eth.Contract(this.abi, this.collectable.contract_address)
         if (!this.bidSubscription && this.collectable.consignment_id) {
             console.log("bidSubscription INITIALIZE for  ", this.collectable.title, this.collectable.id)
-            this.bidSubscription = contract.events.BidAccepted({consignmentId: this.collectable.consignment_id.toString()})
+            this.bidSubscription = contract.events.BidAccepted({filter: {consignmentId: this.collectable.consignment_id.toString()}})
                 .on('data', this.handleBidEvent.bind(this))
                 .on('error', this.handleError.bind(this));
         }
