@@ -39,7 +39,7 @@ module.exports = class CollectableAuction extends Watcher {
         let contract = new web3.eth.Contract(this.abi, this.collectable.contract_address)
         if (!this.purchaseSubscription && this.collectable.consignment_id) {
             console.log("purchaseSubscription INITIALIZE for  ", this.collectable.title, this.collectable.id)
-            this.purchaseSubscription = contract.events.Purchase({consignmentId: this.collectable.consignment_id})
+            this.purchaseSubscription = contract.events.Purchase({filter: {consignmentId: this.collectable.consignment_id.toString()}})
                 .on('data', this.handlePurchaseEvent.bind(this))
                 .on('error', this.handleError.bind(this));
         }
