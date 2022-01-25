@@ -15,7 +15,6 @@ class SecondaryMarketListingOutputTransformer extends BaseTransformer {
           })
           : [],
       purchase_type: secondaryMarketListing.purchase_type,
-      type: secondaryMarketListing.type,
       contract_address: secondaryMarketListing.contract_address,
       is_sold_out: !!secondaryMarketListing.is_sold_out,
       slug: secondaryMarketListing.slug,
