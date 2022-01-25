@@ -252,7 +252,11 @@ module.exports = {
         if(collectable.version === V3) {
             // Get latest checked event block for consignment
             // This strategy does assume that a whole block's events were successfully indexed without failure
-            consignmentEventBlockTrackerRecord = await FallbackWorkerConsignmentEventBlockTrackerRepository.findByColumn('consignment_id', collectable.consignment_id);
+            if(collectable.market_type === 1) {
+                consignmentEventBlockTrackerRecord = await FallbackWorkerConsignmentEventBlockTrackerRepository.findByColumn('secondary_consig_id', collectable.consignment_id);
+            } else {
+                consignmentEventBlockTrackerRecord = await FallbackWorkerConsignmentEventBlockTrackerRepository.findByColumn('consignment_id', collectable.consignment_id);
+            }
             if(consignmentEventBlockTrackerRecord && consignmentEventBlockTrackerRecord.latest_checked_block_number) {
                 overrideStartBlock = consignmentEventBlockTrackerRecord.latest_checked_block_number + 1; // Add 1 because we don't need to check the latest checked block again, i.e. the startBlock is inclusive
             }
@@ -323,7 +327,8 @@ module.exports = {
             // This strategy does assume that a whole block's events were successfully indexed without failure
             if(consignmentEventBlockTrackerRecord === null) {
                 await FallbackWorkerConsignmentEventBlockTrackerRepository.create({
-                    'consignment_id': collectable.consignment_id,
+                    ...(collectable.market_type === 1 && {'secondary_consig_id': collectable.consignment_id, 'consignment_id': null}),
+                    ...(collectable.market_type !== 1 && {'consignment_id': collectable.consignment_id, 'secondary_consig_id': null}),
                     'latest_checked_block_number': latestEventBlock,
                 });
             } else {

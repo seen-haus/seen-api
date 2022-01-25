@@ -41,8 +41,11 @@ class SecondaryMarketListingRepository extends BaseRepository {
                     this.where('starts_at', '<', currentDate);
                 }
                 if(excludeEnded) {
-                    this.where('ends_at', '>', currentDate);
-                    this.orWhere('ends_at', null);
+                    this.where('is_sold_out', '!=', 1);
+                    this.where(function () {
+                        this.where('ends_at', '>', currentDate);
+                        this.orWhere('ends_at', null);
+                    })
                 }
                 if(excludeLive) {
                     this.where('ends_at', '<', currentDate);

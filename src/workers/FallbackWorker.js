@@ -8,6 +8,7 @@ const {PRIMARY, SECONDARY} = require("./../constants/MarketTypes");
 const {V1, V2, V3} = require("./../constants/Versions");
 const {
     CollectableRepository,
+    SecondaryMarketListingRepository,
     UserEmailPreferencesRepository,
     EventRepository,
     ClaimRepository,
@@ -44,6 +45,15 @@ Model.knex(knex)
 
 const getActiveCollectables = async () => {
     let collectables = await CollectableRepository.active();
+    return collectables.filter(collectable => (collectable.purchase_type === SALE
+        ? (!collectable.is_sold_out && !collectable.is_closed)
+        : !collectable.winner_address)
+        && collectable.contract_address
+        && ethers.utils.isAddress(collectable.contract_address));
+}
+
+const getActiveSecondaryListings = async () => {
+    let collectables = await SecondaryMarketListingRepository.active();
     return collectables.filter(collectable => (collectable.purchase_type === SALE
         ? (!collectable.is_sold_out && !collectable.is_closed)
         : !collectable.winner_address)
@@ -91,7 +101,12 @@ const checkIfSaleV3IsSoldOut = async (collectable) => {
     }
     let isSoldOut = await serviceSaleBuilderContract.isSaleOverV3(collectable.consignment_id, consignment, isPhysical, ticketClaimsIssued);
     if (isSoldOut) {
-        await CollectableRepository.update({is_sold_out: 1, is_closed: 1}, collectable.id);
+        if(collectable.market_type === 1) {
+            // is secondary listing
+            await SecondaryMarketListingRepository.update({is_sold_out: 1, is_closed: 1}, collectable.id);
+        } else {
+            await CollectableRepository.update({is_sold_out: 1, is_closed: 1}, collectable.id);
+        }
     }
     return true
 };
@@ -203,11 +218,20 @@ const checkIfAuctionV3IsOver = async (collectable) => { // Move to a different f
         if (!winnerAddress) {
             return true;
         }
-        await CollectableRepository.update({
-            is_sold_out: 1,
-            winner_address: winnerAddress,
-            is_closed: 1,
-        }, collectable.id);
+        if(collectable.market_type === 1) {
+            // is secondary listing
+            await SecondaryMarketListingRepository.update({
+                is_sold_out: 1,
+                winner_address: winnerAddress,
+                is_closed: 1,
+            }, collectable.id);
+        } else {
+            await CollectableRepository.update({
+                is_sold_out: 1,
+                winner_address: winnerAddress,
+                is_closed: 1,
+            }, collectable.id);
+        }
         if(collectable.auto_generate_claim_page) {
             let createdClaim = await ClaimRepository.create({
                 collectable_id: collectable.id,
@@ -265,6 +289,10 @@ const checkIfAuctionV3IsOver = async (collectable) => { // Move to a different f
  */
 const run = async() => {
     const collectables = await getActiveCollectables();
+    const secondaryListings = await getActiveSecondaryListings();
+
+    const allActiveListings = [...collectables, ...secondaryListings];
+
     // We need to be careful of making batches large because if there is a single consignment with a lot of unindexed events on it
     // it can cause the ETH -> USD conversion services to hit their rate limit
     const batchSize = 30;
@@ -272,7 +300,7 @@ const run = async() => {
     try {
 
         const fillEventFunctionBatches = [];
-        for (const [index, collectable] of collectables.entries()) {
+        for (const [index, collectable] of allActiveListings.entries()) {
             // Fill Events
             // await filler.fillEvents(collectable);
             let batchIndex = Math.floor(index/batchSize);
@@ -295,7 +323,7 @@ const run = async() => {
         }
 
         const checkOverFunctionBatches = [];
-        for(const [index, collectable] of collectables.entries()) {
+        for(const [index, collectable] of allActiveListings.entries()) {
             let batchFunction;
             switch (collectable.purchase_type) {
                 case SALE:
