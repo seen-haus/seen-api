@@ -32,6 +32,7 @@ const auctionBuilderABI = require("../abis/v3/auctionBuilderABI.json");
 const saleBuilderABI = require("../abis/v3/saleBuilderABI.json");
 const CollectableOutputTransformer = require("../transformers/collectable/output");
 const StringHelper = require("./../utils/StringHelper")
+const { mergePrimaryCollectableIntoSecondary } = require("./../utils/MiscHelpers");
 const { 
     networkNameToMarketDiamond,
     networkNameToSeenNFT,
@@ -70,10 +71,29 @@ class CollectableController extends Controller {
         const excludeLive = req.query.excludeLive;
         const excludeComingSoon = req.query.excludeComingSoon;
         const awaitingReserveBid = req.query.awaitingReserveBid;
+        const marketType = req.query.marketType ? req.query.marketType : 'primary';
         const soldOut = req.query.soldOut;
-        const data = await CollectableRepository
-            .setTransformer(CollectableOutputTransformer)
-            .paginate(pagination.perPage, pagination.page, {type, purchaseType, artistId, includeIsHiddenFromDropList, bundleChildId, collectionName, excludeEnded, excludeLive, excludeComingSoon, userId, awaitingReserveBid, soldOut});
+        let data;
+        if(marketType === 'primary') {
+            // Use primary by default
+            data = await CollectableRepository
+                .setTransformer(CollectableOutputTransformer)
+                .paginate(pagination.perPage, pagination.page, {type, purchaseType, artistId, includeIsHiddenFromDropList, bundleChildId, collectionName, excludeEnded, excludeLive, excludeComingSoon, userId, awaitingReserveBid, soldOut});
+        } else if(marketType === 'secondary') {
+            let secondaryData = await SecondaryMarketListingRepository
+                .setTransformer(SecondaryMarketListingOutputTransformer)
+                .paginate(pagination.perPage, pagination.page, {type, purchaseType, artistId, includeIsHiddenFromDropList, bundleChildId, collectionName, excludeEnded, excludeLive, excludeComingSoon, userId, awaitingReserveBid, soldOut});
+
+            // Run output transformer on primary collectable property of secondary listing record
+            let recordIndex = 0;
+            for(let record of secondaryData.paginatedData) {
+                // Merge the primary record into the secondary record
+                secondaryData.paginatedData[recordIndex] = mergePrimaryCollectableIntoSecondary(record.collectable, record);
+                recordIndex++;
+            }
+
+            data = secondaryData;
+        }
 
         this.sendResponse(res, data);
     }

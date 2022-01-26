@@ -16,8 +16,14 @@ class SecondaryMarketListingRepository extends BaseRepository {
     async paginate(perPage = 10, page = 1, query = {}) {
         let purchaseType = query.purchaseType ? parseInt(query.purchaseType) : null;
         let userId = query.userId ? parseInt(query.userId) : null;
-        let includeIsHiddenFromDropList = query.includeIsHiddenFromDropList === 'true' ? true : false;
         let type = query.type;
+        let excludeEnded = query.excludeEnded ? query.excludeEnded : null;
+        let excludeLive = query.excludeLive ? query.excludeLive : null;
+        let excludeComingSoon = query.excludeComingSoon ? query.excludeComingSoon : null;
+        let awaitingReserveBid = query.awaitingReserveBid ? query.awaitingReserveBid : null;
+        let soldOut = query.soldOut ? query.soldOut : null;
+        let secondaryMarketListingModel = this.model;
+        let currentDate = new Date();
 
         const results = await this.model.query().where(function () {
                 if (type
@@ -31,8 +37,27 @@ class SecondaryMarketListingRepository extends BaseRepository {
                     && Object.values(purchaseTypes).includes(purchaseType)) {
                     this.where('purchase_type', purchaseType);
                 }
-                if (!includeIsHiddenFromDropList) {
-                    this.where('is_hidden_from_drop_list', false);
+                if(excludeComingSoon) {
+                    this.where('starts_at', '<', currentDate);
+                }
+                if(excludeEnded) {
+                    this.where('is_sold_out', '!=', 1);
+                    this.where(function () {
+                        this.where('ends_at', '>', currentDate);
+                        this.orWhere('ends_at', null);
+                    })
+                }
+                if(excludeLive) {
+                    this.where('ends_at', '<', currentDate);
+                    this.orWhere('is_closed', true);
+                }
+                if(awaitingReserveBid) {
+                    this.whereNotExists(secondaryMarketListingModel.relatedQuery('events'));
+                    this.where('purchase_type', purchaseTypes.AUCTION);
+                    this.where('starts_at', '<', currentDate);
+                }
+                if(soldOut) {
+                    this.where('is_closed', 1);
                 }
             })
             .withGraphFetched('[user, collectable.[tags, media], events]')
