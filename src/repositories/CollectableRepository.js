@@ -90,6 +90,7 @@ class CollectableRepository extends BaseRepository {
                     this.where('is_closed', 1);
                     this.orWhere('is_sold_out', 1);
                 }
+                this.where('id', '>', 0);
             })
             .withGraphFetched('[artist, user, tags, media, events, bundleChildItems.[events], claim, featured_drop, secondaryMarketListings]')
             .orderBy('starts_at', 'DESC')
