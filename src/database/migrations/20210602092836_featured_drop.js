@@ -12,4 +12,4 @@ exports.up = knex => knex.schema.createTable(FEATURED_DROP_TABLE, table => {
 });
 
 
-exports.down = knex => knex.schema.dropTable(CLAIMS_TABLE);
+exports.down = knex => knex.schema.dropTable(FEATURED_DROP_TABLE);

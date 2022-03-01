@@ -74,4 +74,27 @@ const sendClaimPageNotification = (to, claimLink, collectableTitle, collectableI
     }
 }
 
-module.exports = { sendMail, sendOutbidNotification, sendClaimPageNotification };
+const sendSelfMintingAccessRequestReceivedNotification = (to) => {
+    if(to) {
+        const msg = {
+            from: 'info@seen.haus',
+            template_id: 'd-e4d08ecb0172459f9076aa1deaac1f41',
+            personalizations: [{
+                to: { email: to },
+                dynamic_template_data: {
+                    unsubscribe,
+                },
+            }],
+        }
+        sgMail
+            .send(msg)
+            .then(() => {
+                console.log('Email sent')
+            })
+            .catch((error) => {
+                console.error(error)
+            })
+    }
+}
+
+module.exports = { sendMail, sendOutbidNotification, sendClaimPageNotification, sendSelfMintingAccessRequestReceivedNotification };

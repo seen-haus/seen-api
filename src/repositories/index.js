@@ -10,7 +10,13 @@ const EligibleClaimantRepository = require("./EligibleClaimantRepository");
 const AuthRepository = require("./AuthRepository");
 const BidRegistrationRepository = require("./BidRegistrationRepository");
 const FeaturedDropRepository = require("./FeaturedDropRepository");
+const IPFSMediaRepository = require("./IPFSMediaRepository");
 const UserEmailPreferencesRepository = require("./UserEmailPreferencesRepository");
+const TagRepository = require("./TagRepository");
+const TagToCollectableRepository = require("./TagToCollectableRepository");
+const FallbackWorkerConsignmentEventBlockTrackerRepository = require("./FallbackWorkerConsignmentEventBlockTrackerRepository");
+const EthPriceCacheRepository = require("./EthPriceCacheRepository");
+const SecondaryMarketListingRepository = require("./SecondaryMarketListingRepository");
 
 module.exports = Object.freeze({
     ArtistRepository,
@@ -25,5 +31,11 @@ module.exports = Object.freeze({
     AuthRepository,
     BidRegistrationRepository,
     FeaturedDropRepository,
+    IPFSMediaRepository,
     UserEmailPreferencesRepository,
+    TagRepository,
+    TagToCollectableRepository,
+    FallbackWorkerConsignmentEventBlockTrackerRepository,
+    EthPriceCacheRepository,
+    SecondaryMarketListingRepository,
 });

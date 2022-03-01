@@ -38,4 +38,17 @@ const upload = multer({
     }),
 });
 
-module.exports = upload;
+const ipfsFileFilter = (req, file, cb) => {
+    if (file.mimetype === "image/jpeg" || file.mimetype === "image/png" || file.mimetype === "video/mp4" || file.mimetype === "image/gif") {
+        cb(null, true);
+    } else {
+        cb("Invalid file type: only JPEG, PNG, GIF & MP4 is allowed", false);
+    }
+};
+
+const ipfsUpload = multer({
+    fileFilter: ipfsFileFilter,
+    limits: { fileSize: 25000000 } // 25 MB
+})
+
+module.exports = { upload, ipfsUpload };

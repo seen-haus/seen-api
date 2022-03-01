@@ -11,7 +11,7 @@ const s3Helper = require("./../utils/S3Helper");
 class AdminMediaController extends Controller {
 
     async store(req, res) {
-        let fnc = uploadHelper.array("files", 8)
+        let fnc = uploadHelper.upload.array("files", 8)
         fnc(req, res, async (err) => {
                 if (err) {
                     this.sendError(res, err, 400);

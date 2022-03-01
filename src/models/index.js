@@ -9,7 +9,14 @@ const ClaimModel = require("./claim")
 const EligibleClaimantModel = require("./eligible-claimant")
 const BidRegistrationModel = require("./bid-registration")
 const FeaturedDropModel = require("./featured-drop")
+const IPFSMediaModel = require("./ipfs-media")
 const UserEmailPreferencesModel = require("./user-email-preferences");
+const TagModel = require("./tag");
+const TagToCollectableModel = require("./tag-to-collectable");
+const FallbackWorkerConsignmentEventBlockTrackerModel = require('./fallback-worker-consignment-event-block-tracker');
+const EthPriceCacheModel = require("./eth-price-cache");
+const SecondaryMarketListingModel = require("./secondary-market-listing");
+const SelfMintingInternalAccessRequests = require("./self-minting-internal-access-requests");
 
 module.exports = Object.freeze({
     CollectableModel,
@@ -23,5 +30,12 @@ module.exports = Object.freeze({
     EligibleClaimantModel,
     BidRegistrationModel,
     FeaturedDropModel,
+    IPFSMediaModel,
     UserEmailPreferencesModel,
+    TagModel,
+    TagToCollectableModel,
+    FallbackWorkerConsignmentEventBlockTrackerModel,
+    EthPriceCacheModel,
+    SecondaryMarketListingModel,
+    SelfMintingInternalAccessRequests
 });

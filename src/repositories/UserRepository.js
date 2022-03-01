@@ -24,6 +24,18 @@ class UserRepository extends BaseRepository {
         return this.parserResult(result)
     }
 
+    async findByUsername(username) {
+        const result = await this.model.query()
+            .where('username', username)
+            .first();
+
+        if (!result) {
+            return null;
+        }
+
+        return this.parserResult(result)
+    }
+
     async findEmailByAddress(walletAddress) {
         const result = await this.model.query()
             .where('wallet', walletAddress)

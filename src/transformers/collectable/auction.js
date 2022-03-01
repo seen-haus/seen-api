@@ -38,6 +38,17 @@ class CollectableAuctionTransformer extends BaseTransformer {
             is_reserve_price_auction: !!collectable.is_reserve_price_auction,
             auto_generate_claim_page: !!collectable.auto_generate_claim_page,
             is_open_edition: !!collectable.is_open_edition,
+            user_id: collectable.user_id,
+            consignment_id: collectable.consignment_id,
+            market_type: collectable.market_type,
+            market_handler_type: collectable.market_handler_type,
+            clock_type: collectable.clock_type,
+            state: collectable.state,
+            outcome: collectable.outcome,
+            multi_token: collectable.multi_token,
+            released: collectable.released,
+            rights: collectable.rights,
+            attributes: collectable.attributes,
         }
     }
 }

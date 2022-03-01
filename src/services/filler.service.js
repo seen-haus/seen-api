@@ -1,14 +1,25 @@
 const Web3Service = require("./web3.service");
 const BidEventHandlerV1 = require("../handlers/v1/BidEventHandler");
 const BidEventHandlerV2 = require("../handlers/v2/BidEventHandler");
+const BidEventHandlerV3 = require("../handlers/v3/BidEventHandler");
+const PurchaseEventHandlerV3 = require("../handlers/v3/PurchaseEventHandler");
 const BuyEventHandlerV1 = require("../handlers/v1/BuyEventHandler");
-const {ArtistRepository, CollectableRepository, NFTTokenRepository, MediaRepository} = require("../repositories");
+const {
+    ArtistRepository,
+    CollectableRepository,
+    NFTTokenRepository,
+    MediaRepository,
+    FallbackWorkerConsignmentEventBlockTrackerRepository,
+} = require("../repositories");
 const EcommerceV1Abi = require("../abis/v1/Ecommerce.json");
 const NFTV1Abi = require("../abis/v1/NFTSale.json");
 const AuctionV1Abi = require("../abis/v1/EnglishAuction.json");
 const AuctionV2Abi = require("../abis/v2/EnglishAuction.json");
+const AuctionV3Abi = require("../abis/v3/auctionRunnerABI.json");
+const SaleV3Abi = require("../abis/v3/saleRunnerABI.json");
+const MarketHandlersV3 = require("./../constants/MarketHandlers");
 const {SALE, AUCTION} = require("./../constants/PurchaseTypes");
-const {V1, V2} = require("./../constants/Versions");
+const {V1, V2, V3} = require("./../constants/Versions");
 const {NFT, TANGIBLE_NFT, TANGIBLE} = require("./../constants/Collectables");
 const {REGULAR} = require("./../constants/Categories");
 const ArtistTransformer = require("./../transformers/artist");
@@ -229,49 +240,100 @@ module.exports = {
 
     async fillEvents(collectable) {
 
+        console.log({collectable})
+
         if (!collectable) {
             console.log("NO collectable")
             process.exit();
         }
 
-        let abi, event, handler;
-        switch (collectable.purchase_type) {
-            case SALE:
-                event = 'Buy'
-                handler = BuyEventHandlerV1;
-                if (collectable.type === NFT) {
-                    abi = collectable.version === V1
-                        ? NFTV1Abi
-                        : NFTV1Abi;
-                }
-                if (collectable.type === TANGIBLE) {
-                    abi = collectable.version === V1
-                        ? EcommerceV1Abi
-                        : EcommerceV1Abi;
-                }
-                if (collectable.type === TANGIBLE_NFT) {
-                    abi = collectable.version === V1
-                        ? EcommerceV1Abi
-                        : EcommerceV1Abi;
-                }
-                break;
-            case AUCTION:
-                console.log("Bid")
-                event = 'Bid'
-                handler = collectable.version === V1
-                    ? BidEventHandlerV1
-                    : BidEventHandlerV2;
-                abi = collectable.version === V1
-                    ? AuctionV1Abi
-                    : AuctionV2Abi;
-                break;
+        let abi, event, handler, filter, consignmentEventBlockTrackerRecord;
+        let overrideStartBlock = false;
+        if(collectable.version === V3) {
+            // Get latest checked event block for consignment
+            // This strategy does assume that a whole block's events were successfully indexed without failure
+            if(collectable.market_type === 1) {
+                consignmentEventBlockTrackerRecord = await FallbackWorkerConsignmentEventBlockTrackerRepository.findByColumn('secondary_consig_id', collectable.consignment_id);
+            } else {
+                consignmentEventBlockTrackerRecord = await FallbackWorkerConsignmentEventBlockTrackerRepository.findByColumn('consignment_id', collectable.consignment_id);
+            }
+            if(consignmentEventBlockTrackerRecord && consignmentEventBlockTrackerRecord.latest_checked_block_number) {
+                overrideStartBlock = consignmentEventBlockTrackerRecord.latest_checked_block_number + 1; // Add 1 because we don't need to check the latest checked block again, i.e. the startBlock is inclusive
+            }
+            switch (collectable.market_handler_type) {
+                case MarketHandlersV3.SALE:
+                    event = 'Purchase'
+                    handler = PurchaseEventHandlerV3;
+                    abi = SaleV3Abi;
+                    filter = {consignmentId: collectable.consignment_id.toString()} // Make sure to use toString in the filter or else it will ignore the consignmentId
+                    break;
+                case MarketHandlersV3.AUCTION:
+                    event = 'BidAccepted'
+                    handler = BidEventHandlerV3;
+                    abi = AuctionV3Abi;
+                    filter = {consignmentId: collectable.consignment_id.toString()} // Make sure to use toString in the filter or else it will ignore the consignmentId
+                    break;
+            }
+        } else if(collectable.version === V1 || collectable.version === V2) {
+            switch (collectable.purchase_type) {
+                case SALE:
+                    event = 'Buy'
+                    handler = BuyEventHandlerV1;
+                    if (collectable.type === NFT) {
+                        abi = collectable.version === V1
+                            ? NFTV1Abi
+                            : NFTV1Abi;
+                    }
+                    if (collectable.type === TANGIBLE) {
+                        abi = collectable.version === V1
+                            ? EcommerceV1Abi
+                            : EcommerceV1Abi;
+                    }
+                    if (collectable.type === TANGIBLE_NFT) {
+                        abi = collectable.version === V1
+                            ? EcommerceV1Abi
+                            : EcommerceV1Abi;
+                    }
+                    break;
+                case AUCTION:
+                    console.log("Bid")
+                    if (collectable.version === V2) {
+                        event = 'Bid';
+                        handler = BidEventHandlerV2;
+                        abi = AuctionV2Abi;
+                    } else if(collectable.version === V1) {
+                        event = 'Bid';
+                        handler = BidEventHandlerV1;
+                        abi = AuctionV1Abi;
+                    }
+                    break;
+            }
+        }
+        console.log({overrideStartBlock})
+        let service = new Web3Service(collectable.contract_address, abi);
+        let events = await service.findEvents(event, true, filter, overrideStartBlock);
+        console.log({'event length': events.length, 'consignmentId': collectable.consignment_id, event})
+        let latestEventBlock = 0;
+        for (let i = 0; i < events.length; i++) {
+            console.log({'events[i]': events[i], 'events[i].raw': events[i].raw})
+            await (new handler(collectable)).handle(events[i], i, events);
+            if(events[i].blockNumber > latestEventBlock) {
+                latestEventBlock = events[i].blockNumber;
+            }
         }
 
-        let service = new Web3Service(collectable.contract_address, abi);
-        let events = await service.findEvents(event);
-        console.log(events.length)
-        for (let i = 0; i < events.length; i++) {
-            await (new handler(collectable)).handle(events[i], i, events);
+        if((collectable.version === V3) && (latestEventBlock > 0) && (events.length > 0)) {
+            // Save latest event block so that we don't keep fetching events that have already been indexed
+            // This strategy does assume that a whole block's events were successfully indexed without failure
+            if(consignmentEventBlockTrackerRecord === null) {
+                await FallbackWorkerConsignmentEventBlockTrackerRepository.create({
+                    ...(collectable.market_type === 1 && {'secondary_consig_id': collectable.consignment_id, 'consignment_id': null}),
+                    ...(collectable.market_type !== 1 && {'consignment_id': collectable.consignment_id, 'secondary_consig_id': null}),
+                    'latest_checked_block_number': latestEventBlock,
+                });
+            } else {
+                await FallbackWorkerConsignmentEventBlockTrackerRepository.update({'latest_checked_block_number': latestEventBlock}, consignmentEventBlockTrackerRecord.id);
+            }
         }
 
         return true

@@ -6,7 +6,7 @@ const ethers = require('ethers');
 const {body, validationResult} = require('express-validator');
 const CloudfrontHelper = require("./../utils/CloudfrontHelper");
 const urlParse = require('url-parse');
-const uploadHelper = require("./../utils/AvatarHelper");
+const avatarHelper = require("./../utils/AvatarHelper");
 
 
 class UserController extends Controller {
@@ -14,13 +14,19 @@ class UserController extends Controller {
     async show(req, res) {
         const walletAddress = req.params.walletAddress;
         if (!walletAddress || (walletAddress && !ethers.utils.isAddress(walletAddress))) {
-            return this.sendResponse(res, null);
+            // Try to find user by username
+            let user = await UserRepository.findByUsername(walletAddress);
+            if (!user) {
+                return this.sendResponse(res, null);
+            }
+            return this.sendResponse(res, {user: UserOutputTransformer.transform(user)});
+        } else {
+            let user = await UserRepository.findByAddress(walletAddress);
+            if (!user) {
+                return this.sendResponse(res, null);
+            }
+            return this.sendResponse(res, {user: UserOutputTransformer.transform(user)});
         }
-        let user = await UserRepository.findByAddress(walletAddress);
-        if (!user) {
-            return this.sendResponse(res, null);
-        }
-        this.sendResponse(res, {user: UserOutputTransformer.transform(user)});
     }
 
     async resolveUsername(req, res) {
@@ -52,14 +58,29 @@ class UserController extends Controller {
         let arr = users.map(u => ({
             walletAddress: u.wallet,
             username: u.username,
-            image: u.image
+            avatar_image: u.avatar_image,
+            banner_image: u.banner_image,
         }));
 
         this.sendResponse(res, arr);
     }
 
     async avatar(req, res) {
-        let fnc = uploadHelper.array("files", 1)
+        let fnc = avatarHelper.array("files", 1)
+        fnc(req, res, async (err) => {
+                if (err) {
+                    this.sendError(res, err, 400);
+                    return;
+                }
+                let file = req.files[0];
+                let url = CloudfrontHelper.replaceHost(file.location)
+                this.sendResponse(res, {url})
+            }
+        )
+    }
+
+    async banner(req, res) {
+        let fnc = avatarHelper.array("files", 1)
         fnc(req, res, async (err) => {
                 if (err) {
                     this.sendError(res, err, 400);
@@ -96,12 +117,13 @@ class UserController extends Controller {
             .setTransformer(UserOutputTransformer)
             .findByAddress(walletAddress);
 
-        let {username, description, twitter, website, image, email} = payload;
+        let {username, description, twitter, instagram, website, avatar_image, banner_image, email} = payload;
         twitter = twitter ? twitter : null
+        instagram = instagram ? instagram : null
         website = website ? website : null
-        let socials = !twitter && !website ? null : {twitter, website}
+        let socials = !twitter && !website && !instagram ? null : {twitter, instagram, website}
 
-        let data = {username, description, socials, image, email};
+        let data = {username, description, socials, avatar_image, banner_image, email};
         if (!user) {
             data.wallet = walletAddress;
             user = await UserRepository

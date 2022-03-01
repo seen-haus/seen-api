@@ -1,6 +1,8 @@
 const BaseTransformer = require("./../BaseTransformer");
 const ArtistOutputTransformer = require("../artist/output")
+const UserOutputTransformer = require("../user/output")
 const MediaOutputTransformer = require("../media/output")
+const TagOutputTransformer = require("../tag/output")
 
 class CollectableOutputTransformer extends BaseTransformer {
     transform(collectable) {
@@ -18,6 +20,11 @@ class CollectableOutputTransformer extends BaseTransformer {
             bundleChildItems: collectable.bundleChildItems && collectable.bundleChildItems.length > 0
                 ? collectable.bundleChildItems.map(bundleChildItem => {
                     return bundleChildItem;
+                })
+                : [],
+            secondary_market_listings: collectable.secondaryMarketListings && collectable.secondaryMarketListings.length > 0
+                ? collectable.secondaryMarketListings.map(secondaryMarketListing => {
+                    return secondaryMarketListing;
                 })
                 : [],
             claim: collectable.claim ? collectable.claim : null,
@@ -48,7 +55,7 @@ class CollectableOutputTransformer extends BaseTransformer {
             shipping_location: collectable.shipping_location,
             nft_contract_address: collectable.nft_contract_address,
             nft_ipfs_hash: collectable.nft_ipfs_hash,
-            nft_token_id: collectable.nft_token_id,
+            nft_token_id: collectable.nft_token_id.indexOf(',') > 0 ? collectable.nft_token_id.split(',').map(item => Number(item)) : collectable.nft_token_id,
             created_at: collectable.created_at,
             updated_at: collectable.updated_at,
             is_closed: !!collectable.is_closed,
@@ -58,6 +65,18 @@ class CollectableOutputTransformer extends BaseTransformer {
             is_reserve_price_auction: !!collectable.is_reserve_price_auction,
             auto_generate_claim_page: !!collectable.auto_generate_claim_page,
             is_open_edition: !!collectable.is_open_edition,
+            user: collectable.user ? UserOutputTransformer.transform(collectable.user) : null,
+            consignment_id: collectable.consignment_id,
+            market_type: collectable.market_type,
+            market_handler_type: collectable.market_handler_type,
+            clock_type: collectable.clock_type,
+            state: collectable.state,
+            outcome: collectable.outcome,
+            multi_token: collectable.multi_token,
+            released: collectable.released,
+            tags: collectable.tags && collectable.tags.length > 0
+                ? collectable.tags.map(tag => TagOutputTransformer.transform(tag))
+                : [],
             is_vrf_drop: !!collectable.is_vrf_drop,
         }
     }

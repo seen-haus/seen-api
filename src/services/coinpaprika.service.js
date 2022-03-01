@@ -6,7 +6,7 @@ const bucket = new LeakyBucket({
     capacity: 300,
     interval: 60,
 });
-const getTokenPrice = async (token, timestamp) => {
+const getTokenPrice = async (token, timestamp, retryCount = 0) => {
     let coinId;
     switch (token) {
         case ETH:
@@ -28,7 +28,7 @@ const getTokenPrice = async (token, timestamp) => {
         },
     };
     let response = await (new CoinpaprikaAPI())
-        .getAllTickers(params).catch(e => {
+        .getAllTickers(params).catch(async (e) => {
             console.log(e);
             return 0;
         });
@@ -36,7 +36,9 @@ const getTokenPrice = async (token, timestamp) => {
     if (response == 0 || response.length === 0 || !response) {
         return response
     }
-    console.log(response)
+    if(response.error) {
+        return 0;
+    }
     return parseFloat(response[0].price);
 };
 

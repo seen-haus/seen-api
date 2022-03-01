@@ -12,6 +12,10 @@ Router.post('/users/avatars/', [
     body('files').notEmpty(),
 ], 'UserController@avatar');
 
+Router.post('/users/banners/', [
+    body('files').notEmpty(),
+], 'UserController@banner');
+
 Router.get('/users/:walletAddress', [], 'UserController@show');
 Router.get('/users/:walletAddress/username', [], 'UserController@resolveUsername');
 
@@ -19,18 +23,20 @@ Router.get('/users/:walletAddress/username', [], 'UserController@resolveUsername
 Router.put('/users/:walletAddress', [
     body("sig").notEmpty().isString(),
     body("username").optional().isLength({min: 2, max: 100}),
-    body("description").optional().isLength({max: 255}),
+    body("description").optional().isLength({max: 1024}),
     body("email").optional().isEmail(),
     body("website").optional().isURL().isLength({max: 100}),
-    body("twitter").optional().isURL().isLength({max: 100})
+    body("twitter").optional().isURL().isLength({max: 100}),
+    body("instagram").optional().isURL().isLength({max: 100}),
 ], 'UserController@update');
 Router.post('/users/:walletAddress', [
     body("sig").notEmpty().isString(),
     body("username").optional().isString().isLength({min: 2, max: 100}),
-    body("description").optional().isString().isLength({max: 255}),
+    body("description").optional().isString().isLength({max: 1024}),
     body("email").optional().isEmail(),
     body("website").optional().isString().isURL().isLength({max: 100}),
-    body("twitter").optional().isString().isURL().isLength({max: 100})
+    body("twitter").optional().isString().isURL().isLength({max: 100}),
+    body("instagram").optional().isURL().isLength({max: 100}),
 ], 'UserController@update');
 Router.post('/users/:walletAddress/get-email-address-and-preferences', [
     body("signature").notEmpty().isString(),

@@ -6,11 +6,17 @@ const {
     NFT_TOKENS_TABLE,
     MEDIA_TABLE,
     FEATURED_DROP_TABLE,
+    USERS_TABLE,
+    TAG_TO_COLLECTABLE_TABLE,
+    TAGS_TABLE,
+    SECONDARY_MARKET_LISTINGS,
 } = require("./../../constants/DBTables");
 const BaseModel = require("./../BaseModel");
 const Artist = require("../artist");
 const Event = require("../event");
 const Media = require("../media");
+const User = require("../user");
+const Tag = require("../tag");
 
 module.exports = class Collectable extends BaseModel {
     static get tableName() {
@@ -24,6 +30,7 @@ module.exports = class Collectable extends BaseModel {
     static get relationMappings() {
         const Claim = require("../claim");
         const FeaturedDrop = require("../featured-drop");
+        const SecondaryMarketListing = require("../secondary-market-listing");
         return {
             artist: {
                 relation: BaseModel.HasOneRelation,
@@ -33,12 +40,32 @@ module.exports = class Collectable extends BaseModel {
                     to: `${ARTISTS_TABLE}.id`,
                 }
             },
+            user: {
+                relation: BaseModel.HasOneRelation,
+                modelClass: User,
+                join: {
+                    from: `${COLLECTIBLES_TABLE}.user_id`,
+                    to: `${USERS_TABLE}.id`,
+                }
+            },
             events: {
                 relation: BaseModel.HasManyRelation,
                 modelClass: Event,
                 join: {
                     from: `${COLLECTIBLES_TABLE}.id`,
                     to: `${EVENTS_TABLE}.collectable_id`,
+                }
+            },
+            tags: {
+                relation: BaseModel.ManyToManyRelation,
+                modelClass: Tag,
+                join: {
+                    from: `${COLLECTIBLES_TABLE}.id`,
+                    through: {
+                        from: `${TAG_TO_COLLECTABLE_TABLE}.collectable_id`,
+                        to: `${TAG_TO_COLLECTABLE_TABLE}.tag_id`,
+                    },
+                    to: `${TAGS_TABLE}.id`,
                 }
             },
             media: {
@@ -72,7 +99,15 @@ module.exports = class Collectable extends BaseModel {
                     from: `${COLLECTIBLES_TABLE}.id`,
                     to: `${FEATURED_DROP_TABLE}.collectable_id`,
                 }
-            }
+            },
+            secondaryMarketListings: {
+                relation: BaseModel.HasManyRelation,
+                modelClass: SecondaryMarketListing,
+                join: {
+                    from: `${COLLECTIBLES_TABLE}.id`,
+                    to: `${SECONDARY_MARKET_LISTINGS}.collectable_id`,
+                }
+            },
         }
     }
 }
