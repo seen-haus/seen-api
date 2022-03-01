@@ -88,6 +88,7 @@ class CollectableRepository extends BaseRepository {
                 }
                 if(soldOut) {
                     this.where('is_closed', 1);
+                    this.orWhere('is_sold_out', 1);
                 }
             })
             .withGraphFetched('[artist, user, tags, media, events, bundleChildItems.[events], claim, featured_drop, secondaryMarketListings]')
