@@ -8,6 +8,7 @@ const ArtistController = require('./ArtistController');
 const ClaimController = require('./ClaimController');
 const BidRegistrationController = require('./BidRegistrationController');
 const IPFSController = require('./IPFSController');
+const ClaimAgainstTokenContractsController = require('./ClaimAgainstTokenContractsController');
 
 // Private
 const AdminArtistController = require('./AdminArtistController');
@@ -28,6 +29,7 @@ module.exports = {
     CollectableController,
     BidRegistrationController,
     IPFSController,
+    ClaimAgainstTokenContractsController,
     AdminArtistController,
     AdminCollectableController,
     AdminConstantsController,

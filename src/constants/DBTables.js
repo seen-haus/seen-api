@@ -19,6 +19,7 @@ const TAG_TO_COLLECTABLE_TABLE = "tag_to_collectable";
 const FALLBACK_WORKER_CONSIGNMENT_EVENT_BLOCK_TRACKER_TABLE = "fw_consignment_event_block_tracker";
 const ETH_PRICE_CACHE = "eth_price_cache";
 const SECONDARY_MARKET_LISTINGS = "secondary_market_listings";
+const CLAIM_AGAINST_TOKEN_CONTRACTS_TABLE = "claim_against_token_contracts";
 
 module.exports = Object.freeze({
     EVENTS_TABLE,
@@ -41,4 +42,5 @@ module.exports = Object.freeze({
     FALLBACK_WORKER_CONSIGNMENT_EVENT_BLOCK_TRACKER_TABLE,
     ETH_PRICE_CACHE,
     SECONDARY_MARKET_LISTINGS,
+    CLAIM_AGAINST_TOKEN_CONTRACTS_TABLE,
 });
