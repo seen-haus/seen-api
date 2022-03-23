@@ -16,12 +16,11 @@ class Web3Service {
         this.web3 = new Web3(provider);
     }
 
-    async findEvents(event, raw = true, filter = false, overrideStartBlock = false) {
-        console.log({filter: filter})
+    async findEvents(event, raw = true, filter = false, overrideStartBlock = false, overrideEndBlock = false) {
         let contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
         let events = await contract.getPastEvents(event, {
             fromBlock: overrideStartBlock ? overrideStartBlock : START_BLOCK,
-            toBlock: 'latest',
+            toBlock: overrideEndBlock ? overrideEndBlock : 'latest',
             ...(filter && {filter: filter}),
         }).catch(e => {
             console.log(e)
@@ -168,6 +167,11 @@ class Web3Service {
         return await contract.methods.uri(tokenId).call();
     }
 
+    async tokenURI(tokenId) {
+        const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
+        return await contract.methods.tokenURI(tokenId).call();
+    }
+
     async isPhysical(tokenId) {
         const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
         return await contract.methods.isPhysical(tokenId).call();
@@ -181,6 +185,21 @@ class Web3Service {
     async getTicketClaimableCount(consignmentId) {
         const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
         return await contract.methods.getTicketClaimableCount(consignmentId).call();
+    }
+
+    async totalSupply() {
+        const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
+        return await contract.methods.totalSupply().call();
+    }
+
+    async ownerOf(tokenId, blockNumber) {
+        const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
+        return await contract.methods.ownerOf(tokenId).call(undefined, blockNumber);
+    }
+
+    async getRecentBlock() {
+        const block = await new this.web3.eth.getBlockNumber();
+        return block;
     }
 }
 

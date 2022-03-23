@@ -18,6 +18,8 @@ const EthPriceCacheModel = require("./eth-price-cache");
 const SecondaryMarketListingModel = require("./secondary-market-listing");
 const SelfMintingInternalAccessRequests = require("./self-minting-internal-access-requests");
 const ClaimAgainstTokenContractsModel = require("./claim-against-token-contracts");
+const TokenHolderBlockTrackerModel = require("./token-holder-block-tracker");
+const TokenCacheModel = require("./token-cache");
 
 module.exports = Object.freeze({
     CollectableModel,
@@ -40,4 +42,6 @@ module.exports = Object.freeze({
     SecondaryMarketListingModel,
     SelfMintingInternalAccessRequests,
     ClaimAgainstTokenContractsModel,
+    TokenHolderBlockTrackerModel,
+    TokenCacheModel,
 });

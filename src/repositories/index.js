@@ -18,6 +18,8 @@ const FallbackWorkerConsignmentEventBlockTrackerRepository = require("./Fallback
 const EthPriceCacheRepository = require("./EthPriceCacheRepository");
 const SecondaryMarketListingRepository = require("./SecondaryMarketListingRepository");
 const ClaimAgainstTokenContractsRepository = require("./ClaimAgainstTokenContractsRepository");
+const TokenHolderBlockTrackerRepository = require("./TokenHolderBlockTrackerRepository");
+const TokenCacheRepository = require("./TokenCacheRepository");
 
 module.exports = Object.freeze({
     ArtistRepository,
@@ -40,4 +42,6 @@ module.exports = Object.freeze({
     EthPriceCacheRepository,
     SecondaryMarketListingRepository,
     ClaimAgainstTokenContractsRepository,
+    TokenHolderBlockTrackerRepository,
+    TokenCacheRepository,
 });
