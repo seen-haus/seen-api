@@ -14,6 +14,7 @@ const FeaturedDropTransformer = require("./featured_drop")
 const SecondaryMarketListingAuctionTransformer = require("./secondary_market_listing/auction");
 const SecondaryMarketListingSaleTransformer = require("./secondary_market_listing/sale");
 const SecondaryMarketListingOutputTransformer = require("./secondary_market_listing/output");
+const TokenCacheOutputTransformer = require("./token_cache/output");
 
 module.exports = Object.freeze({
     ArtistTransformer,
@@ -32,4 +33,5 @@ module.exports = Object.freeze({
     SecondaryMarketListingAuctionTransformer,
     SecondaryMarketListingSaleTransformer,
     SecondaryMarketListingOutputTransformer,
+    TokenCacheOutputTransformer,
 });

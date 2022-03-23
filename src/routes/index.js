@@ -10,6 +10,7 @@ const Artist = require('./artist.routes')
 const Claim = require('./claim.routes');
 const BidRegistration = require('./bid-registration.routes');
 const IPFS = require('./ipfs.routes');
+const TokenCache = require('./token-cache.routes');
 
 module.exports = app => {
     app.use("", Bespoke);
@@ -22,4 +23,5 @@ module.exports = app => {
     app.use("", Claim);
     app.use("", BidRegistration);
     app.use("", IPFS);
+    app.use("", TokenCache);
 }
