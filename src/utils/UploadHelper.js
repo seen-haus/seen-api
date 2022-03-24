@@ -48,7 +48,7 @@ const ipfsFileFilter = (req, file, cb) => {
 
 const ipfsUpload = multer({
     fileFilter: ipfsFileFilter,
-    limits: { fileSize: 25000000 } // 25 MB
+    limits: { fileSize: 35000000 } // 35 MB
 })
 
 module.exports = { upload, ipfsUpload };
