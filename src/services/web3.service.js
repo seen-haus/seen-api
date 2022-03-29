@@ -242,6 +242,21 @@ class Web3Service {
         const block = await new this.web3.eth.getBlockNumber();
         return block;
     }
+
+    async closingTimeUnix(blockNumber, retryCount = 0) {
+        try {
+            const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
+            return await contract.methods.closingTimeUnix().call(undefined, blockNumber);
+        } catch (e) {
+            retryCount++;
+            if(retryCount <= this.retryLimit) {
+                console.log(`closingTimeUnix(${blockNumber}, ${retryCount}) failed, retrying`);
+                return await closingTimeUnix(tokenId, blockNumber, retryCount);
+            } else {
+                throw new Error(`closingTimeUnix(${blockNumber}, ${retryCount}) failed, retries exhausted`);
+            }
+        }
+    }
 }
 
 module.exports = Web3Service;

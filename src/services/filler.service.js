@@ -4,6 +4,7 @@ const BidEventHandlerV2 = require("../handlers/v2/BidEventHandler");
 const BidEventHandlerV3 = require("../handlers/v3/BidEventHandler");
 const PurchaseEventHandlerV3 = require("../handlers/v3/PurchaseEventHandler");
 const BuyEventHandlerV1 = require("../handlers/v1/BuyEventHandler");
+const ClaimedAgainstTokenIdEventHandler = require("../handlers/v2/ClaimedAgainstTokenIdEventHandler");
 const {
     ArtistRepository,
     CollectableRepository,
@@ -17,6 +18,7 @@ const AuctionV1Abi = require("../abis/v1/EnglishAuction.json");
 const AuctionV2Abi = require("../abis/v2/EnglishAuction.json");
 const AuctionV3Abi = require("../abis/v3/auctionRunnerABI.json");
 const SaleV3Abi = require("../abis/v3/saleRunnerABI.json");
+const ClaimAgainstERC721WithFeeMinimalABI = require("../abis/v2/ClaimAgainstERC721WithFeeMinimalABI.json");
 const MarketHandlersV3 = require("./../constants/MarketHandlers");
 const {SALE, AUCTION} = require("./../constants/PurchaseTypes");
 const {V1, V2, V3} = require("./../constants/Versions");
@@ -275,38 +277,44 @@ module.exports = {
                     break;
             }
         } else if(collectable.version === V1 || collectable.version === V2) {
-            switch (collectable.purchase_type) {
-                case SALE:
-                    event = 'Buy'
-                    handler = BuyEventHandlerV1;
-                    if (collectable.type === NFT) {
-                        abi = collectable.version === V1
-                            ? NFTV1Abi
-                            : NFTV1Abi;
-                    }
-                    if (collectable.type === TANGIBLE) {
-                        abi = collectable.version === V1
-                            ? EcommerceV1Abi
-                            : EcommerceV1Abi;
-                    }
-                    if (collectable.type === TANGIBLE_NFT) {
-                        abi = collectable.version === V1
-                            ? EcommerceV1Abi
-                            : EcommerceV1Abi;
-                    }
-                    break;
-                case AUCTION:
-                    console.log("Bid")
-                    if (collectable.version === V2) {
-                        event = 'Bid';
-                        handler = BidEventHandlerV2;
-                        abi = AuctionV2Abi;
-                    } else if(collectable.version === V1) {
-                        event = 'Bid';
-                        handler = BidEventHandlerV1;
-                        abi = AuctionV1Abi;
-                    }
-                    break;
+            if(collectable.is_claim_against_token_drop) {
+                event = 'ClaimedAgainstTokenId';
+                handler = ClaimedAgainstTokenIdEventHandler;
+                abi = ClaimAgainstERC721WithFeeMinimalABI;
+            } else {
+                switch (collectable.purchase_type) {
+                    case SALE:
+                        event = 'Buy'
+                        handler = BuyEventHandlerV1;
+                        if (collectable.type === NFT) {
+                            abi = collectable.version === V1
+                                ? NFTV1Abi
+                                : NFTV1Abi;
+                        }
+                        if (collectable.type === TANGIBLE) {
+                            abi = collectable.version === V1
+                                ? EcommerceV1Abi
+                                : EcommerceV1Abi;
+                        }
+                        if (collectable.type === TANGIBLE_NFT) {
+                            abi = collectable.version === V1
+                                ? EcommerceV1Abi
+                                : EcommerceV1Abi;
+                        }
+                        break;
+                    case AUCTION:
+                        console.log("Bid")
+                        if (collectable.version === V2) {
+                            event = 'Bid';
+                            handler = BidEventHandlerV2;
+                            abi = AuctionV2Abi;
+                        } else if(collectable.version === V1) {
+                            event = 'Bid';
+                            handler = BidEventHandlerV1;
+                            abi = AuctionV1Abi;
+                        }
+                        break;
+                }
             }
         }
         console.log({overrideStartBlock})
@@ -315,7 +323,6 @@ module.exports = {
         console.log({'event length': events.length, 'consignmentId': collectable.consignment_id, event})
         let latestEventBlock = 0;
         for (let i = 0; i < events.length; i++) {
-            console.log({'events[i]': events[i], 'events[i].raw': events[i].raw})
             await (new handler(collectable)).handle(events[i], i, events);
             if(events[i].blockNumber > latestEventBlock) {
                 latestEventBlock = events[i].blockNumber;
