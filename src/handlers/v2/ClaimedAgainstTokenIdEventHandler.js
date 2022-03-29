@@ -14,7 +14,7 @@ class ClaimedAgainstTokenIdEventHandler extends CollectableEventHandler {
 
         const returnValues = event.returnValues;
 
-        let timestamp = event.timestamp,
+        let timestamp = returnValues.timestamp,
             transactionHash = event.transactionHash,
             walletAddress = returnValues.claimant,
             claimedAgainstTokenIdString = new BigNumber(returnValues.tokenId).toString();
