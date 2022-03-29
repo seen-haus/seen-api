@@ -13,6 +13,7 @@ class Web3Service {
                 maxReceivedMessageSize: 100000000, // bytes - default: 8MiB
             },
         })
+        this.retryLimit = 10;
         this.web3 = new Web3(provider);
     }
 
@@ -142,9 +143,19 @@ class Web3Service {
         return await contract.methods.winning().call();
     }
 
-    async balanceOf(wallet_address, nft_token_id) {
-        const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
-        return await contract.methods.balanceOf(wallet_address, nft_token_id).call();
+    async balanceOf(wallet_address, nft_token_id, blockNumber, retryCount = 0) {
+        try {
+            const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
+            return await contract.methods.balanceOf(wallet_address, nft_token_id).call(undefined, blockNumber);
+        } catch (e) {
+            retryCount++;
+            if(retryCount <= this.retryLimit) {
+                console.log(`balanceOf('${wallet_address}', '${nft_token_id}', '${blockNumber}', '${retryCount}') failed, retrying`);
+                return balanceOf(wallet_address, nft_token_id, blockNumber, retryCount = 0);
+            } else {
+                throw new Error(`balanceOf('${wallet_address}', '${nft_token_id}', '${blockNumber}', '${retryCount}') failed, retries exhausted`);
+            }
+        }
     }
 
     async getConsignment(consignmentId) {
@@ -162,14 +173,34 @@ class Web3Service {
         return await contract.methods.getSale(consignmentId).call();
     }
 
-    async uri(tokenId) {
-        const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
-        return await contract.methods.uri(tokenId).call();
+    async uri(tokenId, blockNumber, retryCount = 0) {
+        try {
+            const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
+            return await contract.methods.uri(tokenId).call(undefined, blockNumber);
+        }  catch (e) {
+            retryCount++;
+            if(retryCount <= this.retryLimit) {
+                console.log(`uri(${tokenId}, ${blockNumber}, ${retryCount}) failed, retrying`);
+                return await uri(tokenId, blockNumber, retryCount);
+            } else {
+                throw new Error(`uri(${tokenId}, ${blockNumber}, ${retryCount}) failed, retries exhausted`);
+            }
+        }
     }
 
-    async tokenURI(tokenId) {
-        const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
-        return await contract.methods.tokenURI(tokenId).call();
+    async tokenURI(tokenId, blockNumber, retryCount = 0) {
+        try {
+            const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
+            return await contract.methods.tokenURI(tokenId).call(undefined, blockNumber);
+        }  catch (e) {
+            retryCount++;
+            if(retryCount <= this.retryLimit) {
+                console.log(`tokenURI(${tokenId}, ${blockNumber}, ${retryCount}) failed, retrying`);
+                return await tokenURI(tokenId, blockNumber, retryCount);
+            } else {
+                throw new Error(`tokenURI(${tokenId}, ${blockNumber}, ${retryCount}) failed, retries exhausted`);
+            }
+        }
     }
 
     async isPhysical(tokenId) {
@@ -192,9 +223,19 @@ class Web3Service {
         return await contract.methods.totalSupply().call();
     }
 
-    async ownerOf(tokenId, blockNumber) {
-        const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
-        return await contract.methods.ownerOf(tokenId).call(undefined, blockNumber);
+    async ownerOf(tokenId, blockNumber, retryCount = 0) {
+        try {
+            const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
+            return await contract.methods.ownerOf(tokenId).call(undefined, blockNumber);
+        } catch (e) {
+            retryCount++;
+            if(retryCount <= this.retryLimit) {
+                console.log(`ownerOf(${tokenId}, ${blockNumber}, ${retryCount}) failed, retrying`);
+                return await ownerOf(tokenId, blockNumber, retryCount);
+            } else {
+                throw new Error(`ownerOf(${tokenId}, ${blockNumber}, ${retryCount}) failed, retries exhausted`);
+            }
+        }
     }
 
     async getRecentBlock() {

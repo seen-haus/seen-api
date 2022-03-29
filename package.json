@@ -13,7 +13,8 @@
     "db:seed": "npm run knex seed:run",
     "listen": "node ./src/workers/Worker.js",
     "fallback": "node ./src/workers/FallbackWorker.js",
-    "trackBalances": "node ./src/workers/TokenHolderTracker.js",
+    "trackBalancesCheckpointSync": "node ./src/workers/TokenHolderCheckpointSync.js",
+    "trackBalancesFullSync": "node ./src/workers/TokenHolderFullSync.js",
     "user": "node ./src/cli/SetUser.js",
     "deploy": "pm2 deploy ./config/ecosystem.json production",
     "watch": "nodemon --watch src --verbose -e js -L ./src/server.js"
