@@ -31,6 +31,7 @@ const nftV3Abi = require("../abis/v3/seenHausNFTABI.json");
 const MarketClerkABI = require("../abis/v3/marketClerkABI.json");
 const MarketConfigABI = require("../abis/v3/marketConfigABI.json");
 const TicketerABI = require("../abis/v3/ticketerABI.json");
+const ClaimAgainstERC721WithFeeMinimalABI = require("../abis/v2/ClaimAgainstERC721WithFeeMinimalABI.json");
 const { sleep } = require('../utils/MiscHelpers');
 const { 
     networkNameToSeenNFT,
@@ -115,6 +116,16 @@ const checkIfVrfDropHasClosed = async (collectable) => {
     let service = new Web3Service(collectable.contract_address, VRFSaleAbi);
     let isClosed = await service.isReservationPeriodOver();
     if (isClosed) {
+        await CollectableRepository.update({is_sold_out: 1, is_closed: 1}, collectable.id);
+    }
+    return true
+}
+
+const checkIfClaimAgainstTokenHasClosed = async (collectable) => {
+    let service = new Web3Service(collectable.contract_address, ClaimAgainstERC721WithFeeMinimalABI);
+    let closingTimeUnix = await service.closingTimeUnix();
+    let currentTimeUnix = new Date().getTime() / 1000;
+    if (currentTimeUnix > Number(closingTimeUnix)) {
         await CollectableRepository.update({is_sold_out: 1, is_closed: 1}, collectable.id);
     }
     return true
@@ -334,6 +345,8 @@ const run = async() => {
                             await checkIfOpenEditionHasClosed(collectable);
                         } else if(collectable.is_vrf_drop) {
                             await checkIfVrfDropHasClosed(collectable);
+                        } else if(collectable.is_claim_against_token_drop) {
+                            await checkIfClaimAgainstTokenHasClosed(collectable);
                         } else {
                             await checkIfSoldOut(collectable);
                         }
@@ -353,7 +366,7 @@ const run = async() => {
                     break;
             }
             let batchIndex = Math.floor(index/batchSize);
-            if(!checkOverFunctionBatches[batchIndex]) {
+            if(!checkOverFunctionBatches[batchIndex] && batchFunction) {
                 // If there is a previous batch, ensure it is done first
                 if((batchIndex > 0) && checkOverFunctionBatches[batchIndex - 1]) {
                     await Promise.all(checkOverFunctionBatches[batchIndex - 1]);
@@ -362,7 +375,7 @@ const run = async() => {
                 // So if we want to prevent all batches firing at once, we need to add a delay to when we add the function to the batches
                 await sleep(1500);
                 checkOverFunctionBatches[batchIndex] = [batchFunction];
-            } else {
+            } else if(batchFunction) {
                 checkOverFunctionBatches[batchIndex].push(batchFunction);
             }
         }
