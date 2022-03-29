@@ -1,3 +1,5 @@
+const BigNumber = require('bignumber.js');
+
 const { TokenCacheModel } = require("./../models");
 const BaseRepository = require("./BaseRepository");
 
@@ -27,6 +29,65 @@ class TokenCacheRepository extends BaseRepository {
       return this.parserResult(result)
     }
 
+    async findByTokenAddressAndIdAndHolder(tokenAddress, tokenId, tokenHolder) {
+      const result = await this.model.query().where(function () {
+        this.where('token_address', tokenAddress);
+        this.where('token_id', tokenId);
+        this.where('token_holder', tokenHolder);
+      })
+
+      return this.parserResult(result)
+    }
+
+    async increaseTokenHolderBalance(tokenHolder, tokenAddress, tokenId, amount) {
+      let holderRecordExists = await this.findByTokenAddressAndIdAndHolder(tokenAddress, tokenId, tokenHolder);
+
+      let result;
+      if(holderRecordExists && holderRecordExists.length > 0) {
+        // update existing record
+
+        const newBalance = new BigNumber(holderRecordExists[0].token_balance).plus(new BigNumber(amount));
+
+        console.log(`Increasing balance of holder ${tokenHolder} for token ${tokenId} of token contract ${tokenAddress} from ${holderRecordExists[0].token_balance} to ${newBalance}`)
+
+        // update balance
+        result = await this.model.query().update({'token_balance': newBalance.toString()}).where(function () {
+          this.where('token_address', tokenAddress);
+          this.where('token_id', tokenId);
+          this.where('token_holder', tokenHolder);
+        })
+
+      } else {
+        // create new record
+        console.log(`Setting balance of holder ${tokenHolder} for token ${tokenId} of token contract ${tokenAddress} to ${amount}`)
+        await this.create({
+          token_address: tokenAddress,
+          token_id: tokenId,
+          token_holder: tokenHolder,
+          token_balance: amount.toString(),
+        });
+      }
+
+      return this.parserResult(result)
+    }
+
+    async decreaseTokenHolderBalance(tokenHolder, tokenAddress, tokenId, amount) {
+      let currentRecord = await this.findByTokenAddressAndIdAndHolder(tokenAddress, tokenId, tokenHolder);
+
+      const newBalance = new BigNumber(currentRecord[0].token_balance).minus(new BigNumber(amount));
+
+      console.log(`Decreasing balance of holder ${tokenHolder} for token ${tokenId} of token contract ${tokenAddress} from ${currentRecord[0].token_balance} to ${newBalance}`)
+
+      // update balance
+      let result = await this.model.query().update({'token_balance': newBalance.toString()}).where(function () {
+        this.where('token_address', tokenAddress);
+        this.where('token_id', tokenId);
+        this.where('token_holder', tokenHolder);
+      })
+
+      return this.parserResult(result)
+    }
+
     async findOwnedTokens(tokenAddress, tokenHolder) {
       const result = await this.model.query().where(function () {
         this.where('token_address', tokenAddress);
@@ -36,7 +97,14 @@ class TokenCacheRepository extends BaseRepository {
       return this.parserResult(result)
     }
 
-    async patchHolderByTokenAddressAndId(holder, tokenAddress, tokenId) {
+    async clearTokenCacheByTokenAddress(tokenAddress) {
+      const rowsDeleted = await this.model.query().delete().where(function () {
+        this.where('token_address', tokenAddress);
+      })
+      return rowsDeleted;
+    }
+
+    async patchHolderByTokenAddressAndIdERC721(holder, tokenAddress, tokenId) {
       await this.model.query().patch({token_holder: holder}).where(function () {
         this.where('token_address', tokenAddress);
         this.where('token_id', tokenId);
