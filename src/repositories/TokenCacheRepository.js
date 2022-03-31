@@ -90,8 +90,12 @@ class TokenCacheRepository extends BaseRepository {
 
     async findOwnedTokens(tokenAddress, tokenHolder) {
       const result = await this.model.query().where(function () {
-        this.where('token_address', tokenAddress);
-        this.where('token_holder', tokenHolder);
+        if(tokenAddress) {
+          this.where('token_address', tokenAddress);
+        }
+        if(tokenHolder) {
+          this.where('token_holder', tokenHolder);
+        }
       })
 
       return this.parserResult(result)
