@@ -185,6 +185,7 @@ class CollectableRepository extends BaseRepository {
             )
         })
         .withGraphFetched('[artist, user, tags, media, events, claim]')
+        .orderBy('starts_at', 'DESC')
 
         return this.parserResult(results);
     }
