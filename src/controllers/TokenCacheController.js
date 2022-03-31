@@ -11,11 +11,27 @@ class TokenCacheController extends Controller {
         this.sendResponse(res, data);
     }
 
-    async tokenCacheByHolder(req, res) {
+    async tokenCacheByTokenAndHolder(req, res) {
         const tokenAddress = req.params.tokenAddress;
         const holderAddress = req.params.holderAddress;
 
         const data = await TokenCacheRepository.setTransformer(TokenCacheOutputTransformer).findOwnedTokens(tokenAddress, holderAddress);
+
+        this.sendResponse(res, data);
+    }
+
+    async tokenCacheByHolder(req, res) {
+        const holderAddress = req.params.holderAddress;
+
+        const data = await TokenCacheRepository.setTransformer(TokenCacheOutputTransformer).findOwnedTokens(false, holderAddress);
+
+        this.sendResponse(res, data);
+    }
+
+    async tokenCacheByToken(req, res) {
+        const tokenAddress = req.params.tokenAddress;
+
+        const data = await TokenCacheRepository.setTransformer(TokenCacheOutputTransformer).findOwnedTokens(tokenAddress, false);
 
         this.sendResponse(res, data);
     }
