@@ -17,6 +17,7 @@ const NFTV1Abi = require("../abis/v1/NFTSale.json");
 const AuctionV1Abi = require("../abis/v1/EnglishAuction.json");
 const AuctionV2Abi = require("../abis/v2/EnglishAuction.json");
 const AuctionV3Abi = require("../abis/v3/auctionRunnerABI.json");
+const VrfV2Abi = require("../abis/v2/vrfV2.json");
 const SaleV3Abi = require("../abis/v3/saleRunnerABI.json");
 const ClaimAgainstERC721WithFeeMinimalABI = require("../abis/v2/ClaimAgainstERC721WithFeeMinimalABI.json");
 const MarketHandlersV3 = require("./../constants/MarketHandlers");
@@ -281,6 +282,10 @@ module.exports = {
                 event = 'ClaimedAgainstTokenId';
                 handler = ClaimedAgainstTokenIdEventHandler;
                 abi = ClaimAgainstERC721WithFeeMinimalABI;
+            } else if(collectable.vrf_version === 2) {
+                event = 'Buy';
+                handler = BuyEventHandlerV1;
+                abi = VrfV2Abi;
             } else {
                 switch (collectable.purchase_type) {
                     case SALE:
