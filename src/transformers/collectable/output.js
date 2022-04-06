@@ -79,6 +79,7 @@ class CollectableOutputTransformer extends BaseTransformer {
                 : [],
             is_vrf_drop: !!collectable.is_vrf_drop,
             is_claim_against_token_drop: !!collectable.is_claim_against_token_drop,
+            vrf_version: collectable.vrf_version,
         }
     }
 }
