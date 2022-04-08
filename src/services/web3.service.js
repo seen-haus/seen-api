@@ -2,6 +2,7 @@ const Web3 = require('web3');
 var Web3WsProvider = require('web3-providers-ws');
 const { INFURA_PROVIDER, START_BLOCK } = require("./../config");
 const AuctionStatesV3 = require('../constants/AuctionStatesV3');
+const { sleep } = require('../utils/MiscHelpers');
 
 class Web3Service {
     constructor(contractAddress, abi) {
@@ -17,20 +18,31 @@ class Web3Service {
         this.web3 = new Web3(provider);
     }
 
-    async findEvents(event, raw = true, filter = false, overrideStartBlock = false, overrideEndBlock = false) {
-        let contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
-        let events = await contract.getPastEvents(event, {
-            fromBlock: overrideStartBlock ? overrideStartBlock : START_BLOCK,
-            toBlock: overrideEndBlock ? overrideEndBlock : 'latest',
-            ...(filter && {filter: filter}),
-        }).catch(e => {
-            console.log(e)
-        });
-        return raw
-            ? events
-            : events.map(e => {
-                return e.returnValues
-            })
+    async findEvents(event, raw = true, filter = false, overrideStartBlock = false, overrideEndBlock = false, retryCount = 0) {
+        try {
+            let contract = new this.web3.eth.Contract(this.abi, this.contractAddress);
+            let events = await contract.getPastEvents(event, {
+                fromBlock: overrideStartBlock ? overrideStartBlock : START_BLOCK,
+                toBlock: overrideEndBlock ? overrideEndBlock : 'latest',
+                ...(filter && {filter: filter}),
+            }).catch(e => {
+                console.log(e)
+            });
+            return raw
+                ? events
+                : events.map(e => {
+                    return e.returnValues
+                })
+        } catch (e) {
+            retryCount++;
+            if(retryCount <= this.retryLimit) {
+                await sleep(1000);
+                console.log(`findEvents('${event}', '${raw}', '${filter}', '${overrideStartBlock}', '${overrideEndBlock}', '${retryCount}') failed, retrying...`);
+                return findEvents(event, raw, filter, overrideStartBlock, overrideEndBlock, retryCount);
+            } else {
+                throw new Error(`findEvents('${event}', '${raw}', '${filter}', '${overrideStartBlock}', '${overrideEndBlock}', '${retryCount}') failed, retries exhausted`);
+            }
+        }
     }
 
     async isSoldOut() {
@@ -150,6 +162,7 @@ class Web3Service {
         } catch (e) {
             retryCount++;
             if(retryCount <= this.retryLimit) {
+                await sleep(1000);
                 console.log(`balanceOf('${wallet_address}', '${nft_token_id}', '${blockNumber}', '${retryCount}') failed, retrying`);
                 return balanceOf(wallet_address, nft_token_id, blockNumber, retryCount = 0);
             } else {
@@ -180,6 +193,7 @@ class Web3Service {
         }  catch (e) {
             retryCount++;
             if(retryCount <= this.retryLimit) {
+                await sleep(1000);
                 console.log(`uri(${tokenId}, ${blockNumber}, ${retryCount}) failed, retrying`);
                 return await uri(tokenId, blockNumber, retryCount);
             } else {
@@ -195,6 +209,7 @@ class Web3Service {
         }  catch (e) {
             retryCount++;
             if(retryCount <= this.retryLimit) {
+                await sleep(1000);
                 console.log(`tokenURI(${tokenId}, ${blockNumber}, ${retryCount}) failed, retrying`);
                 return await tokenURI(tokenId, blockNumber, retryCount);
             } else {
@@ -230,6 +245,7 @@ class Web3Service {
         } catch (e) {
             retryCount++;
             if(retryCount <= this.retryLimit) {
+                await sleep(1000);
                 console.log(`ownerOf(${tokenId}, ${blockNumber}, ${retryCount}) failed, retrying`);
                 return await ownerOf(tokenId, blockNumber, retryCount);
             } else {
@@ -250,6 +266,7 @@ class Web3Service {
         } catch (e) {
             retryCount++;
             if(retryCount <= this.retryLimit) {
+                await sleep(1000);
                 console.log(`closingTimeUnix(${blockNumber}, ${retryCount}) failed, retrying`);
                 return await closingTimeUnix(tokenId, blockNumber, retryCount);
             } else {
