@@ -19,6 +19,7 @@ class CollectableWinnerTransformer extends BaseTransformer {
             created_at: collectableWinner.created_at,
             updated_at: collectableWinner.updated_at,
             message: collectableWinner.message,
+            cat_contract_ref: collectableWinner.cat_contract_ref,
         }
     }
 }
