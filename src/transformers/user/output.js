@@ -12,6 +12,7 @@ class UserOutputTransformer extends BaseTransformer {
             username: user.username,
             socials: typeof user.socials == 'string' ? JSON.parse(user.socials) : user.socials,
             wallet: user.wallet,
+            collectables: user.collectables,
         }
     }
 }

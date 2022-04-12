@@ -1,4 +1,5 @@
 const {UserModel} = require("./../models");
+const Pagination = require("./../utils/Pagination");
 const BaseRepository = require("./BaseRepository");
 const {raw} = require('objection');
 const Knex = require("knex");
@@ -46,6 +47,14 @@ class UserRepository extends BaseRepository {
         }
 
         return result.email;
+    }
+
+    async paginateCreators(perPage = 10, page = 1) {
+        const results = await this.model.query().whereExists(
+            this.model.relatedQuery('collectables')
+        ).page(page - 1, perPage)
+
+        return this.parserResult(new Pagination(results, perPage, page))
     }
 
 }
