@@ -28,9 +28,6 @@ class ArtistController extends Controller {
         jointData.meta.pagination.currentPage = pagination.page;
         jointData.meta.pagination.totalPages = userCreatorData.meta.pagination.totalPages > data.meta.pagination.totalPages ? userCreatorData.meta.pagination.totalPages : data.meta.pagination.totalPages;
 
-        console.log({data, userCreatorData})
-        console.log(data.meta.pagination, userCreatorData.meta.pagination)
-
         this.sendResponse(res, jointData);
     }
 
