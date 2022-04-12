@@ -1,6 +1,7 @@
 const Controller = require('./Controller');
-const {ArtistRepository} = require("./../repositories");
+const {ArtistRepository, UserRepository} = require("./../repositories");
 const ArtistOutputTransformer = require("../transformers/artist/output");
+const UserOutputTransformer = require("../transformers/user/output");
 const { validationResult } = require("express-validator");
 const { sendSelfMintingAccessRequestReceivedNotification } = require('../services/sendgrid.service.js');
 const Web3Helper = require("./../utils/Web3Helper");
@@ -16,7 +17,18 @@ class ArtistController extends Controller {
             .setTransformer(ArtistOutputTransformer)
             .paginate(pagination.perPage, pagination.page, {includeIsHiddenFromArtistList});
 
-        this.sendResponse(res, data);
+        const userCreatorData = await UserRepository.setTransformer(UserOutputTransformer).paginateCreators(pagination.perPage, pagination.page);
+
+        // Shim Artists and Users together
+        let jointData = { paginatedData: [], meta: { pagination: {} } };
+        jointData.paginatedData = [...userCreatorData.paginatedData, ...data.paginatedData];
+        jointData.meta.pagination.total = userCreatorData.meta.pagination.total + data.meta.pagination.total;
+        jointData.meta.pagination.count = userCreatorData.meta.pagination.count + data.meta.pagination.count;
+        jointData.meta.pagination.perPage = pagination.perPage;
+        jointData.meta.pagination.currentPage = pagination.page;
+        jointData.meta.pagination.totalPages = userCreatorData.meta.pagination.totalPages > data.meta.pagination.totalPages ? userCreatorData.meta.pagination.totalPages : data.meta.pagination.totalPages;
+
+        this.sendResponse(res, jointData);
     }
 
     async show(req, res) {
