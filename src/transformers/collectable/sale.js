@@ -46,6 +46,7 @@ class CollectableSaleTransformer extends BaseTransformer {
             released: collectable.released,
             rights: collectable.rights,
             attributes: collectable.attributes,
+            collection_name: collectable.collection_name,
         }
     }
 }

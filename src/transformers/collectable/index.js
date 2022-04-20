@@ -39,6 +39,7 @@ class CollectableTransformer extends BaseTransformer {
             is_reserve_price_auction: !!collectable.is_reserve_price_auction,
             auto_generate_claim_page: !!collectable.auto_generate_claim_page,
             is_open_edition: !!collectable.is_open_edition,
+            collection_name: collectable.collection_name,
         }
     }
 }
