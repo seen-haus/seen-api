@@ -206,6 +206,17 @@ const run = async() => {
 
             console.log('determined holder balances');
 
+            let tokenIdToConsignmentId = {};
+            if(enabledTracker.is_ticketer) {
+              // Associate consignment ID with each token ID
+              // event TicketIssued(uint256 ticketId, uint256 indexed consignmentId, address indexed buyer, uint256 amount);
+              let eventsTicketIssued = await tokenContract.findEvents('TicketIssued', true, false, false, blockNumber);
+              for(let eventTicketIssued of eventsTicketIssued) {
+                let { consignmentId, ticketId } = eventTicketIssued.returnValues;
+                tokenIdToConsignmentId[ticketId] = consignmentId;
+              }
+            }
+
             // console.log({holders, tokenIds})
 
             // TODO: Separate Metadata loading into a separate script
@@ -307,6 +318,9 @@ const run = async() => {
                       token_id: tokenId,
                       token_holder: holder,
                       token_balance: tokenBalance,
+                      ...(enabledTracker.is_ticketer && {
+                        consignment_id: tokenIdToConsignmentId[tokenId]
+                      })
                     });
                   }
                 }

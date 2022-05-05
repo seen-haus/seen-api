@@ -39,7 +39,7 @@ class TokenCacheRepository extends BaseRepository {
       return this.parserResult(result)
     }
 
-    async increaseTokenHolderBalance(tokenHolder, tokenAddress, tokenId, amount) {
+    async increaseTokenHolderBalance(tokenHolder, tokenAddress, tokenId, amount, consignmentId = null) {
       let holderRecordExists = await this.findByTokenAddressAndIdAndHolder(tokenAddress, tokenId, tokenHolder);
 
       let result;
@@ -65,6 +65,9 @@ class TokenCacheRepository extends BaseRepository {
           token_id: tokenId,
           token_holder: tokenHolder,
           token_balance: amount.toString(),
+          ...(consignmentId !== null && {
+            consignment_id: consignmentId
+          })
         });
       }
 
