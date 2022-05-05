@@ -51,7 +51,7 @@ const run = async() => {
               const currentRecord = TokenCacheRepository.findByTokenAddressAndId(tokenAddress, tokenId);
               if(currentRecord) {
                 // Reassign ownership of token ID from `from` to `to`
-                console.log(`Reassigning ownership of ${tokenId} of ${tokenAddress} from ${from} to ${to}`);
+                console.log(`ERC721: Reassigning ownership of ${tokenId} of ${tokenAddress} from ${from} to ${to}`);
                 await TokenCacheRepository.patchHolderByTokenAddressAndIdERC721(to, tokenAddress, tokenId);
               } else {
                 let tokenURI = await tokenContract.tokenURI(tokenId);
@@ -59,7 +59,7 @@ const run = async() => {
                 let metadataResponse = await axios.get(tokenURI);
                 if(metadataResponse.data) {
                   // Run a create for a new record
-                  console.log(`Assigning ownership of ${tokenId} of ${tokenAddress} to ${to}`);
+                  console.log(`ERC721: Assigning ownership of ${tokenId} of ${tokenAddress} to ${to}`);
                   await TokenCacheRepository.create({
                     token_address: tokenAddress,
                     token_id: tokenId,
@@ -85,6 +85,18 @@ const run = async() => {
             // event TransferBatch(address indexed _operator, address indexed _from, address indexed _to, uint256[] _ids, uint256[] _values);
             let eventsTransferBatch = await tokenContract.findEvents('TransferBatch', true, false, lastCheckedBlockNumber, blockNumber);
             console.log('got transfer events batch')
+
+            let tokenIdToConsignmentId = {};
+            if(enabledTracker.is_ticketer) {
+              // Associate consignment ID with each token ID
+              // event TicketIssued(uint256 ticketId, uint256 indexed consignmentId, address indexed buyer, uint256 amount);
+              let eventsTicketIssued = await tokenContract.findEvents('TicketIssued', true, false, lastCheckedBlockNumber, blockNumber);
+              console.log('got ticket issued events')
+              for(let eventTicketIssued of eventsTicketIssued) {
+                let { consignmentId, ticketId } = eventTicketIssued.returnValues;
+                tokenIdToConsignmentId[ticketId] = consignmentId;
+              }
+            }
 
             // Sorts by blockNumber, then by transactionIndex within each block, then by logIndex within each transaction on each block
             let mergedAndSortedEvents = [...eventsTransferSingle, ...eventsTransferBatch].sort((a, b) => {
@@ -115,6 +127,7 @@ const run = async() => {
 
             for(let event of mergedAndSortedEvents) {
               let { from, to, id, value, ids, values } = event.returnValues;
+              let useConsignmentId = tokenIdToConsignmentId[id] ? tokenIdToConsignmentId[id] : null;
               value = new BigNumber(value);
 
               if(from === '0x0000000000000000000000000000000000000000') {
@@ -123,14 +136,14 @@ const run = async() => {
                   // event TransferSingle
                   // increase value of `to`
                   // increaseTokenHolderBalance method creates record if there isn't an existing balance to modify
-                  await TokenCacheRepository.increaseTokenHolderBalance(to, tokenAddress, id, value.toString());
+                  await TokenCacheRepository.increaseTokenHolderBalance(to, tokenAddress, id, value.toString(), useConsignmentId);
                 } else if(ids && values) {
                   // event TransferBatch
                   let valueIndex = 0;
                   for(let singleId of ids) {
                     let singleValue = new BigNumber(values[valueIndex]);
                     // rewrite to DB method
-                    await TokenCacheRepository.increaseTokenHolderBalance(to, tokenAddress, singleId, singleValue.toString());
+                    await TokenCacheRepository.increaseTokenHolderBalance(to, tokenAddress, singleId, singleValue.toString(), useConsignmentId);
                     valueIndex++;
                   }
                 }

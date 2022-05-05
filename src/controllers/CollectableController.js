@@ -10,6 +10,7 @@ const {
     IPFSMediaRepository,
     TagRepository,
     TagToCollectableRepository,
+    ClaimRepository,
 } = require("./../repositories");
 const {
     CollectableSaleTangibleTransformer,
@@ -22,6 +23,7 @@ const {
 } = require("../transformers/");
 const {body, validationResult} = require('express-validator');
 const {SALE, AUCTION} = require("../constants/PurchaseTypes")
+const { TANGIBLE_NFT } = require("../constants/Collectables");
 const { PRIMARY, SECONDARY } = require("../constants/MarketTypes");
 const Web3Helper = require("./../utils/Web3Helper");
 const Web3Service = require("../services/web3.service");
@@ -582,6 +584,15 @@ class CollectableController extends Controller {
                         .findById(collectable.id);
 
                     console.log({createdCollectable})
+
+                    // auto generate claim pages for physicals
+                    if(tangibility === TANGIBLE_NFT) {
+                        await ClaimRepository.create({
+                            collectable_id: collectable.id,
+                            is_active: 1,
+                            version: 3,
+                        });
+                    }
 
                     this.sendResponse(res, createdCollectable);
                 } else if (secondaryMarketListing) {
