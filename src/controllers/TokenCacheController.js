@@ -7,7 +7,7 @@ const {
 } = require("../repositories");
 const {
     handleCheckpointSync1155,
-} = require("../workers/helpers/CheckpointSyncHelpers");
+} = require("../workers/helpers/TokenHolderCheckpointSyncHelpers");
 const TokenCacheOutputTransformer = require("../transformers/token_cache/output");
 
 class TokenCacheController extends Controller {
@@ -63,13 +63,12 @@ class TokenCacheController extends Controller {
             consignment_id
         } = req.body;
 
-        // Check if token_address is part of (enabled AND unlocked) token trackers
         let trackerRecord = await TokenHolderBlockTrackerRepository.getTicketTrackerByTokenAddress(token_address);
 
         let data = [];
 
         if(trackerRecord && trackerRecord.token_address) {
-            if (trackerRecord.token_standard === 'ERC1155' && trackerRecord.is_busy_lock) {
+            if (trackerRecord.token_standard === 'ERC1155') {
                 await handleCheckpointSync1155(trackerRecord);
             }
             data = await TokenCacheRepository.setTransformer(TokenCacheOutputTransformer).findOwnedTokensWithConsignmentId(token_address, holder_address, consignment_id);

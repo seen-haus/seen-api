@@ -78,8 +78,6 @@ const handleCheckpointSync1155 = async (enabledTracker) => {
   // Check current lock status
   let currentTrackerState = await TokenHolderBlockTrackerRepository.getTrackerByTokenAddress(tokenAddress);
 
-  console.log({currentTrackerState})
-
   if(!currentTrackerState.is_busy_lock) {
     // Lock the record
     await TokenHolderBlockTrackerRepository.lockTrackerByTokenAddress(tokenAddress);
