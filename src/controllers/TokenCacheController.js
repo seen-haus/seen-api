@@ -1,5 +1,13 @@
+const { validationResult } = require("express-validator");
+
 const Controller = require('./Controller');
-const {TokenCacheRepository} = require("../repositories");
+const {
+    TokenCacheRepository,
+    TokenHolderBlockTrackerRepository,
+} = require("../repositories");
+const {
+    handleCheckpointSync1155,
+} = require("../workers/helpers/CheckpointSyncHelpers");
 const TokenCacheOutputTransformer = require("../transformers/token_cache/output");
 
 class TokenCacheController extends Controller {
@@ -34,6 +42,41 @@ class TokenCacheController extends Controller {
         const data = await TokenCacheRepository.setTransformer(TokenCacheOutputTransformer).findOwnedTokens(tokenAddress, false);
 
         this.sendResponse(res, data);
+    }
+
+    async tokenCacheTicketSyncByTokenAndHolder(req, res) {
+
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return this.sendResponse(
+                res,
+                { errors: errors.array() },
+                "Validation error",
+                422
+            );
+        }
+
+        const {
+            token_address,
+            holder_address,
+            consignment_id
+        } = req.body;
+
+        // Check if token_address is part of (enabled AND unlocked) token trackers
+        let trackerRecord = await TokenHolderBlockTrackerRepository.getTicketTrackerByTokenAddress(token_address);
+
+        let data = [];
+
+        if(trackerRecord && trackerRecord.token_address) {
+            if (trackerRecord.token_standard === 'ERC1155' && trackerRecord.is_busy_lock) {
+                await handleCheckpointSync1155(trackerRecord);
+            }
+            data = await TokenCacheRepository.setTransformer(TokenCacheOutputTransformer).findOwnedTokensWithConsignmentId(token_address, holder_address, consignment_id);
+        }
+
+        this.sendResponse(res, data);
+
     }
 
 }

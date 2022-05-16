@@ -104,6 +104,20 @@ class TokenCacheRepository extends BaseRepository {
       return this.parserResult(result)
     }
 
+    async findOwnedTokensWithConsignmentId(tokenAddress, tokenHolder, consignmentId) {
+      const result = await this.model.query().where(function () {
+        if(tokenAddress) {
+          this.where('token_address', tokenAddress);
+        }
+        if(tokenHolder) {
+          this.where('token_holder', tokenHolder);
+        }
+        this.where('consignment_id', consignmentId);
+      })
+
+      return this.parserResult(result)
+    }
+
     async clearTokenCacheByTokenAddress(tokenAddress) {
       const rowsDeleted = await this.model.query().delete().where(function () {
         this.where('token_address', tokenAddress);
