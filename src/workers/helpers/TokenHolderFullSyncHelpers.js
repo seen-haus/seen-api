@@ -212,13 +212,21 @@ const handleFullSync1155 = async (enabledTracker) => {
       console.log('determined holder balances');
 
       let tokenIdToConsignmentId = {};
+      let tokenIdToBurntByAddress = {};
       if(enabledTracker.is_ticketer) {
         // Associate consignment ID with each token ID
         // event TicketIssued(uint256 ticketId, uint256 indexed consignmentId, address indexed buyer, uint256 amount);
         let eventsTicketIssued = await tokenContract.findEvents('TicketIssued', true, false, false, blockNumber);
+        console.log('got ticket issued events')
         for(let eventTicketIssued of eventsTicketIssued) {
           let { consignmentId, ticketId } = eventTicketIssued.returnValues;
           tokenIdToConsignmentId[ticketId] = consignmentId;
+        }
+        let eventsTicketClaimed = await tokenContract.findEvents('TicketClaimed', true, false, false, blockNumber);
+        console.log('got ticket claimed events')
+        for(let eventTicketClaimed of eventsTicketClaimed) {
+          let { ticketId, claimant } = eventTicketClaimed.returnValues;
+          tokenIdToBurntByAddress[ticketId] = claimant;
         }
       }
 
@@ -325,6 +333,9 @@ const handleFullSync1155 = async (enabledTracker) => {
                 token_balance: tokenBalance,
                 ...(enabledTracker.is_ticketer && {
                   consignment_id: tokenIdToConsignmentId[tokenId]
+                }),
+                ...(enabledTracker.is_ticketer && tokenIdToBurntByAddress[tokenId] && {
+                  burnt_by_address: tokenIdToBurntByAddress[tokenId]
                 })
               });
             }

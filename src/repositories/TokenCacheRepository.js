@@ -91,6 +91,25 @@ class TokenCacheRepository extends BaseRepository {
       return this.parserResult(result)
     }
 
+  async updateTicketTokenInfo(tokenAddress, tokenId, consignmentId = null, burntByAddress = null) {
+      let currentRecord = await this.findByTokenAddressAndId(tokenAddress, tokenId);
+
+      console.log(`Updating token ${tokenId} ticket information of ticket token contract ${tokenAddress}: consignment_id = ${currentRecord[0].token_balance} AND burnt_by_address = ${burntByAddress}`)
+
+      // update ticket token info
+      let result = await this.model.query().update({
+        ...(consignmentId !== null && {
+          consignment_id: consignmentId
+        }),
+        ...(burntByAddress !== null && {
+          burnt_by_address: burntByAddress
+        })
+      }).where(function () {
+        this.where('token_address', tokenAddress);
+        this.where('token_id', tokenId);
+      })
+    }
+
     async findOwnedTokens(tokenAddress, tokenHolder) {
       const result = await this.model.query().where(function () {
         if(tokenAddress) {

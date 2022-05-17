@@ -96,6 +96,7 @@ const handleCheckpointSync1155 = async (enabledTracker) => {
       console.log('got transfer events batch')
 
       let tokenIdToConsignmentId = {};
+      let tokenIdToBurntByAddress = {};
       if(enabledTracker.is_ticketer) {
         // Associate consignment ID with each token ID
         // event TicketIssued(uint256 ticketId, uint256 indexed consignmentId, address indexed buyer, uint256 amount);
@@ -104,6 +105,12 @@ const handleCheckpointSync1155 = async (enabledTracker) => {
         for(let eventTicketIssued of eventsTicketIssued) {
           let { consignmentId, ticketId } = eventTicketIssued.returnValues;
           tokenIdToConsignmentId[ticketId] = consignmentId;
+        }
+        let eventsTicketClaimed = await tokenContract.findEvents('TicketClaimed', true, false, lastCheckedBlockNumber, blockNumber);
+        console.log('got ticket claimed events')
+        for(let eventTicketClaimed of eventsTicketClaimed) {
+          let { ticketId, claimant } = eventTicketClaimed.returnValues;
+          tokenIdToBurntByAddress[ticketId] = claimant;
         }
       }
 
@@ -136,7 +143,6 @@ const handleCheckpointSync1155 = async (enabledTracker) => {
 
       for(let event of mergedAndSortedEvents) {
         let { from, to, id, value, ids, values } = event.returnValues;
-        let useConsignmentId = tokenIdToConsignmentId[id] ? tokenIdToConsignmentId[id] : null;
         value = new BigNumber(value);
 
         if(from === '0x0000000000000000000000000000000000000000') {
@@ -145,14 +151,14 @@ const handleCheckpointSync1155 = async (enabledTracker) => {
             // event TransferSingle
             // increase value of `to`
             // increaseTokenHolderBalance method creates record if there isn't an existing balance to modify
-            await TokenCacheRepository.increaseTokenHolderBalance(to, tokenAddress, id, value.toString(), useConsignmentId);
+            await TokenCacheRepository.increaseTokenHolderBalance(to, tokenAddress, id, value.toString());
           } else if(ids && values) {
             // event TransferBatch
             let valueIndex = 0;
             for(let singleId of ids) {
               let singleValue = new BigNumber(values[valueIndex]);
               // rewrite to DB method
-              await TokenCacheRepository.increaseTokenHolderBalance(to, tokenAddress, singleId, singleValue.toString(), useConsignmentId);
+              await TokenCacheRepository.increaseTokenHolderBalance(to, tokenAddress, singleId, singleValue.toString());
               valueIndex++;
             }
           }
@@ -175,6 +181,24 @@ const handleCheckpointSync1155 = async (enabledTracker) => {
               await TokenCacheRepository.increaseTokenHolderBalance(to, tokenAddress, singleId, singleValue.toString());
               valueIndex++;
             }
+          }
+        }
+        // adjust ticket token data if relevant
+        if(id && value.isGreaterThan(new BigNumber(0))) {
+          let useConsignmentId = tokenIdToConsignmentId[id] ? tokenIdToConsignmentId[id] : null;
+          let useBurntByAddress = tokenIdToBurntByAddress[id] ? tokenIdToBurntByAddress[id] : null;
+          if(useConsignmentId || useBurntByAddress) {
+            await TokenCacheRepository.updateTicketTokenInfo(tokenAddress, singleId, useConsignmentId, useBurntByAddress)
+          }
+        } else if(ids && values) {
+          let valueIndex = 0;
+          for(let singleId of ids) {
+            let useConsignmentId = tokenIdToConsignmentId[singleId] ? tokenIdToConsignmentId[singleId] : null;
+            let useBurntByAddress = tokenIdToBurntByAddress[singleId] ? tokenIdToBurntByAddress[singleId] : null;
+            if(useConsignmentId || useBurntByAddress) {
+              await TokenCacheRepository.updateTicketTokenInfo(tokenAddress, singleId, useConsignmentId, useBurntByAddress)
+            }
+            valueIndex++;
           }
         }
       }
