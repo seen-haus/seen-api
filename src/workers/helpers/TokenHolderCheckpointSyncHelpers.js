@@ -9,7 +9,8 @@ const BigNumber = require('bignumber.js');
 
 const {
   TokenHolderBlockTrackerRepository,
-  TokenCacheRepository
+  TokenCacheRepository,
+  TicketCacheRepository,
 } = require("../../repositories/index");
 
 const Web3Service = require('../../services/web3.service');
@@ -95,8 +96,6 @@ const handleCheckpointSync1155 = async (enabledTracker) => {
       let eventsTransferBatch = await tokenContract.findEvents('TransferBatch', true, false, lastCheckedBlockNumber, blockNumber);
       console.log('got transfer events batch')
 
-      let tokenIdToConsignmentId = {};
-      let tokenIdToBurntByAddress = {};
       if(enabledTracker.is_ticketer) {
         // Associate consignment ID with each token ID
         // event TicketIssued(uint256 ticketId, uint256 indexed consignmentId, address indexed buyer, uint256 amount);
@@ -104,13 +103,17 @@ const handleCheckpointSync1155 = async (enabledTracker) => {
         console.log('got ticket issued events')
         for(let eventTicketIssued of eventsTicketIssued) {
           let { consignmentId, ticketId } = eventTicketIssued.returnValues;
-          tokenIdToConsignmentId[ticketId] = consignmentId;
+          await TicketCacheRepository.create({
+            token_address: tokenAddress,
+            token_id: ticketId,
+            consignment_id: consignmentId
+          })
         }
         let eventsTicketClaimed = await tokenContract.findEvents('TicketClaimed', true, false, lastCheckedBlockNumber, blockNumber);
         console.log('got ticket claimed events')
         for(let eventTicketClaimed of eventsTicketClaimed) {
           let { ticketId, claimant } = eventTicketClaimed.returnValues;
-          tokenIdToBurntByAddress[ticketId] = claimant;
+          await TicketCacheRepository.updateTicketTokenInfo(tokenAddress, ticketId, null, claimant);
         }
       }
 
@@ -184,21 +187,24 @@ const handleCheckpointSync1155 = async (enabledTracker) => {
           }
         }
         // adjust ticket token data if relevant
-        if(id && value.isGreaterThan(new BigNumber(0))) {
-          let useConsignmentId = tokenIdToConsignmentId[id] ? tokenIdToConsignmentId[id] : null;
-          let useBurntByAddress = tokenIdToBurntByAddress[id] ? tokenIdToBurntByAddress[id] : null;
-          if(useConsignmentId || useBurntByAddress) {
-            await TokenCacheRepository.updateTicketTokenInfo(tokenAddress, singleId, useConsignmentId, useBurntByAddress)
-          }
-        } else if(ids && values) {
-          let valueIndex = 0;
-          for(let singleId of ids) {
-            let useConsignmentId = tokenIdToConsignmentId[singleId] ? tokenIdToConsignmentId[singleId] : null;
-            let useBurntByAddress = tokenIdToBurntByAddress[singleId] ? tokenIdToBurntByAddress[singleId] : null;
-            if(useConsignmentId || useBurntByAddress) {
-              await TokenCacheRepository.updateTicketTokenInfo(tokenAddress, singleId, useConsignmentId, useBurntByAddress)
+        if(enabledTracker.is_ticketer) {
+          if(id && value.isGreaterThan(new BigNumber(0))) {
+            // Get consignment ID associated with tokenId
+            let ticket = await TicketCacheRepository.findByTokenAddressAndId(tokenAddress, id);
+            let useConsignmentId = ticket.consignment_id !== null ? ticket.consignment_id : null;
+            if(useConsignmentId !== null) {
+              await TokenCacheRepository.updateTicketTokenInfo(tokenAddress, id, useConsignmentId)
             }
-            valueIndex++;
+          } else if(ids && values) {
+            let valueIndex = 0;
+            for(let singleId of ids) {
+              let ticket = await TicketCacheRepository.findByTokenAddressAndId(tokenAddress, singleId);
+              let useConsignmentId = ticket.consignment_id !== null ? ticket.consignment_id : null;
+              if(useConsignmentId !== null) {
+                await TokenCacheRepository.updateTicketTokenInfo(tokenAddress, singleId, useConsignmentId)
+              }
+              valueIndex++;
+            }
           }
         }
       }

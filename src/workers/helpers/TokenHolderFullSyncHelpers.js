@@ -9,7 +9,8 @@ const BigNumber = require('bignumber.js');
 
 const {
   TokenHolderBlockTrackerRepository,
-  TokenCacheRepository
+  TokenCacheRepository,
+  TicketCacheRepository,
 } = require("../../repositories/index");
 
 const Web3Service = require('../../services/web3.service');
@@ -334,10 +335,17 @@ const handleFullSync1155 = async (enabledTracker) => {
                 ...(enabledTracker.is_ticketer && {
                   consignment_id: tokenIdToConsignmentId[tokenId]
                 }),
-                ...(enabledTracker.is_ticketer && tokenIdToBurntByAddress[tokenId] && {
-                  burnt_by_address: tokenIdToBurntByAddress[tokenId]
-                })
               });
+              if(enabledTracker.is_ticketer) {
+                await TicketCacheRepository.create({
+                  token_address: tokenAddress,
+                  token_id: tokenId,
+                  consignment_id: tokenIdToConsignmentId[tokenId],
+                  ...(tokenIdToBurntByAddress[tokenId] && {
+                    burnt_by_address: tokenIdToBurntByAddress[tokenId]
+                  })
+                });
+              }
             }
           }
         }

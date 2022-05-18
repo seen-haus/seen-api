@@ -78,6 +78,40 @@ class TokenCacheController extends Controller {
 
     }
 
+    async tokenCacheTicketClaimantSyncByTokenAndClaimant(req, res) {
+
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return this.sendResponse(
+                res,
+                { errors: errors.array() },
+                "Validation error",
+                422
+            );
+        }
+
+        const {
+            token_address,
+            claimant_address,
+            consignment_id
+        } = req.body;
+
+        let trackerRecord = await TokenHolderBlockTrackerRepository.getTicketTrackerByTokenAddress(token_address);
+
+        let data = [];
+
+        if(trackerRecord && trackerRecord.token_address) {
+            if (trackerRecord.token_standard === 'ERC1155') {
+                await handleCheckpointSync1155(trackerRecord);
+            }
+            data = await TokenCacheRepository.setTransformer(TokenCacheOutputTransformer).findBurntTicketTokensWithConsignmentId(token_address, claimant_address, consignment_id);
+        }
+
+        this.sendResponse(res, data);
+
+    }
+
 }
 
 module.exports = TokenCacheController;
