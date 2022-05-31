@@ -2,21 +2,20 @@ const { validationResult } = require("express-validator");
 
 const Controller = require('./Controller');
 const {
-    TokenCacheRepository,
     TicketCacheRepository,
     TokenHolderBlockTrackerRepository,
 } = require("../repositories");
 const {
     handleCheckpointSync1155,
 } = require("../workers/helpers/TokenHolderCheckpointSyncHelpers");
-const TokenCacheOutputTransformer = require("../transformers/token_cache/output");
 const TicketCacheOutputTransformer = require("../transformers/ticket_cache/output");
+const TicketCacheMetadataOutputTransformer = require("../transformers/ticket_cache/metadata");
 
-class TokenCacheController extends Controller {
+class TicketCacheController extends Controller {
 
     async index(req, res) {
         const pagination = this.extractPagination(req)
-        const data = await TokenCacheRepository.setTransformer(TokenCacheOutputTransformer).all();
+        const data = await TicketCacheRepository.setTransformer(TicketCacheOutputTransformer).all();
 
         this.sendResponse(res, data);
     }
@@ -25,7 +24,7 @@ class TokenCacheController extends Controller {
         const tokenAddress = req.params.tokenAddress;
         const holderAddress = req.params.holderAddress;
 
-        const data = await TokenCacheRepository.setTransformer(TokenCacheOutputTransformer).findOwnedTokens(tokenAddress, holderAddress);
+        const data = await TicketCacheRepository.setTransformer(TicketCacheOutputTransformer).findOwnedTokens(tokenAddress, holderAddress);
 
         this.sendResponse(res, data);
     }
@@ -33,20 +32,20 @@ class TokenCacheController extends Controller {
     async tokenCacheByHolder(req, res) {
         const holderAddress = req.params.holderAddress;
 
-        const data = await TokenCacheRepository.setTransformer(TokenCacheOutputTransformer).findOwnedTokens(false, holderAddress);
+        const data = await TicketCacheRepository.setTransformer(TicketCacheOutputTransformer).findOwnedTokens(false, holderAddress);
 
         this.sendResponse(res, data);
     }
 
-    async tokenCacheByToken(req, res) {
+    async ticketCacheByToken(req, res) {
         const tokenAddress = req.params.tokenAddress;
 
-        const data = await TokenCacheRepository.setTransformer(TokenCacheOutputTransformer).findOwnedTokens(tokenAddress, false);
+        const data = await TicketCacheRepository.setTransformer(TicketCacheOutputTransformer).findOwnedTokens(tokenAddress, false);
 
         this.sendResponse(res, data);
     }
 
-    async tokenCacheTicketSyncByTokenAndHolder(req, res) {
+    async ticketCacheClaimantSyncByTokenAddressAndClaimant(req, res) {
 
         const errors = validationResult(req);
 
@@ -61,29 +60,35 @@ class TokenCacheController extends Controller {
 
         const {
             token_address,
-            holder_or_claimant_address,
+            claimant_address,
             consignment_id
         } = req.body;
 
         let trackerRecord = await TokenHolderBlockTrackerRepository.getTicketTrackerByTokenAddress(token_address);
 
-        let data = {};
+        let data = [];
 
         if(trackerRecord && trackerRecord.token_address) {
             if (trackerRecord.token_standard === 'ERC1155') {
                 await handleCheckpointSync1155(trackerRecord);
             }
-            let dataHolder = await TokenCacheRepository.setTransformer(TokenCacheOutputTransformer).findOwnedTokensWithConsignmentId(token_address, holder_or_claimant_address, consignment_id);
-            data.holder = dataHolder;
-            
-            let dataClaimant = await TicketCacheRepository.setTransformer(TicketCacheOutputTransformer).findBurntTicketTokensWithConsignmentId(token_address, holder_or_claimant_address, consignment_id);
-            data.claimant = dataClaimant;
+            data = await TicketCacheRepository.setTransformer(TicketCacheOutputTransformer).findBurntTicketTokensWithConsignmentId(token_address, claimant_address, consignment_id);
         }
 
         this.sendResponse(res, data);
 
     }
 
+    async ticketCacheGetTokenMetadata(req, res) {
+
+      const itemsTicketerTokenId = req.params.itemsTicketerTokenId;
+
+      const data = await TicketCacheRepository.setTransformer(TicketCacheMetadataOutputTransformer).findTicketMetadata(itemsTicketerTokenId);
+
+      this.sendRawResponse(res, data);
+
+    }
+
 }
 
-module.exports = TokenCacheController;
+module.exports = TicketCacheController;

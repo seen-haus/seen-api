@@ -60,7 +60,7 @@ class SecondaryMarketListingRepository extends BaseRepository {
                     this.where('is_closed', 1);
                 }
             })
-            .withGraphFetched('[user, collectable.[tags, media], events]')
+            .withGraphFetched('[user, collectable.[tags, media, additionalMedia], events]')
             .orderBy('starts_at', 'DESC')
             .page(page - 1, perPage)
 
@@ -81,7 +81,7 @@ class SecondaryMarketListingRepository extends BaseRepository {
 
     async findBySlug(contractAddress) {
         const result = await this.model.query()
-            .withGraphFetched('[user.[collectables], collectable.[tags, media], events]')
+            .withGraphFetched('[user.[collectables], collectable.[tags, media, additionalMedia], events]')
             .where('slug', '=', contractAddress)
             .first();
         if (!result) {
@@ -92,7 +92,7 @@ class SecondaryMarketListingRepository extends BaseRepository {
 
     async findById(id) {
         const result = await this.model.query()
-            .withGraphFetched('[user.[collectables], collectable.[tags, media], events]')
+            .withGraphFetched('[user.[collectables], collectable.[tags, media, additionalMedia], events]')
             .where('id', '=', id)
             .first();
         if (!result) {
@@ -103,7 +103,7 @@ class SecondaryMarketListingRepository extends BaseRepository {
 
     async findByConsignmentId(id) {
         const result = await this.model.query()
-            .withGraphFetched('[user.[collectables], collectable.[tags, media], events]')
+            .withGraphFetched('[user.[collectables], collectable.[tags, media, additionalMedia], events]')
             .where('consignment_id', '=', id)
             .first();
         if (!result) {

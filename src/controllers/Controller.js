@@ -28,6 +28,13 @@ class Controller {
         res.json(this._prepareResponse(message, data))
     }
 
+    sendRawResponse(res, data = null, message = "", code = HTTP_OK) {
+
+        res.status(code)
+
+        res.json(data)
+    }
+
     sendError(res, error = "Error", code = HTTP_NOT_FOUND) {
         res.status(code)
         res.json(this._prepareErrorResponse(error))

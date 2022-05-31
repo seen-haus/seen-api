@@ -20,6 +20,8 @@ const SecondaryMarketListingRepository = require("./SecondaryMarketListingReposi
 const ClaimAgainstTokenContractsRepository = require("./ClaimAgainstTokenContractsRepository");
 const TokenHolderBlockTrackerRepository = require("./TokenHolderBlockTrackerRepository");
 const TokenCacheRepository = require("./TokenCacheRepository");
+const TicketCacheRepository = require("./TicketCacheRepository");
+const ConsignmentIdToTicketMetadataRepository = require("./ConsignmentIdToTicketMetadataRepository");
 
 module.exports = Object.freeze({
     ArtistRepository,
@@ -44,4 +46,6 @@ module.exports = Object.freeze({
     ClaimAgainstTokenContractsRepository,
     TokenHolderBlockTrackerRepository,
     TokenCacheRepository,
+    TicketCacheRepository,
+    ConsignmentIdToTicketMetadataRepository,
 });

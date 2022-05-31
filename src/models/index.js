@@ -20,6 +20,8 @@ const SelfMintingInternalAccessRequests = require("./self-minting-internal-acces
 const ClaimAgainstTokenContractsModel = require("./claim-against-token-contracts");
 const TokenHolderBlockTrackerModel = require("./token-holder-block-tracker");
 const TokenCacheModel = require("./token-cache");
+const TicketCacheModel = require("./ticket-cache");
+const ConsignmentIdToTicketMetadataModel = require("./consignment-id-to-ticket-metadata");
 
 module.exports = Object.freeze({
     CollectableModel,
@@ -44,4 +46,6 @@ module.exports = Object.freeze({
     ClaimAgainstTokenContractsModel,
     TokenHolderBlockTrackerModel,
     TokenCacheModel,
+    TicketCacheModel,
+    ConsignmentIdToTicketMetadataModel,
 });
