@@ -133,7 +133,7 @@ class Web3Service {
                     return true;
                 } else {
                     if(isPhysical) {
-                        if(Number(ticketClaimsIssued) === Number(consignment.releasedSupply)) {
+                        if(Number(ticketClaimsIssued) === Number(consignment.releasedSupply) && (Number(ticketClaimsIssued) > 0)) {
                             return true;
                         }
                     }
