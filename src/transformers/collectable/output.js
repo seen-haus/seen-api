@@ -12,6 +12,9 @@ class CollectableOutputTransformer extends BaseTransformer {
             media: collectable.media && collectable.media.length > 0
                 ? collectable.media.map(media => MediaOutputTransformer.transform(media))
                 : [],
+            additionalMedia: collectable.additionalMedia && collectable.additionalMedia.length > 0
+                ? collectable.additionalMedia.map(media => MediaOutputTransformer.transform(media))
+                : [],
             events: collectable.events && collectable.events.length > 0
                 ? collectable.events.map(event => {
                     return event;

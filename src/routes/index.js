@@ -11,6 +11,7 @@ const Claim = require('./claim.routes');
 const BidRegistration = require('./bid-registration.routes');
 const IPFS = require('./ipfs.routes');
 const TokenCache = require('./token-cache.routes');
+const TicketCache = require('./ticket-cache.routes');
 
 module.exports = app => {
     app.use("", Bespoke);
@@ -24,4 +25,5 @@ module.exports = app => {
     app.use("", BidRegistration);
     app.use("", IPFS);
     app.use("", TokenCache);
+    app.use("", TicketCache);
 }

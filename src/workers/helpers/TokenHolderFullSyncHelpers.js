@@ -213,21 +213,31 @@ const handleFullSync1155 = async (enabledTracker) => {
       console.log('determined holder balances');
 
       let tokenIdToConsignmentId = {};
-      let tokenIdToBurntByAddress = {};
+      let tokenIdToBurntByAddresses = {};
+      let tokenIdToIssuedCount = {};
       if(enabledTracker.is_ticketer) {
         // Associate consignment ID with each token ID
         // event TicketIssued(uint256 ticketId, uint256 indexed consignmentId, address indexed buyer, uint256 amount);
         let eventsTicketIssued = await tokenContract.findEvents('TicketIssued', true, false, false, blockNumber);
         console.log('got ticket issued events')
         for(let eventTicketIssued of eventsTicketIssued) {
-          let { consignmentId, ticketId } = eventTicketIssued.returnValues;
+          let { consignmentId, ticketId, amount } = eventTicketIssued.returnValues;
           tokenIdToConsignmentId[ticketId] = consignmentId;
+          tokenIdToIssuedCount[ticketId] = Number(amount);
         }
+        // event TicketClaimed(uint256 ticketId, address indexed claimant, uint256 amount);
         let eventsTicketClaimed = await tokenContract.findEvents('TicketClaimed', true, false, false, blockNumber);
         console.log('got ticket claimed events')
         for(let eventTicketClaimed of eventsTicketClaimed) {
-          let { ticketId, claimant } = eventTicketClaimed.returnValues;
-          tokenIdToBurntByAddress[ticketId] = claimant;
+          let { ticketId, claimant, amount } = eventTicketClaimed.returnValues;
+          for(let entry of Array.from({length: Number(amount)})) {
+            if(tokenIdToBurntByAddresses[ticketId]) {
+              tokenIdToBurntByAddresses[ticketId].push(claimant);
+            } else {
+              tokenIdToBurntByAddresses[ticketId] = [];
+              tokenIdToBurntByAddresses[ticketId].push(claimant);
+            }
+          }
         }
       }
 
@@ -337,14 +347,18 @@ const handleFullSync1155 = async (enabledTracker) => {
                 }),
               });
               if(enabledTracker.is_ticketer) {
-                await TicketCacheRepository.create({
-                  token_address: tokenAddress,
-                  token_id: tokenId,
-                  consignment_id: tokenIdToConsignmentId[tokenId],
-                  ...(tokenIdToBurntByAddress[tokenId] && {
-                    burnt_by_address: tokenIdToBurntByAddress[tokenId]
-                  })
-                });
+                let burnIndex = 0;
+                for(let entry of Array.from({length: Number(tokenBalance)})) {
+                  await TicketCacheRepository.create({
+                    token_address: tokenAddress,
+                    token_id: tokenId,
+                    consignment_id: tokenIdToConsignmentId[tokenId],
+                    ...(tokenIdToBurntByAddresses[tokenId] && tokenIdToBurntByAddresses[tokenId][burnIndex] && (Number(holder) === 0) && {
+                      burnt_by_address: tokenIdToBurntByAddresses[tokenId][burnIndex]
+                    })
+                  });
+                  burnIndex++;
+                }
               }
             }
           }

@@ -126,7 +126,7 @@ class TokenCacheRepository extends BaseRepository {
     }
 
     async findOwnedTokensWithConsignmentId(tokenAddress, tokenHolder, consignmentId) {
-      const result = await this.model.query().where(function () {
+      const result = await this.model.query().withGraphFetched("ticketData").where(function () {
         if(tokenAddress) {
           this.where('token_address', tokenAddress);
         }

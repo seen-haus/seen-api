@@ -36,6 +36,19 @@ class CollectableWinnerRepository extends BaseRepository {
         return this.parserResult(result)
     }
 
+    async findByWalletAddressAndCollectableId(walletAddress, collectableId) {
+        const result = await this.model.query()
+            .where('wallet_address', walletAddress)
+            .where('collectable_id', collectableId)
+            .first();
+
+        if (!result) {
+            return null;
+        }
+
+        return this.parserResult(result)
+    }
+
     async findByMultipleParams(optionId, userId, action, txnHash) {
         const result = await this.model.query()
             .where('option_id', optionId)

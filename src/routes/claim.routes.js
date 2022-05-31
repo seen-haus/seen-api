@@ -16,6 +16,20 @@ Router.post('/claims/:contractAddress/claim', [
   body('sig').notEmpty(),
 ], 'ClaimController@claim');
 
+Router.post('/claims/v3/:claimId/claim', [
+  body("wallet_address").notEmpty().isEthereumAddress(),
+  body("email").notEmpty().isEmail(),
+  body("first_name").notEmpty().isString(),
+  body("last_name").notEmpty().isString(),
+  body("address").notEmpty().isString(),
+  body("city").notEmpty().isString(),
+  body("zip").notEmpty(),
+  body("country").notEmpty().isString(),
+  body('sig').notEmpty(),
+], 'ClaimController@claimV3');
+
+Router.get('/claims/check-has-submitted-shipping/:claimId/:walletAddress', [], 'ClaimController@checkHasSubmittedShippingInfoAgainstClaim')
+
 Router.post('/claim-against-token-contract/:claimAgainstTokenContractAddress', [
   body("wallet_address").notEmpty().isEthereumAddress(),
   body("email").notEmpty().isEmail(),

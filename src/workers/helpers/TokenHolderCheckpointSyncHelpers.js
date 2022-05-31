@@ -36,9 +36,10 @@ const handleCheckpointSync721 = async (enabledTracker) => {
     let lastCheckedBlockNumber = currentTrackerState.latest_checked_block;
     if(lastCheckedBlockNumber > 0 && (blockNumber !== lastCheckedBlockNumber)) {
       console.log(`ERC721: Checkpoint syncing ${tokenAddress}`)
+      let startBlock = lastCheckedBlockNumber + 1;
       // Use events to do a checkpoint sync (i.e. adjust balances using transfer events since last checked block)
       let event = 'Transfer';
-      let events = await tokenContract.findEvents(event, true, false, lastCheckedBlockNumber, blockNumber);
+      let events = await tokenContract.findEvents(event, true, false, startBlock, blockNumber);
       for(event of events) {
         let { from, to, tokenId } = event.returnValues;
         // Check if we already have a record of this tokenId
@@ -86,34 +87,43 @@ const handleCheckpointSync1155 = async (enabledTracker) => {
     let tokenContract = new Web3Service(tokenAddress, ERC1155ABI);
     let blockNumber = await tokenContract.getRecentBlock();
     let lastCheckedBlockNumber = enabledTracker.latest_checked_block;
+    console.log({lastCheckedBlockNumber})
     if(lastCheckedBlockNumber > 0 && (blockNumber !== lastCheckedBlockNumber)) {
+      let startBlock = lastCheckedBlockNumber + 1;
       console.log(`ERC1155: Checkpoint syncing ${tokenAddress}`)
       // Use events to do a checkpoint sync (i.e. adjust balances using transfer events since last checked block)
       // event TransferSingle(address indexed _operator, address indexed _from, address indexed _to, uint256 _id, uint256 _value);
-      let eventsTransferSingle = await tokenContract.findEvents('TransferSingle', true, false, lastCheckedBlockNumber, blockNumber);
+      let eventsTransferSingle = await tokenContract.findEvents('TransferSingle', true, false, startBlock, blockNumber);
       console.log('got transfer events single')
       // event TransferBatch(address indexed _operator, address indexed _from, address indexed _to, uint256[] _ids, uint256[] _values);
-      let eventsTransferBatch = await tokenContract.findEvents('TransferBatch', true, false, lastCheckedBlockNumber, blockNumber);
+      let eventsTransferBatch = await tokenContract.findEvents('TransferBatch', true, false, startBlock, blockNumber);
       console.log('got transfer events batch')
 
       if(enabledTracker.is_ticketer) {
         // Associate consignment ID with each token ID
         // event TicketIssued(uint256 ticketId, uint256 indexed consignmentId, address indexed buyer, uint256 amount);
-        let eventsTicketIssued = await tokenContract.findEvents('TicketIssued', true, false, lastCheckedBlockNumber, blockNumber);
+        let eventsTicketIssued = await tokenContract.findEvents('TicketIssued', true, false, startBlock, blockNumber);
         console.log('got ticket issued events')
         for(let eventTicketIssued of eventsTicketIssued) {
-          let { consignmentId, ticketId } = eventTicketIssued.returnValues;
-          await TicketCacheRepository.create({
-            token_address: tokenAddress,
-            token_id: ticketId,
-            consignment_id: consignmentId
-          })
+          let { consignmentId, ticketId, amount } = eventTicketIssued.returnValues;
+          for(let entry of Array.from({length: Number(amount)})) {
+            console.log(`Creating new ticket token_address = ${tokenAddress}, token_id = ${ticketId}, consignment_id = ${consignmentId}`)
+            await TicketCacheRepository.create({
+              token_address: tokenAddress,
+              token_id: ticketId,
+              consignment_id: consignmentId
+            })
+          }
         }
-        let eventsTicketClaimed = await tokenContract.findEvents('TicketClaimed', true, false, lastCheckedBlockNumber, blockNumber);
+        let eventsTicketClaimed = await tokenContract.findEvents('TicketClaimed', true, false, startBlock, blockNumber);
         console.log('got ticket claimed events')
         for(let eventTicketClaimed of eventsTicketClaimed) {
-          let { ticketId, claimant } = eventTicketClaimed.returnValues;
-          await TicketCacheRepository.updateTicketTokenInfo(tokenAddress, ticketId, null, claimant);
+          let { ticketId, claimant, amount } = eventTicketClaimed.returnValues;
+          for(let entry of Array.from({length: Number(amount)})) {
+            console.log(`Assigning burnt token_address = ${tokenAddress}, token_id = ${ticketId}, claimant = ${claimant}`)
+            // assign burner field of one unburnt token record to the claimant
+            await TicketCacheRepository.assignBurntByToOneUnburnt(tokenAddress, ticketId, claimant);
+          }
         }
       }
 
@@ -145,6 +155,7 @@ const handleCheckpointSync1155 = async (enabledTracker) => {
       })
 
       for(let event of mergedAndSortedEvents) {
+        console.log(`Handling event at block: ${event.blockNumber}`);
         let { from, to, id, value, ids, values } = event.returnValues;
         value = new BigNumber(value);
 
