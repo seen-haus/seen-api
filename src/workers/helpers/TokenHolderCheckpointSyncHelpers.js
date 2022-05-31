@@ -18,6 +18,8 @@ const Web3Service = require('../../services/web3.service');
 const ERC721ABI = require('../../abis/erc721Enumerable.json');
 const ERC1155ABI = require('../../abis/erc1155.json');
 
+const { sleep } = require('../../utils/MiscHelpers');
+
 const knex = Knex(dbConfig)
 Model.knex(knex)
 
@@ -70,6 +72,9 @@ const handleCheckpointSync721 = async (enabledTracker) => {
     
     // Unlock the record
     await TokenHolderBlockTrackerRepository.unlockTrackerByTokenAddress(tokenAddress);
+  } else {
+    // Sleep in case the current busy process finishes during the wait
+    await sleep(3000)
   }
 }
 
@@ -224,6 +229,9 @@ const handleCheckpointSync1155 = async (enabledTracker) => {
     }
     // Unlock the record
     await TokenHolderBlockTrackerRepository.unlockTrackerByTokenAddress(tokenAddress);
+  } else {
+    // Sleep in case the current busy process finishes during the wait
+    await sleep(3000)
   }
 }
 
