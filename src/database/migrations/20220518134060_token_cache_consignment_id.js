@@ -15,5 +15,6 @@ exports.up = async (knex) => {
 
 exports.down = (knex) =>
   knex.schema.alterTable(TOKEN_CACHE_TABLE, (table) => {
-    table.dropColumn("consignment_id")
+    table.dropForeign("consignment_id")
+    table.dropColumn('consignment_id')
   });
