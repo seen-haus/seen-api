@@ -7,5 +7,6 @@ exports.up = async (knex) =>
 
 exports.down = (knex) =>
   knex.schema.alterTable(COLLECTIBLES_TABLE, (table) => {
+    table.dropForeign("additional_media_collectable_id")
     table.dropColumn("additional_media_collectable_id")
   });
