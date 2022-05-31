@@ -5,11 +5,11 @@ exports.up = (knex) => knex.schema.createTable(TICKET_CACHE_TABLE, table => {
     table.string("token_address").index().notNullable();
     table.integer("token_id").unsigned().index().notNullable();
     table.integer("consignment_id")
-        .unsigned()
-        .nullable()
-        .index();
+      .references("collectables.consignment_id")
+      .unsigned()
+      .nullable()
+      .index();
     table.string("burnt_by_address").nullable().index()
-    table.json("metadata").nullable();
     table.timestamps(true, true);
 });
 

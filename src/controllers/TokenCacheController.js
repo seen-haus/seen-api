@@ -3,12 +3,14 @@ const { validationResult } = require("express-validator");
 const Controller = require('./Controller');
 const {
     TokenCacheRepository,
+    TicketCacheRepository,
     TokenHolderBlockTrackerRepository,
 } = require("../repositories");
 const {
     handleCheckpointSync1155,
 } = require("../workers/helpers/TokenHolderCheckpointSyncHelpers");
 const TokenCacheOutputTransformer = require("../transformers/token_cache/output");
+const TicketCacheOutputTransformer = require("../transformers/ticket_cache/output");
 
 class TokenCacheController extends Controller {
 
@@ -59,53 +61,23 @@ class TokenCacheController extends Controller {
 
         const {
             token_address,
-            holder_address,
+            holder_or_claimant_address,
             consignment_id
         } = req.body;
 
         let trackerRecord = await TokenHolderBlockTrackerRepository.getTicketTrackerByTokenAddress(token_address);
 
-        let data = [];
+        let data = {};
 
         if(trackerRecord && trackerRecord.token_address) {
             if (trackerRecord.token_standard === 'ERC1155') {
                 await handleCheckpointSync1155(trackerRecord);
             }
-            data = await TokenCacheRepository.setTransformer(TokenCacheOutputTransformer).findOwnedTokensWithConsignmentId(token_address, holder_address, consignment_id);
-        }
-
-        this.sendResponse(res, data);
-
-    }
-
-    async tokenCacheTicketClaimantSyncByTokenAndClaimant(req, res) {
-
-        const errors = validationResult(req);
-
-        if (!errors.isEmpty()) {
-            return this.sendResponse(
-                res,
-                { errors: errors.array() },
-                "Validation error",
-                422
-            );
-        }
-
-        const {
-            token_address,
-            claimant_address,
-            consignment_id
-        } = req.body;
-
-        let trackerRecord = await TokenHolderBlockTrackerRepository.getTicketTrackerByTokenAddress(token_address);
-
-        let data = [];
-
-        if(trackerRecord && trackerRecord.token_address) {
-            if (trackerRecord.token_standard === 'ERC1155') {
-                await handleCheckpointSync1155(trackerRecord);
-            }
-            data = await TokenCacheRepository.setTransformer(TokenCacheOutputTransformer).findBurntTicketTokensWithConsignmentId(token_address, claimant_address, consignment_id);
+            let dataHolder = await TokenCacheRepository.setTransformer(TokenCacheOutputTransformer).findOwnedTokensWithConsignmentId(token_address, holder_or_claimant_address, consignment_id);
+            data.holder = dataHolder;
+            
+            let dataClaimant = await TicketCacheRepository.setTransformer(TicketCacheOutputTransformer).findBurntTicketTokensWithConsignmentId(token_address, holder_or_claimant_address, consignment_id);
+            data.claimant = dataClaimant;
         }
 
         this.sendResponse(res, data);

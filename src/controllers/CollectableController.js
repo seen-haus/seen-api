@@ -11,6 +11,7 @@ const {
     TagRepository,
     TagToCollectableRepository,
     ClaimRepository,
+    ConsignmentIdToTicketMetadataRepository,
 } = require("./../repositories");
 const {
     CollectableSaleTangibleTransformer,
@@ -585,13 +586,25 @@ class CollectableController extends Controller {
 
                     console.log({createdCollectable})
 
-                    // auto generate claim pages for physicals
+                    // auto generate claim pages & ticket metadata for physicals
                     if(tangibility === TANGIBLE_NFT) {
-                        await ClaimRepository.create({
+                        const claim = await ClaimRepository.create({
                             collectable_id: collectable.id,
                             is_active: 1,
                             version: 3,
                         });
+
+                        const defaultTicketMetadata = {
+                            "name": `${tokenMetadata.name} (SEEN.HAUS Physical Ticket)`,
+                            "description": `This ticket can be redeemed for a physical unit and the associated NFT of "${tokenMetadata.name}" via https://seen.haus/claims/v3/${claim.id} (please redeem within 31 days of minting)`,
+                            "image":`https://seenhaus.mypinata.cloud/ipfs/QmWiFWuwzeD6ZGww6hnrK47NM1dmV38yxgvcKmGgSf4yYy`
+                        }
+
+                        await ConsignmentIdToTicketMetadataRepository.create({
+                            consignment_id: consignment.id,
+                            metadata: JSON.stringify(defaultTicketMetadata)
+                        })
+
                     }
 
                     this.sendResponse(res, createdCollectable);
