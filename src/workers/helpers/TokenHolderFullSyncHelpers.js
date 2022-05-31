@@ -35,7 +35,6 @@ const handleFullSync721 = async (enabledTracker) => {
     // Lock the record
     await TokenHolderBlockTrackerRepository.lockTrackerByTokenAddress(tokenAddress);
 
-    let tokenAddress = enabledTracker.token_address;
     let tokenContract = new Web3Service(tokenAddress, ERC721ABI);
     let blockNumber = await tokenContract.getRecentBlock();
     let lastCheckedBlockNumber = enabledTracker.latest_checked_block;
