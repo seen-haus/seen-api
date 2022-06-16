@@ -12,7 +12,7 @@ class FeaturedDropRepository extends BaseRepository {
 
     async findHeroCollectable() {
         const result = await this.model.query()
-            .withGraphFetched('[collectable, collectable.[artist.[collectables], user.[collectables], tags, media, additionalMedia, events, claim, secondaryMarketListings.[user, events]]]')
+            .withGraphFetched('[collectable, collectable.[artist.[collectables], user.[collectables], tags, media, additionalMedia, events, claim, secondaryMarketListings.[user, events], custom_payment_token]]')
             .first();
 
         console.log({result})

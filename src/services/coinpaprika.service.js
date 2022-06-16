@@ -1,5 +1,5 @@
 const CoinpaprikaAPI = require('@coinpaprika/api-nodejs-client');
-const {ETH, WBTC} = require("./../constants/Tokens");
+const {ETH, WBTC, PRO} = require("./../constants/Tokens");
 const LeakyBucket = require("./../services/leakybucket.service");
 
 const bucket = new LeakyBucket({
@@ -8,14 +8,22 @@ const bucket = new LeakyBucket({
 });
 const getTokenPrice = async (token, timestamp, retryCount = 0) => {
     let coinId;
+    let interval;
     switch (token) {
         case ETH:
             coinId = 'eth-ethereum';
+            interval = '1h';
             break
         case WBTC:
             coinId = 'wbtc-wrapped-bitcoin';
+            interval = '1h';
+            break
+        case PRO:
+            coinId = 'pro-propy';
+            interval = '1h';
             break
     }
+    console.log({coinId})
 
     await bucket.throttle();
     let params = {
@@ -24,7 +32,7 @@ const getTokenPrice = async (token, timestamp, retryCount = 0) => {
             quote: "usd",
             start: (timestamp / 1000).toString(),
             limit: 1,
-            interval: '5m'
+            interval: interval
         },
     };
     let response = await (new CoinpaprikaAPI())

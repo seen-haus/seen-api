@@ -31,7 +31,11 @@ class BuyEventHandler extends CollectableEventHandler {
         let ethValue = parseFloat(new BigNumber(collectable.price).multipliedBy(amount).toNumber());
 
         try {
-            usdValue = await this.resolveUsdValue((new DateHelper).resolveFromTimestamp(timestamp));
+            let customPaymentTokenCoingeckoId = 
+                collectable.custom_payment_token && collectable.custom_payment_token.coingecko_id 
+                    ? collectable.custom_payment_token.coingecko_id 
+                    : false;
+            usdValue = await this.resolveUsdValue((new DateHelper).resolveFromTimestamp(timestamp), customPaymentTokenCoingeckoId);
             console.log(usdValue)
             usdValue = parseFloat(usdValue) * ethValue;
         } catch (e) {

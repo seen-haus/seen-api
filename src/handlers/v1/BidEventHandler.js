@@ -50,8 +50,12 @@ class BidEventHandler extends CollectableEventHandler {
 
         let usdValue = 0;
         try {
+            let customPaymentTokenCoingeckoId = 
+                collectable.custom_payment_token && collectable.custom_payment_token.coingecko_id 
+                    ? collectable.custom_payment_token.coingecko_id 
+                    : false;
             usdValue = await this.resolveUsdValue((new DateHelper)
-                .resolveFromTimestamp(timestamp));
+                .resolveFromTimestamp(timestamp), customPaymentTokenCoingeckoId);
             usdValue = parseFloat(usdValue) * parseFloat(bid)
             console.log(usdValue)
         } catch (e) {

@@ -10,6 +10,7 @@ const {
     TAG_TO_COLLECTABLE_TABLE,
     TAGS_TABLE,
     SECONDARY_MARKET_LISTINGS,
+    CUSTOM_PAYMENT_TOKENS_TABLE,
 } = require("./../../constants/DBTables");
 const BaseModel = require("./../BaseModel");
 const Artist = require("../artist");
@@ -31,6 +32,7 @@ module.exports = class Collectable extends BaseModel {
         const Claim = require("../claim");
         const FeaturedDrop = require("../featured-drop");
         const SecondaryMarketListing = require("../secondary-market-listing");
+        const CustomPaymentToken = require("../custom-payment-token");
         return {
             artist: {
                 relation: BaseModel.HasOneRelation,
@@ -116,6 +118,14 @@ module.exports = class Collectable extends BaseModel {
                     to: `${SECONDARY_MARKET_LISTINGS}.collectable_id`,
                 }
             },
+            custom_payment_token: {
+                relation: BaseModel.HasOneRelation,
+                modelClass: CustomPaymentToken,
+                join: {
+                    from: `${COLLECTIBLES_TABLE}.custom_payment_token_id`,
+                    to: `${CUSTOM_PAYMENT_TOKENS_TABLE}.id`,
+                }
+            }
         }
     }
 }
