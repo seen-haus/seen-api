@@ -1,6 +1,8 @@
 const BigNumber = require('bignumber.js');
 
-const { TokenCacheModel } = require("./../models");
+const { 
+  TokenCacheModel 
+} = require("./../models");
 const BaseRepository = require("./BaseRepository");
 
 class TokenCacheRepository extends BaseRepository {
@@ -39,10 +41,9 @@ class TokenCacheRepository extends BaseRepository {
       return this.parserResult(result)
     }
 
-    async increaseTokenHolderBalance(tokenHolder, tokenAddress, tokenId, amount) {
+    async increaseTokenHolderBalance(tokenHolder, tokenAddress, tokenId, amount, consignmentId = null) {
       let holderRecordExists = await this.findByTokenAddressAndIdAndHolder(tokenAddress, tokenId, tokenHolder);
 
-      let result;
       if(holderRecordExists && holderRecordExists.length > 0) {
         // update existing record
 
@@ -51,7 +52,7 @@ class TokenCacheRepository extends BaseRepository {
         console.log(`Increasing balance of holder ${tokenHolder} for token ${tokenId} of token contract ${tokenAddress} from ${holderRecordExists[0].token_balance} to ${newBalance}`)
 
         // update balance
-        result = await this.model.query().update({'token_balance': newBalance.toString()}).where(function () {
+        await this.model.query().update({'token_balance': newBalance.toString()}).where(function () {
           this.where('token_address', tokenAddress);
           this.where('token_id', tokenId);
           this.where('token_holder', tokenHolder);
@@ -65,10 +66,11 @@ class TokenCacheRepository extends BaseRepository {
           token_id: tokenId,
           token_holder: tokenHolder,
           token_balance: amount.toString(),
+          ...(consignmentId !== null && {
+            consignment_id: consignmentId
+          })
         });
       }
-
-      return this.parserResult(result)
     }
 
     async decreaseTokenHolderBalance(tokenHolder, tokenAddress, tokenId, amount) {
@@ -79,19 +81,59 @@ class TokenCacheRepository extends BaseRepository {
       console.log(`Decreasing balance of holder ${tokenHolder} for token ${tokenId} of token contract ${tokenAddress} from ${currentRecord[0].token_balance} to ${newBalance}`)
 
       // update balance
-      let result = await this.model.query().update({'token_balance': newBalance.toString()}).where(function () {
+      if(newBalance.toNumber() === 0) {
+        await this.model.query().delete().where(function () {
+          this.where('token_address', tokenAddress);
+          this.where('token_id', tokenId);
+          this.where('token_holder', tokenHolder);
+        })
+      } else {
+        await this.model.query().update({'token_balance': newBalance.toString()}).where(function () {
+          this.where('token_address', tokenAddress);
+          this.where('token_id', tokenId);
+          this.where('token_holder', tokenHolder);
+        })
+      }
+    }
+
+    async updateTicketTokenInfo(tokenAddress, tokenId, consignmentId = null) {
+      let currentRecord = await this.findByTokenAddressAndId(tokenAddress, tokenId);
+
+      console.log(`Updating token ${tokenId} ticket information of ticket token contract ${tokenAddress}: consignment_id = ${consignmentId}`)
+
+      // update ticket token info
+      await this.model.query().update({
+        ...(consignmentId !== null && {
+          consignment_id: consignmentId
+        }),
+      }).where(function () {
         this.where('token_address', tokenAddress);
         this.where('token_id', tokenId);
-        this.where('token_holder', tokenHolder);
+      })
+    }
+
+    async findOwnedTokens(tokenAddress, tokenHolder) {
+      const result = await this.model.query().where(function () {
+        if(tokenAddress) {
+          this.where('token_address', tokenAddress);
+        }
+        if(tokenHolder) {
+          this.where('token_holder', tokenHolder);
+        }
       })
 
       return this.parserResult(result)
     }
 
-    async findOwnedTokens(tokenAddress, tokenHolder) {
-      const result = await this.model.query().where(function () {
-        this.where('token_address', tokenAddress);
-        this.where('token_holder', tokenHolder);
+    async findOwnedTokensWithConsignmentId(tokenAddress, tokenHolder, consignmentId) {
+      const result = await this.model.query().withGraphFetched("ticketData").where(function () {
+        if(tokenAddress) {
+          this.where('token_address', tokenAddress);
+        }
+        if(tokenHolder) {
+          this.where('token_holder', tokenHolder);
+        }
+        this.where('consignment_id', consignmentId);
       })
 
       return this.parserResult(result)

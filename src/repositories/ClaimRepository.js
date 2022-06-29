@@ -26,7 +26,7 @@ class ClaimRepository extends BaseRepository {
   async findById(id) {
     const result = await this.model
       .query()
-      .withGraphJoined("collectable")
+      .withGraphJoined("collectable.[media, artist, user]")
       .where("claims.id", id)
       .where("claims.is_active", true)
       .first();

@@ -10,6 +10,7 @@ const BidRegistrationController = require('./BidRegistrationController');
 const IPFSController = require('./IPFSController');
 const ClaimAgainstTokenContractsController = require('./ClaimAgainstTokenContractsController');
 const TokenCacheController = require('./TokenCacheController');
+const TicketCacheController = require('./TicketCacheController');
 
 // Private
 const AdminArtistController = require('./AdminArtistController');
@@ -32,6 +33,7 @@ module.exports = {
     IPFSController,
     ClaimAgainstTokenContractsController,
     TokenCacheController,
+    TicketCacheController,
     AdminArtistController,
     AdminCollectableController,
     AdminConstantsController,

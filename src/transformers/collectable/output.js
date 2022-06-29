@@ -12,6 +12,9 @@ class CollectableOutputTransformer extends BaseTransformer {
             media: collectable.media && collectable.media.length > 0
                 ? collectable.media.map(media => MediaOutputTransformer.transform(media))
                 : [],
+            additionalMedia: collectable.additionalMedia && collectable.additionalMedia.length > 0
+                ? collectable.additionalMedia.map(media => MediaOutputTransformer.transform(media))
+                : [],
             events: collectable.events && collectable.events.length > 0
                 ? collectable.events.map(event => {
                     return event;
@@ -79,6 +82,8 @@ class CollectableOutputTransformer extends BaseTransformer {
                 : [],
             is_vrf_drop: !!collectable.is_vrf_drop,
             is_claim_against_token_drop: !!collectable.is_claim_against_token_drop,
+            vrf_version: collectable.vrf_version,
+            collection_name: collectable.collection_name,
         }
     }
 }

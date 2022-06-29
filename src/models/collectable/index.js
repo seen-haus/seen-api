@@ -76,6 +76,14 @@ module.exports = class Collectable extends BaseModel {
                     to: `${MEDIA_TABLE}.collectable_id`,
                 }
             },
+            additionalMedia: {
+                relation: BaseModel.HasManyRelation,
+                modelClass: Media,
+                join: {
+                    from: `${COLLECTIBLES_TABLE}.additional_media_collectable_id`,
+                    to: `${MEDIA_TABLE}.collectable_id`,
+                }
+            },
             bundleChildItems: {
                 relation: BaseModel.HasManyRelation,
                 modelClass: Collectable,

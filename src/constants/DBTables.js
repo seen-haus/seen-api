@@ -22,6 +22,8 @@ const SECONDARY_MARKET_LISTINGS = "secondary_market_listings";
 const CLAIM_AGAINST_TOKEN_CONTRACTS_TABLE = "claim_against_token_contracts";
 const TOKEN_HOLDER_BLOCK_TRACKER_TABLE = "token_holder_block_tracker";
 const TOKEN_CACHE_TABLE = "token_cache";
+const TICKET_CACHE_TABLE = "ticket_cache";
+const CONSIGNMENT_ID_TO_TICKET_METADATA_TABLE = "consignment_id_to_ticket_metadata";
 
 module.exports = Object.freeze({
     EVENTS_TABLE,
@@ -47,4 +49,6 @@ module.exports = Object.freeze({
     CLAIM_AGAINST_TOKEN_CONTRACTS_TABLE,
     TOKEN_HOLDER_BLOCK_TRACKER_TABLE,
     TOKEN_CACHE_TABLE,
+    TICKET_CACHE_TABLE,
+    CONSIGNMENT_ID_TO_TICKET_METADATA_TABLE,
 });
