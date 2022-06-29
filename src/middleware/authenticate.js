@@ -25,7 +25,7 @@ const authenticateShippingInfoJWT = (req, res, next) => {
         jwt.verify(token, JWT_SECRET, (err, user) => {
             console.log({user})
 
-            if (err || user.username !== "CLAIMS") {
+            if (err || user.username !== "SEEN.HAUS") {
                 return res.sendStatus(403);
             }
 
