@@ -25,9 +25,7 @@ class Web3Service {
                 fromBlock: overrideStartBlock ? overrideStartBlock : START_BLOCK,
                 toBlock: overrideEndBlock ? overrideEndBlock : 'latest',
                 ...(filter && {filter: filter}),
-            }).catch(e => {
-                console.log(e)
-            });
+            })
             return raw
                 ? events
                 : events.map(e => {
@@ -38,8 +36,9 @@ class Web3Service {
             if(retryCount <= this.retryLimit) {
                 await sleep(1000);
                 console.log(`findEvents('${event}', '${raw}', '${filter}', '${overrideStartBlock}', '${overrideEndBlock}', '${retryCount}') failed, retrying...`);
-                return findEvents(event, raw, filter, overrideStartBlock, overrideEndBlock, retryCount);
+                return this.findEvents(event, raw, filter, overrideStartBlock, overrideEndBlock, retryCount);
             } else {
+                console.log(e);
                 throw new Error(`findEvents('${event}', '${raw}', '${filter}', '${overrideStartBlock}', '${overrideEndBlock}', '${retryCount}') failed, retries exhausted`);
             }
         }
