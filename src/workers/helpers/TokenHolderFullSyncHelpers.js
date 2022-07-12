@@ -105,7 +105,7 @@ const handleFullSyncERC20 = async (enabledTracker) => {
       let holders = {};
 
       for(let event of mergedAndSortedEvents) {
-        let { from, to, value, ids, values } = event.returnValues;
+        let { from, to, value } = event.returnValues;
         value = new BigNumber(value);
 
         if(from === '0x0000000000000000000000000000000000000000') {

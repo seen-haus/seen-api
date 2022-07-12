@@ -15,6 +15,7 @@ const {
 
 const Web3Service = require('../../services/web3.service');
 
+const ERC20ABI = require('../../abis/erc20.json');
 const ERC721ABI = require('../../abis/erc721Enumerable.json');
 const ERC1155ABI = require('../../abis/erc1155.json');
 
@@ -23,7 +24,92 @@ const { sleep } = require('../../utils/MiscHelpers');
 const knex = Knex(dbConfig)
 Model.knex(knex)
 
-const handleCheckpointSync721 = async (enabledTracker) => {
+const handleCheckpointSyncERC20 = async (enabledTracker) => {
+
+  let tokenAddress = enabledTracker.token_address;
+
+  // Check current lock status
+  let currentTrackerState = await TokenHolderBlockTrackerRepository.getTrackerByTokenAddress(tokenAddress);
+
+  if(!currentTrackerState.is_busy_lock) {
+    // Lock the record
+    await TokenHolderBlockTrackerRepository.lockTrackerByTokenAddress(tokenAddress);
+
+    let tokenContract = new Web3Service(tokenAddress, ERC20ABI);
+    let blockNumber = await tokenContract.getRecentBlock();
+    let lastCheckedBlockNumber = enabledTracker.latest_checked_block;
+    console.log({lastCheckedBlockNumber})
+    if(lastCheckedBlockNumber > 0 && (blockNumber !== lastCheckedBlockNumber)) {
+      let startBlock = lastCheckedBlockNumber + 1;
+      console.log(`ERC20: Checkpoint syncing ${tokenAddress}`)
+      // Use events to do a checkpoint sync (i.e. adjust balances using transfer events since last checked block)
+      // event Transfer(address indexed _from, address indexed _to, uint256 _value);
+      let eventsTransfer = await tokenContract.findEvents('Transfer', true, false, startBlock, blockNumber);
+      console.log('got transfer events')
+
+      // Sorts by blockNumber, then by transactionIndex within each block, then by logIndex within each transaction on each block
+      let mergedAndSortedEvents = [...eventsTransfer].sort((a, b) => {
+
+        let resultBlockNumber = 
+          new BigNumber(a.blockNumber).isEqualTo(new BigNumber(b.blockNumber)) 
+            ? 0 
+            : new BigNumber(a.blockNumber).isGreaterThan(new BigNumber(b.blockNumber))
+              ? 1
+              : -1;
+
+        let resultTransactionIndex = 
+          new BigNumber(a.transactionIndex).isEqualTo(new BigNumber(b.transactionIndex)) 
+            ? 0 
+            : new BigNumber(a.transactionIndex).isGreaterThan(new BigNumber(b.transactionIndex))
+              ? 1
+              : -1;
+
+        let resultLogIndex = 
+          new BigNumber(a.logIndex).isEqualTo(new BigNumber(b.logIndex)) 
+            ? 0 
+            : new BigNumber(a.logIndex).isGreaterThan(new BigNumber(b.logIndex))
+              ? 1
+              : -1;
+
+        return resultBlockNumber || resultTransactionIndex || resultLogIndex;
+      })
+
+      for(let event of mergedAndSortedEvents) {
+        console.log(`Handling event at block: ${event.blockNumber}`);
+        let { from, to, value } = event.returnValues;
+        value = new BigNumber(value);
+
+        if(from === '0x0000000000000000000000000000000000000000') {
+          // is a minting event, has no existing holder to reduce value on, increase value of `to`
+          if(value.isGreaterThan(new BigNumber(0))) {
+            // event Transfer
+            // increase value of `to`
+            // increaseFungibleTokenHolderBalance method creates record if there isn't an existing balance to modify
+            await TokenCacheRepository.increaseFungibleTokenHolderBalance(to, tokenAddress, value.toString());
+          }
+        } else {
+          // is a transfer from an existing holder to another address, reduce value of `from`, increase value of `to`
+          if(value.isGreaterThan(new BigNumber(0))) {
+            // event TransferSingle
+            // decrease value of `from`
+            await TokenCacheRepository.decreaseFungibleTokenHolderBalance(from, tokenAddress, value.toString());
+            // increase value of `to`
+            await TokenCacheRepository.increaseFungibleTokenHolderBalance(to, tokenAddress, value.toString());
+          }
+        }
+      }
+      // Update latest checked block
+      await TokenHolderBlockTrackerRepository.updateBlockNumberByTokenAddress(tokenAddress, blockNumber)
+    }
+    // Unlock the record
+    await TokenHolderBlockTrackerRepository.unlockTrackerByTokenAddress(tokenAddress);
+  } else {
+    // Sleep in case the current busy process finishes during the wait
+    await sleep(3000)
+  }
+}
+
+const handleCheckpointSyncERC721 = async (enabledTracker) => {
   let tokenAddress = enabledTracker.token_address;
 
   // Check current lock status
@@ -78,7 +164,7 @@ const handleCheckpointSync721 = async (enabledTracker) => {
   }
 }
 
-const handleCheckpointSync1155 = async (enabledTracker) => {
+const handleCheckpointSyncERC1155 = async (enabledTracker) => {
 
   let tokenAddress = enabledTracker.token_address;
 
@@ -169,15 +255,15 @@ const handleCheckpointSync1155 = async (enabledTracker) => {
           if(id && value.isGreaterThan(new BigNumber(0))) {
             // event TransferSingle
             // increase value of `to`
-            // increaseTokenHolderBalance method creates record if there isn't an existing balance to modify
-            await TokenCacheRepository.increaseTokenHolderBalance(to, tokenAddress, id, value.toString());
+            // increaseNonFungibleTokenHolderBalance method creates record if there isn't an existing balance to modify
+            await TokenCacheRepository.increaseNonFungibleTokenHolderBalance(to, tokenAddress, id, value.toString());
           } else if(ids && values) {
             // event TransferBatch
             let valueIndex = 0;
             for(let singleId of ids) {
               let singleValue = new BigNumber(values[valueIndex]);
               // rewrite to DB method
-              await TokenCacheRepository.increaseTokenHolderBalance(to, tokenAddress, singleId, singleValue.toString());
+              await TokenCacheRepository.increaseNonFungibleTokenHolderBalance(to, tokenAddress, singleId, singleValue.toString());
               valueIndex++;
             }
           }
@@ -186,18 +272,18 @@ const handleCheckpointSync1155 = async (enabledTracker) => {
           if(id && value.isGreaterThan(new BigNumber(0))) {
             // event TransferSingle
             // decrease value of `from`
-            await TokenCacheRepository.decreaseTokenHolderBalance(from, tokenAddress, id, value.toString());
+            await TokenCacheRepository.decreaseNonFungibleTokenHolderBalance(from, tokenAddress, id, value.toString());
             // increase value of `to`
-            await TokenCacheRepository.increaseTokenHolderBalance(to, tokenAddress, id, value.toString());
+            await TokenCacheRepository.increaseNonFungibleTokenHolderBalance(to, tokenAddress, id, value.toString());
           } else if(ids && values) {
             // event TransferBatch
             let valueIndex = 0;
             for(let singleId of ids) {
               let singleValue = new BigNumber(values[valueIndex]);
               // decrease value of `from`
-              await TokenCacheRepository.decreaseTokenHolderBalance(from, tokenAddress, singleId, singleValue.toString());
+              await TokenCacheRepository.decreaseNonFungibleTokenHolderBalance(from, tokenAddress, singleId, singleValue.toString());
               // increase value of `to`
-              await TokenCacheRepository.increaseTokenHolderBalance(to, tokenAddress, singleId, singleValue.toString());
+              await TokenCacheRepository.increaseNonFungibleTokenHolderBalance(to, tokenAddress, singleId, singleValue.toString());
               valueIndex++;
             }
           }
@@ -236,6 +322,7 @@ const handleCheckpointSync1155 = async (enabledTracker) => {
 }
 
 module.exports = {
-  handleCheckpointSync721,
-  handleCheckpointSync1155,
+  handleCheckpointSyncERC20,
+  handleCheckpointSyncERC721,
+  handleCheckpointSyncERC1155,
 }

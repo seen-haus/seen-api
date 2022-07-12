@@ -7,8 +7,9 @@ const {
 } = require("./../repositories/index");
 
 const {
-  handleCheckpointSync1155,
-  handleCheckpointSync721,
+  handleCheckpointSyncERC1155,
+  handleCheckpointSyncERC721,
+  handleCheckpointSyncERC20,
 } = require("./helpers/TokenHolderCheckpointSyncHelpers");
 
 // const
@@ -31,10 +32,12 @@ const run = async() => {
 
     try {
       for(let enabledTracker of enabledTrackers) {
-        if(enabledTracker.token_standard === "ERC721") {
-          await handleCheckpointSync721(enabledTracker);
+        if(enabledTracker.token_standard === "ERC20") {
+          await handleCheckpointSyncERC20(enabledTracker);
+        } else if(enabledTracker.token_standard === "ERC721") {
+          await handleCheckpointSyncERC721(enabledTracker);
         } else if(enabledTracker.token_standard === "ERC1155") {
-          await handleCheckpointSync1155(enabledTracker);
+          await handleCheckpointSyncERC1155(enabledTracker);
         }
       }
     } catch (e) {
