@@ -11,7 +11,7 @@ const getTokenPrices = async () => {
     }
     const CoinGeckoClient = new CoinGecko();
     let response = await CoinGeckoClient.simple.price({
-        ids: ['ethereum'],
+        ids: ['ethereum', 'propy'],
         vs_currencies: ['usd'],
     });
     let data = {

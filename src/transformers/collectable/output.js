@@ -30,6 +30,7 @@ class CollectableOutputTransformer extends BaseTransformer {
                     return secondaryMarketListing;
                 })
                 : [],
+            custom_payment_token: collectable.custom_payment_token ? collectable.custom_payment_token : null,
             claim: collectable.claim ? collectable.claim : null,
             purchase_type: collectable.purchase_type,
             type: collectable.type,
