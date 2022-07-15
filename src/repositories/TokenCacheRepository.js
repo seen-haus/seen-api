@@ -1,4 +1,7 @@
 const BigNumber = require('bignumber.js');
+const ethers = require('ethers');
+
+BigNumber.config({ EXPONENTIAL_AT: 1e+9 })
 
 const { 
   TokenCacheModel 
@@ -41,7 +44,16 @@ class TokenCacheRepository extends BaseRepository {
       return this.parserResult(result)
     }
 
-    async increaseTokenHolderBalance(tokenHolder, tokenAddress, tokenId, amount, consignmentId = null) {
+    async findByTokenAddressAndHolder(tokenAddress, tokenHolder) {
+      const result = await this.model.query().where(function () {
+        this.where('token_address', tokenAddress);
+        this.where('token_holder', tokenHolder);
+      })
+
+      return this.parserResult(result)
+    }
+
+    async increaseNonFungibleTokenHolderBalance(tokenHolder, tokenAddress, tokenId, amount, consignmentId = null) {
       let holderRecordExists = await this.findByTokenAddressAndIdAndHolder(tokenAddress, tokenId, tokenHolder);
 
       if(holderRecordExists && holderRecordExists.length > 0) {
@@ -73,7 +85,7 @@ class TokenCacheRepository extends BaseRepository {
       }
     }
 
-    async decreaseTokenHolderBalance(tokenHolder, tokenAddress, tokenId, amount) {
+    async decreaseNonFungibleTokenHolderBalance(tokenHolder, tokenAddress, tokenId, amount) {
       let currentRecord = await this.findByTokenAddressAndIdAndHolder(tokenAddress, tokenId, tokenHolder);
 
       const newBalance = new BigNumber(currentRecord[0].token_balance).minus(new BigNumber(amount));
@@ -91,6 +103,59 @@ class TokenCacheRepository extends BaseRepository {
         await this.model.query().update({'token_balance': newBalance.toString()}).where(function () {
           this.where('token_address', tokenAddress);
           this.where('token_id', tokenId);
+          this.where('token_holder', tokenHolder);
+        })
+      }
+    }
+
+    async increaseFungibleTokenHolderBalance(tokenHolder, tokenAddress, amount) {
+      let holderRecordExists = await this.findByTokenAddressAndHolder(tokenAddress, tokenHolder);
+
+      if(holderRecordExists && holderRecordExists.length > 0) {
+        // update existing record
+
+        const newBalance = new BigNumber(ethers.utils.parseEther(holderRecordExists[0].token_balance).toString()).plus(new BigNumber(amount));
+
+        const useBalance = ethers.utils.formatEther(newBalance.toString());
+
+        console.log(`Increasing balance of holder ${tokenHolder} of token contract ${tokenAddress} from ${holderRecordExists[0].token_balance} to ${useBalance} (${newBalance})`)
+
+        // update balance
+        await this.model.query().update({'token_balance': useBalance}).where(function () {
+          this.where('token_address', tokenAddress);
+          this.where('token_holder', tokenHolder);
+        })
+
+      } else {
+        // create new record
+        const useBalance = ethers.utils.formatEther(amount);
+        console.log(`Setting balance of holder ${tokenHolder} of token contract ${tokenAddress} to ${useBalance} (${amount})`)
+        await this.create({
+          token_address: tokenAddress,
+          token_holder: tokenHolder,
+          token_balance: useBalance
+        });
+      }
+    }
+
+    async decreaseFungibleTokenHolderBalance(tokenHolder, tokenAddress, amount) {
+      let currentRecord = await this.findByTokenAddressAndHolder(tokenAddress, tokenHolder);
+
+      const newBalance = new BigNumber(ethers.utils.parseEther(currentRecord[0].token_balance).toString()).minus(new BigNumber(amount));
+
+      const useBalance = ethers.utils.formatEther(newBalance.toString());
+
+      console.log(`Decreasing balance of holder ${tokenHolder} of token contract ${tokenAddress} from ${currentRecord[0].token_balance} to ${useBalance} (${newBalance})`)
+
+      // update balance
+      if(new BigNumber(useBalance).toNumber() === 0) {
+        await this.model.query().delete().where(function () {
+          this.where('token_address', tokenAddress);
+          this.where('token_holder', tokenHolder);
+        })
+      } else {
+        await this.model.query().update({'token_balance': useBalance.toString()}).where(function () {
+          this.where('token_address', tokenAddress);
           this.where('token_holder', tokenHolder);
         })
       }

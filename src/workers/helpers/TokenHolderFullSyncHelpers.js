@@ -6,6 +6,7 @@ const {dbConfig} = require("../../config");
 const ethers = require('ethers');
 const axios = require('axios');
 const BigNumber = require('bignumber.js');
+BigNumber.config({ EXPONENTIAL_AT: 1e+9 })
 
 const {
   TokenHolderBlockTrackerRepository,
@@ -15,6 +16,7 @@ const {
 
 const Web3Service = require('../../services/web3.service');
 
+const ERC20ABI = require('../../abis/erc20.json');
 const ERC721ABI = require('../../abis/erc721Enumerable.json');
 const ERC1155ABI = require('../../abis/erc1155.json');
 
@@ -25,7 +27,156 @@ const sleep = (ms) => {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-const handleFullSync721 = async (enabledTracker) => {
+const handleFullSyncERC20 = async (enabledTracker) => {
+  let tokenAddress = enabledTracker.token_address;
+
+  // Check current lock status
+  let currentTrackerState = await TokenHolderBlockTrackerRepository.getTrackerByTokenAddress(tokenAddress);
+
+  if(!currentTrackerState.is_busy_lock) {
+    // Lock the record
+    await TokenHolderBlockTrackerRepository.lockTrackerByTokenAddress(tokenAddress);
+
+    let tokenContract = new Web3Service(tokenAddress, ERC20ABI);
+    let blockNumber = await tokenContract.getRecentBlock();
+    let lastCheckedBlockNumber = enabledTracker.latest_checked_block;
+    if(!lastCheckedBlockNumber) {
+
+      // event TransferSingle(address indexed _operator, address indexed _from, address indexed _to, uint256 _id, uint256 _value);
+      let eventsTransferSingle = [];
+      if(enabledTracker.genesis_block) {
+        let blockDelta = blockNumber - enabledTracker.genesis_block;
+        let batchSize = Math.ceil(blockDelta / 10);
+        let totalBlocks = batchSize * 10;
+        // get events in batches
+        let batchIndex = 0;
+        let batches = Array.from({length: 10});
+        for(batch of batches) {
+          if(batchIndex === 0){
+            batches[batchIndex] = [blockNumber - totalBlocks, (blockNumber - totalBlocks) + batchSize]
+          } else {
+            batches[batchIndex] = [batches[batchIndex - 1][1] + 1, batches[batchIndex - 1][1] + batchSize]
+          }
+          batchIndex++;
+        }
+        let fetchedBatchIndex = 0;
+        for(let batch of batches) {
+          let [batchStartBlock, batchEndBlock] = batch;
+          console.log(`Fetching transfer batch ${fetchedBatchIndex + 1} of 10`);
+          let eventsTransferSingleBatch = await tokenContract.findEvents('Transfer', true, false, batchStartBlock, batchEndBlock);
+          console.log(`Batch ${fetchedBatchIndex + 1} results: ${eventsTransferSingleBatch.length}`);
+          eventsTransferSingle = [...eventsTransferSingle, ...eventsTransferSingleBatch];
+          fetchedBatchIndex++;
+        }
+      } else {
+        eventsTransferSingle = await tokenContract.findEvents('Transfer', true, false, false, blockNumber)
+      }
+      console.log('got transfer events')
+
+      // Sorts by blockNumber, then by transactionIndex within each block, then by logIndex within each transaction on each block
+      let mergedAndSortedEvents = [...eventsTransferSingle].sort((a, b) => {
+
+        let resultBlockNumber = 
+          new BigNumber(a.blockNumber).isEqualTo(new BigNumber(b.blockNumber)) 
+            ? 0 
+            : new BigNumber(a.blockNumber).isGreaterThan(new BigNumber(b.blockNumber))
+              ? 1
+              : -1;
+
+        let resultTransactionIndex = 
+          new BigNumber(a.transactionIndex).isEqualTo(new BigNumber(b.transactionIndex)) 
+            ? 0 
+            : new BigNumber(a.transactionIndex).isGreaterThan(new BigNumber(b.transactionIndex))
+              ? 1
+              : -1;
+
+        let resultLogIndex = 
+          new BigNumber(a.logIndex).isEqualTo(new BigNumber(b.logIndex)) 
+            ? 0 
+            : new BigNumber(a.logIndex).isGreaterThan(new BigNumber(b.logIndex))
+              ? 1
+              : -1;
+
+        return resultBlockNumber || resultTransactionIndex || resultLogIndex;
+      })
+
+      console.log('sorted transfer events')
+
+      let holders = {};
+
+      for(let event of mergedAndSortedEvents) {
+        let { from, to, value } = event.returnValues;
+        value = new BigNumber(value);
+
+        if(from === '0x0000000000000000000000000000000000000000') {
+          // is a minting event, has no existing holder to reduce value on, increase value of `to`
+          if(value.isGreaterThan(new BigNumber(0))) {
+            // event Transfer
+            // increase value of `to`
+            if(holders[to]) {
+              holders[to] = new BigNumber(holders[to]).plus(value).toString();
+            } else {
+              holders[to] = value.toString();
+            }
+          }
+        } else {
+          // is a transfer from an existing holder to another address, reduce value of `from`, increase value of `to`
+          if(value.isGreaterThan(new BigNumber(0))) {
+            // event Transfer
+            // decrease value of `from`
+            holders[from] = new BigNumber(holders[from]).minus(value).toString();
+
+            // increase value of `to`
+            if(holders[to]) {
+              holders[to] = new BigNumber(holders[to]).plus(value).toString();
+            } else {
+              holders[to] = value.toString();
+            }
+          }
+        }
+      }
+
+      console.log('determined holder balances');
+
+      let saneBalances = true;
+      let runSanityCheck = false;
+      
+      if(runSanityCheck) {
+        for(let [holder, tokenBalance] of Object.entries(holders)) {
+          // Do sanity check on each value
+          let sanityBalance = await tokenContract.balanceOf(holder);
+          if(!(new BigNumber(tokenBalance).isEqualTo(sanityBalance))) {
+            saneBalances = false;
+          }
+          await sleep(500);
+        }
+      }
+
+      if(saneBalances) {
+        // clear existing balances before saving new balances
+        await TokenCacheRepository.clearTokenCacheByTokenAddress(tokenAddress);
+        for(let [holder, tokenBalance] of Object.entries(holders)) {
+          if(new BigNumber(tokenBalance).isGreaterThan(new BigNumber(0))) {
+            // Passes sanity check, save balance in Ether terms
+            let useBalance = ethers.utils.formatEther(tokenBalance);
+            console.log(`ERC20: Assigning ownership of ${useBalance} (${tokenBalance}) units of ${tokenAddress} to ${holder}`);
+            await TokenCacheRepository.create({
+              token_address: tokenAddress,
+              token_holder: holder,
+              token_balance: useBalance,
+            });
+          }
+        }
+        // Update latest checked block
+        await TokenHolderBlockTrackerRepository.updateBlockNumberByTokenAddress(tokenAddress, blockNumber)
+      }
+
+    }
+    await TokenHolderBlockTrackerRepository.unlockTrackerByTokenAddress(tokenAddress);
+  }
+}
+
+const handleFullSyncERC721 = async (enabledTracker) => {
   let tokenAddress = enabledTracker.token_address;
 
   // Check current lock status
@@ -75,7 +226,7 @@ const handleFullSync721 = async (enabledTracker) => {
   }
 }
 
-const handleFullSync1155 = async (enabledTracker) => {
+const handleFullSyncERC1155 = async (enabledTracker) => {
   let tokenAddress = enabledTracker.token_address;
 
   // Check current lock status
@@ -372,6 +523,7 @@ const handleFullSync1155 = async (enabledTracker) => {
 }
 
 module.exports = {
-  handleFullSync721,
-  handleFullSync1155,
+  handleFullSyncERC20,
+  handleFullSyncERC721,
+  handleFullSyncERC1155,
 }

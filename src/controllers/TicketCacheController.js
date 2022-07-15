@@ -6,7 +6,7 @@ const {
     TokenHolderBlockTrackerRepository,
 } = require("../repositories");
 const {
-    handleCheckpointSync1155,
+    handleCheckpointSyncERC1155,
 } = require("../workers/helpers/TokenHolderCheckpointSyncHelpers");
 const TicketCacheOutputTransformer = require("../transformers/ticket_cache/output");
 const TicketCacheMetadataOutputTransformer = require("../transformers/ticket_cache/metadata");
@@ -70,7 +70,7 @@ class TicketCacheController extends Controller {
 
         if(trackerRecord && trackerRecord.token_address) {
             if (trackerRecord.token_standard === 'ERC1155') {
-                await handleCheckpointSync1155(trackerRecord);
+                await handleCheckpointSyncERC1155(trackerRecord);
             }
             data = await TicketCacheRepository.setTransformer(TicketCacheOutputTransformer).findBurntTicketTokensWithConsignmentId(token_address, claimant_address, consignment_id);
         }

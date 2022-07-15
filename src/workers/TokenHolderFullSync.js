@@ -11,8 +11,9 @@ const {
 } = require("../repositories/index");
 
 const {
-  handleFullSync1155,
-  handleFullSync721,
+  handleFullSyncERC1155,
+  handleFullSyncERC721,
+  handleFullSyncERC20,
 } = require("./helpers/TokenHolderFullSyncHelpers");
 
 // const
@@ -36,10 +37,12 @@ const run = async() => {
 
     try {
       for(let enabledTracker of enabledTrackers) {
-        if(enabledTracker.token_standard === "ERC721") {
-          await handleFullSync721(enabledTracker);
+        if (enabledTracker.token_standard === "ERC20") {
+          await handleFullSyncERC20(enabledTracker);
+        } else if(enabledTracker.token_standard === "ERC721") {
+          await handleFullSyncERC721(enabledTracker);
         } else if(enabledTracker.token_standard === "ERC1155") {
-          await handleFullSync1155(enabledTracker);
+          await handleFullSyncERC1155(enabledTracker);
         }
       }
     } catch (e) {
