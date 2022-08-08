@@ -11,6 +11,7 @@ const IPFSController = require('./IPFSController');
 const ClaimAgainstTokenContractsController = require('./ClaimAgainstTokenContractsController');
 const TokenCacheController = require('./TokenCacheController');
 const TicketCacheController = require('./TicketCacheController');
+const CurationController = require('./CurationController');
 
 // Private
 const AdminArtistController = require('./AdminArtistController');
@@ -34,6 +35,7 @@ module.exports = {
     ClaimAgainstTokenContractsController,
     TokenCacheController,
     TicketCacheController,
+    CurationController,
     AdminArtistController,
     AdminCollectableController,
     AdminConstantsController,
