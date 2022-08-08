@@ -44,13 +44,14 @@ const handleFullSyncERC20 = async (enabledTracker) => {
 
       // event TransferSingle(address indexed _operator, address indexed _from, address indexed _to, uint256 _id, uint256 _value);
       let eventsTransferSingle = [];
+      let batchCount = 50;
       if(enabledTracker.genesis_block) {
         let blockDelta = blockNumber - enabledTracker.genesis_block;
-        let batchSize = Math.ceil(blockDelta / 10);
-        let totalBlocks = batchSize * 10;
+        let batchSize = Math.ceil(blockDelta / batchCount);
+        let totalBlocks = batchSize * batchCount;
         // get events in batches
         let batchIndex = 0;
-        let batches = Array.from({length: 10});
+        let batches = Array.from({length: batchCount});
         for(batch of batches) {
           if(batchIndex === 0){
             batches[batchIndex] = [blockNumber - totalBlocks, (blockNumber - totalBlocks) + batchSize]
@@ -62,7 +63,7 @@ const handleFullSyncERC20 = async (enabledTracker) => {
         let fetchedBatchIndex = 0;
         for(let batch of batches) {
           let [batchStartBlock, batchEndBlock] = batch;
-          console.log(`Fetching transfer batch ${fetchedBatchIndex + 1} of 10`);
+          console.log(`Fetching transfer batch ${fetchedBatchIndex + 1} of ${batchCount}`);
           let eventsTransferSingleBatch = await tokenContract.findEvents('Transfer', true, false, batchStartBlock, batchEndBlock);
           console.log(`Batch ${fetchedBatchIndex + 1} results: ${eventsTransferSingleBatch.length}`);
           eventsTransferSingle = [...eventsTransferSingle, ...eventsTransferSingleBatch];
@@ -158,7 +159,7 @@ const handleFullSyncERC20 = async (enabledTracker) => {
         for(let [holder, tokenBalance] of Object.entries(holders)) {
           if(new BigNumber(tokenBalance).isGreaterThan(new BigNumber(0))) {
             // Passes sanity check, save balance in Ether terms
-            let useBalance = ethers.utils.formatEther(tokenBalance);
+            let useBalance = enabledTracker.decimals ? ethers.utils.formatUnits(tokenBalance, enabledTracker.decimals) : ethers.utils.formatEther(tokenBalance);
             console.log(`ERC20: Assigning ownership of ${useBalance} (${tokenBalance}) units of ${tokenAddress} to ${holder}`);
             await TokenCacheRepository.create({
               token_address: tokenAddress,

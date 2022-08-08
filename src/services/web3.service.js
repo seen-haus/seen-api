@@ -36,6 +36,7 @@ class Web3Service {
             if(retryCount <= this.retryLimit) {
                 await sleep(1000);
                 console.log(`findEvents('${event}', '${raw}', '${filter}', '${overrideStartBlock}', '${overrideEndBlock}', '${retryCount}') failed, retrying...`);
+                console.log(e);
                 return this.findEvents(event, raw, filter, overrideStartBlock, overrideEndBlock, retryCount);
             } else {
                 console.log(e);
