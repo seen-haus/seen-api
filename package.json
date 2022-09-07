@@ -15,6 +15,8 @@
     "fallback": "node ./src/workers/FallbackWorker.js",
     "trackBalancesCheckpointSync": "node ./src/workers/TokenHolderCheckpointSync.js",
     "trackBalancesFullSync": "node ./src/workers/TokenHolderFullSync.js",
+    "runSnapshots": "node ./src/workers/SnapshotWorker.js",
+    "runCurationWorker": "node ./src/workers/CurationWorker.js",
     "user": "node ./src/cli/SetUser.js",
     "deploy": "pm2 deploy ./config/ecosystem.json production",
     "watch": "nodemon --watch src --verbose -e js -L ./src/server.js"

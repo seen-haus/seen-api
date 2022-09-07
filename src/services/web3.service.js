@@ -259,6 +259,11 @@ class Web3Service {
         return block;
     }
 
+    async getBlockInfo(blockNumber) {
+        const blockInfo = await new this.web3.eth.getBlock(blockNumber);
+        return blockInfo;
+    }
+
     async closingTimeUnix(blockNumber, retryCount = 0) {
         try {
             const contract = new this.web3.eth.Contract(this.abi, this.contractAddress);

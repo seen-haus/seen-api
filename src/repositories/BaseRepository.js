@@ -58,6 +58,16 @@ class BaseRepository {
         return this.parserResult(result[0])
     }
 
+    async findAllByColumn(column, value) {
+        const result = await this.model.query().where(column, value)
+
+        if (result.length === 0) {
+            return null;
+        }
+
+        return this.parserResult(result)
+    }
+
     async all() {
         const results = await this.model.query();
 

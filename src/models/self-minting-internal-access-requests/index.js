@@ -1,4 +1,7 @@
-const { SELF_MINTING_INTERNAL_ACCESS_REQUESTS_TABLE } = require("../../constants/DBTables")
+const { 
+    SELF_MINTING_INTERNAL_ACCESS_REQUESTS_TABLE,
+    CURATION_SELF_MINTING_APPLICANTS_OVERVIEW_TABLE
+} = require("../../constants/DBTables")
 const BaseModel = require("../BaseModel");
 
 module.exports = class SelfMintingInternalAccessRequestsTable extends BaseModel {
@@ -21,4 +24,18 @@ module.exports = class SelfMintingInternalAccessRequestsTable extends BaseModel 
     static get socialsColumn() {
         return "socials"
     }
+
+    static get relationMappings() {
+        const CurationSelfMintingApplicantsOverview = require("../curation-self-minting-applicants-overview");
+        return {
+            curation_round_overview: {
+                relation: BaseModel.HasManyRelation,
+                modelClass: CurationSelfMintingApplicantsOverview,
+                join: {
+                    from: `${SELF_MINTING_INTERNAL_ACCESS_REQUESTS_TABLE}.id`,
+                    to: `${CURATION_SELF_MINTING_APPLICANTS_OVERVIEW_TABLE}.sm_applicant_id`,
+                }
+            },
+        }
+      }
 }
