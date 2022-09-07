@@ -22,6 +22,13 @@ const TokenHolderBlockTrackerRepository = require("./TokenHolderBlockTrackerRepo
 const TokenCacheRepository = require("./TokenCacheRepository");
 const TicketCacheRepository = require("./TicketCacheRepository");
 const ConsignmentIdToTicketMetadataRepository = require("./ConsignmentIdToTicketMetadataRepository");
+const SelfMintingInternalAccessRequestsRepository = require("./SelfMintingInternalAccessRequestsRepository");
+const SnapshotDeclarationRepository = require("./SnapshotDeclarationRepository");
+const SnapshotTrackerRepository = require("./SnapshotTrackerRepository");
+const SnapshotCacheRepository = require("./SnapshotCacheRepository");
+const CurationRoundDeclarationRepository = require("./CurationRoundDeclarationRepository");
+const CurationSelfMintingApplicantsOverviewRepository = require("./CurationSelfMintingApplicantsOverviewRepository");
+const CurationSelfMintingApplicantsVotesRepository = require("./CurationSelfMintingApplicantsVotesRepository");
 
 module.exports = Object.freeze({
     ArtistRepository,
@@ -48,4 +55,11 @@ module.exports = Object.freeze({
     TokenCacheRepository,
     TicketCacheRepository,
     ConsignmentIdToTicketMetadataRepository,
+    SelfMintingInternalAccessRequestsRepository,
+    SnapshotDeclarationRepository,
+    SnapshotTrackerRepository,
+    SnapshotCacheRepository,
+    CurationRoundDeclarationRepository,
+    CurationSelfMintingApplicantsOverviewRepository,
+    CurationSelfMintingApplicantsVotesRepository
 });

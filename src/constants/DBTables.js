@@ -25,6 +25,12 @@ const TOKEN_CACHE_TABLE = "token_cache";
 const TICKET_CACHE_TABLE = "ticket_cache";
 const CONSIGNMENT_ID_TO_TICKET_METADATA_TABLE = "consignment_id_to_ticket_metadata";
 const CUSTOM_PAYMENT_TOKENS_TABLE = "custom_payment_tokens";
+const SNAPSHOT_DECLARATIONS_TABLE = "snapshot_declarations";
+const SNAPSHOT_TRACKER_TABLE = "snapshot_tracker";
+const SNAPSHOT_CACHE_TABLE = "snapshot_cache";
+const CURATION_ROUND_DECLARATIONS_TABLE = "curation_round_declarations";
+const CURATION_SELF_MINTING_APPLICANTS_OVERVIEW_TABLE = "curation_sm_applicants_overview";
+const CURATION_SELF_MINTING_APPLICANTS_VOTES_TABLE = "curation_sm_applicants_votes";
 
 module.exports = Object.freeze({
     EVENTS_TABLE,
@@ -53,4 +59,10 @@ module.exports = Object.freeze({
     TICKET_CACHE_TABLE,
     CONSIGNMENT_ID_TO_TICKET_METADATA_TABLE,
     CUSTOM_PAYMENT_TOKENS_TABLE,
+    SNAPSHOT_DECLARATIONS_TABLE,
+    SNAPSHOT_TRACKER_TABLE,
+    SNAPSHOT_CACHE_TABLE,
+    CURATION_ROUND_DECLARATIONS_TABLE,
+    CURATION_SELF_MINTING_APPLICANTS_OVERVIEW_TABLE,
+    CURATION_SELF_MINTING_APPLICANTS_VOTES_TABLE,
 });

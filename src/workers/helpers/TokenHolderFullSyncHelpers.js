@@ -12,6 +12,9 @@ const {
   TokenHolderBlockTrackerRepository,
   TokenCacheRepository,
   TicketCacheRepository,
+  SnapshotDeclarationRepository,
+  SnapshotCacheRepository,
+  SnapshotTrackerRepository,
 } = require("../../repositories/index");
 
 const Web3Service = require('../../services/web3.service');
@@ -27,20 +30,30 @@ const sleep = (ms) => {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-const handleFullSyncERC20 = async (enabledTracker) => {
+const handleFullSyncERC20 = async (enabledTracker, snapshotBlock = false, snapshotTargetTimestamp, snapshotActualTimestamp) => {
   let tokenAddress = enabledTracker.token_address;
+  let isSnapshot = snapshotBlock ? true : false;
 
   // Check current lock status
-  let currentTrackerState = await TokenHolderBlockTrackerRepository.getTrackerByTokenAddress(tokenAddress);
+  let currentTrackerState;
+  if(isSnapshot) {
+    currentTrackerState = await SnapshotDeclarationRepository.getSnapshotDeclarationByTokenAddress(tokenAddress);
+  } else {
+    currentTrackerState = await TokenHolderBlockTrackerRepository.getTrackerByTokenAddress(tokenAddress);
+  }
 
   if(!currentTrackerState.is_busy_lock) {
     // Lock the record
-    await TokenHolderBlockTrackerRepository.lockTrackerByTokenAddress(tokenAddress);
+    if(isSnapshot) {
+      await SnapshotDeclarationRepository.lockSnapshotByTokenAddress(tokenAddress);
+    } else {
+      await TokenHolderBlockTrackerRepository.lockTrackerByTokenAddress(tokenAddress);
+    }
 
     let tokenContract = new Web3Service(tokenAddress, ERC20ABI);
-    let blockNumber = await tokenContract.getRecentBlock();
-    let lastCheckedBlockNumber = enabledTracker.latest_checked_block;
-    if(!lastCheckedBlockNumber) {
+    let blockNumber = snapshotBlock ? snapshotBlock : await tokenContract.getRecentBlock();
+    let lastCheckedBlockNumber = snapshotBlock ? 0 : enabledTracker.latest_checked_block;
+    if(!lastCheckedBlockNumber || isSnapshot) {
 
       // event TransferSingle(address indexed _operator, address indexed _from, address indexed _to, uint256 _id, uint256 _value);
       let eventsTransferSingle = [];
@@ -155,25 +168,54 @@ const handleFullSyncERC20 = async (enabledTracker) => {
 
       if(saneBalances) {
         // clear existing balances before saving new balances
-        await TokenCacheRepository.clearTokenCacheByTokenAddress(tokenAddress);
+        if(isSnapshot) {
+          await SnapshotCacheRepository.clearSnapshotCacheByTokenAddress(tokenAddress);
+        } else {
+          await TokenCacheRepository.clearTokenCacheByTokenAddress(tokenAddress);
+        }
         for(let [holder, tokenBalance] of Object.entries(holders)) {
           if(new BigNumber(tokenBalance).isGreaterThan(new BigNumber(0))) {
             // Passes sanity check, save balance in Ether terms
             let useBalance = enabledTracker.decimals ? ethers.utils.formatUnits(tokenBalance, enabledTracker.decimals) : ethers.utils.formatEther(tokenBalance);
             console.log(`ERC20: Assigning ownership of ${useBalance} (${tokenBalance}) units of ${tokenAddress} to ${holder}`);
-            await TokenCacheRepository.create({
-              token_address: tokenAddress,
-              token_holder: holder,
-              token_balance: useBalance,
-            });
+            if(isSnapshot) {
+              await SnapshotCacheRepository.create({
+                token_address: tokenAddress,
+                token_holder: holder,
+                token_balance: useBalance,
+              });
+            } else {
+              await TokenCacheRepository.create({
+                token_address: tokenAddress,
+                token_holder: holder,
+                token_balance: useBalance,
+              });
+            }
           }
         }
         // Update latest checked block
-        await TokenHolderBlockTrackerRepository.updateBlockNumberByTokenAddress(tokenAddress, blockNumber)
+        if(isSnapshot) {
+          if(!currentTrackerState.first_snapshot_block) {
+            await SnapshotDeclarationRepository.updateFirstSnapshotInfo(tokenAddress, blockNumber, snapshotActualTimestamp);
+          }
+          await SnapshotDeclarationRepository.updateLastSnapshotInfo(tokenAddress, snapshotTargetTimestamp, blockNumber, snapshotActualTimestamp);
+          await SnapshotTrackerRepository.create({
+            token_address: tokenAddress,
+            snapshot_time_target: snapshotTargetTimestamp,
+            snapshot_block: blockNumber,
+            snapshot_time_actual: snapshotActualTimestamp,
+          })
+        } else {
+          await TokenHolderBlockTrackerRepository.updateBlockNumberByTokenAddress(tokenAddress, blockNumber)
+        }
       }
 
     }
-    await TokenHolderBlockTrackerRepository.unlockTrackerByTokenAddress(tokenAddress);
+    if(isSnapshot) {
+      await SnapshotDeclarationRepository.unlockSnapshotByTokenAddress(tokenAddress);
+    } else {
+      await TokenHolderBlockTrackerRepository.unlockTrackerByTokenAddress(tokenAddress);
+    }
   }
 }
 
@@ -191,6 +233,7 @@ const handleFullSyncERC721 = async (enabledTracker) => {
     let blockNumber = await tokenContract.getRecentBlock();
     let lastCheckedBlockNumber = enabledTracker.latest_checked_block;
     if(!lastCheckedBlockNumber) {
+      await TokenCacheRepository.clearTokenCacheByTokenAddress(tokenAddress);
       // Do full check for all balances at a specific block (all checks must be at the same block)
       let firstId = enabledTracker.first_id;
       let totalSupply = enabledTracker.total_supply;
@@ -204,10 +247,10 @@ const handleFullSyncERC721 = async (enabledTracker) => {
           console.log(`Assigning ownership of ${tokenId} of ${tokenAddress} to ${currentHolder}`);
           await TokenCacheRepository.patchHolderByTokenAddressAndId(currentHolder, tokenAddress, tokenId)
         } else {
-          let tokenURI = await tokenContract.tokenURI(tokenId);
+          // let tokenURI = await tokenContract.tokenURI(tokenId);
           // fetch token metadata
-          let metadataResponse = await axios.get(tokenURI);
-          if(metadataResponse.data) {
+          // let metadataResponse = await axios.get(tokenURI);
+          // if(metadataResponse.data) {
             // Run a create for a new record
             console.log(`Assigning ownership of ${tokenId} of ${tokenAddress} to ${currentHolder}`);
             await TokenCacheRepository.create({
@@ -215,9 +258,9 @@ const handleFullSyncERC721 = async (enabledTracker) => {
               token_id: tokenId,
               token_holder: currentHolder,
               token_balance: 1,
-              metadata: JSON.stringify(metadataResponse.data)
+              // metadata: JSON.stringify(metadataResponse.data)
             })
-          }
+          // }
         }
       }
       // Update latest checked block
