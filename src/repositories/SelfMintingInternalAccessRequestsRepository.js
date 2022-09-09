@@ -22,6 +22,7 @@ class SelfMintingInternalAccessRequestsRepository extends BaseRepository {
 
     async paginateOrderByEffective(perPage = 10, page = 1, roundDeclarationId) {
         const results = await this.model.query()
+            .where('curation_inclusion', true)
             .withGraphJoined('curation_round_overview')
             .modifyGraph('curation_round_overview', builder => {
                 builder.where('curation_sm_applicants_overview.round_declaration_id', roundDeclarationId);
